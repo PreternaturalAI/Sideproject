@@ -4,16 +4,17 @@
 
 import Accelerate
 import Foundation
+import OrderedCollections
 import Swallow
 
 /// A naive vector index that uses an in-memory ordered dictionary to store vectors.
 ///
 /// While the cosine-similarity metric used to calculate scores is hardware accelerated, this index is still termed 'naive' because it uses a simple brute-force search as opposed to something optimized for large amounts of data (such as ANN/HNSW).
 public struct NaiveVectorIndex<Key: Hashable>: Initiable, MutableVectorIndex {
-    public var storage: OrderedDictionary<Key, [Double]> = []
+    public var storage: OrderedDictionary<Key, [Double]> = [:]
     
-    public var keys: [Key] {
-        storage.orderedKeys
+    public var keys: OrderedSet<Key> {
+        storage.keys
     }
     
     public init() {
@@ -79,7 +80,7 @@ public struct NaiveVectorIndex<Key: Hashable>: Initiable, MutableVectorIndex {
         
         return topIndices.map {
             VectorIndexSearchResult(
-                item: storage[$0].key,
+                item: storage.elements[$0].key,
                 score: similarities[$0]
             )
         }

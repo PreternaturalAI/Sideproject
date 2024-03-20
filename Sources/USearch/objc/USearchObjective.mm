@@ -219,7 +219,7 @@ scalar_kind_t to_native_scalar(USearchScalar m) {
 }
 
 - (UInt32)count:(USearchKey)key {
-    return _native->count(key);
+    return static_cast<UInt32>(_native->count(key));
 }
 
 - (void)remove:(USearchKey)key {

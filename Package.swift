@@ -9,7 +9,7 @@ let package = Package(
         .iOS(.v17),
         .macOS(.v14),
         .tvOS(.v17),
-        .watchOS(.v9)
+        .watchOS(.v10)
     ],
     products: [
         .library(
@@ -23,7 +23,6 @@ let package = Package(
         )
     ],
     dependencies: [
-        .package(url: "https://github.com/apple/swift-syntax.git", from: "510.0.0"),
         .package(url: "https://github.com/PreternaturalAI/AI.git", branch: "main"),
         .package(url: "https://github.com/PreternaturalAI/ChatKit.git", branch: "main"),
         .package(url: "https://github.com/SwiftUIX/SwiftUIX.git", branch: "master"),
@@ -38,13 +37,7 @@ let package = Package(
         .macro(
             name: "LiteMacros",
             dependencies: [
-                "Swallow",
-                .product(name: "SwiftSyntax", package: "swift-syntax"),
-                .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
-                .product(name: "SwiftOperators", package: "swift-syntax"),
-                .product(name: "SwiftParser", package: "swift-syntax"),
-                .product(name: "SwiftParserDiagnostics", package: "swift-syntax"),
-                .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
+                .product(name: "MacroBuilder", package: "Swallow"),
             ],
             path: "Sources/LiteMacros"
         ),

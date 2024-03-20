@@ -74,7 +74,7 @@ extension Lite: LLMRequestHandling {
             {
                 result = modelIdentifier
             } else {
-                result = .one(OpenAI.Model.chat(.gpt_4_32k_0314).__conversion())
+                result = .one(OpenAI.Model.chat(.gpt_4_turbo_preview).__conversion())
             }
         }
         

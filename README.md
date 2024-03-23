@@ -3,25 +3,6 @@
 [![Build all  platforms](https://github.com/PreternaturalAI/Lite/actions/workflows/swift.yml/badge.svg)](https://github.com/PreternaturalAI/Lite/actions/workflows/swift.yml)
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
 
-Lite is a toolkit designed for developers looking to quickly prototype AI applications. It provides basic, high-performance UI components for platforms like iOS and macOS, allowing for fast experimentation and development without the complexities of full-scale customization. Targeted at simplifying common development challenges, such as file handling and UI creation, Lite is ideal for rapid testing and iteration of AI concepts. 
-
-Lite is not meant for detailed customization or large-scale applications, serving instead as a temporary foundation while more personalized solutions are developed.
-
-**What Lite Is:**
-
-- A toolkit for rapid prototyping of AI applications.
-- A collection of basic, high-performance UI components.
-- Provides solutions for common development challenges like file handling.
-- Offers cross-platform support for iOS, macOS, and visionOS.
-- Ideal for developers who need quick UI implementations for chat views, data lists, etc.
-
-**What Lite Is Not:**
-
-- Not a general-purpose UI framework.
-- Not meant for extensive customization or large-scale applications.
-- Does not include implementations for specific services like OpenAI; these are in the AI framework.
-- Not intended for long-term use in finalized apps; serves as a placeholder for custom implementations.
-
 #### Supported Platforms
 <p align="left">
 <picture>
@@ -54,6 +35,25 @@ Lite is not meant for detailed customization or large-scale applications, servin
   <img alt="macos" src="Images/watchos-active.svg" height="24">
 </picture>
 </p>
+
+Lite is a toolkit designed for developers looking to quickly prototype AI applications. It provides basic, high-performance UI components for platforms like iOS and macOS, allowing for fast experimentation and development without the complexities of full-scale customization. Targeted at simplifying common development challenges, such as file handling and UI creation, Lite is ideal for rapid testing and iteration of AI concepts. 
+
+Lite is not meant for detailed customization or large-scale applications, serving instead as a temporary foundation while more personalized solutions are developed.
+
+**What Lite Is:**
+
+- A toolkit for rapid prototyping of AI applications.
+- A collection of basic, high-performance UI components.
+- Provides solutions for common development challenges like file handling.
+- Offers cross-platform support for iOS, macOS, and visionOS.
+- Ideal for developers who need quick UI implementations for chat views, data lists, etc.
+
+**What Lite Is Not:**
+
+- Not a general-purpose UI framework.
+- Not meant for extensive customization or large-scale applications.
+- Does not include implementations for specific services like OpenAI; these are in the AI framework.
+- Not intended for long-term use in finalized apps; serves as a placeholder for custom implementations.
 
 ## Features
 

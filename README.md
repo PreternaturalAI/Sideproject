@@ -3,7 +3,7 @@
 [![Build all  platforms](https://github.com/PreternaturalAI/Lite/actions/workflows/swift.yml/badge.svg)](https://github.com/PreternaturalAI/Lite/actions/workflows/swift.yml)
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
 
-Explanation about Lite goes here.
+Lite is a toolkit designed for developers looking to quickly prototype AI applications. It provides basic, high-performance UI components for platforms like iOS and macOS, allowing for fast experimentation and development without the complexities of full-scale customization. Targeted at simplifying common development challenges, such as file handling and UI creation, Lite is ideal for rapid testing and iteration of AI concepts. However, it's not meant for detailed customization or large-scale applications, serving instead as a temporary foundation while more personalized solutions are developed.
 
 #### Supported Platforms
 <p align="left">
@@ -16,13 +16,13 @@ Explanation about Lite goes here.
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="Images/ios-active.svg">
   <source media="(prefers-color-scheme: light)" srcset="Images/ios.svg">
-  <img alt="macos" src="Images/ios.svg" height="24">
+  <img alt="macos" src="Images/ios-active.svg" height="24">
 </picture>
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="Images/ipados-active.svg">
   <source media="(prefers-color-scheme: light)" srcset="Images/ipados.svg">
-  <img alt="macos" src="Images/ipados.svg" height="24">
+  <img alt="macos" src="Images/ipados-active.svg" height="24">
 </picture>
 
 <picture>
@@ -44,7 +44,6 @@ Explanation about Lite goes here.
   <img alt="Screenshot of Commitment, the native macOS Git Interface" src="Commitment-2.png">
 </picture>
 
-
 ## Features
 
 |  | Main Features |
@@ -60,7 +59,6 @@ Explanation about Lite goes here.
 |macOS|13.0+|Swift Package Manager|
 
 ## Installation
-
 
 The Swift Package Manager is a tool for automating the distribution of Swift code and is integrated into the swift compiler.
 
@@ -139,7 +137,7 @@ return Bool(text) ?? false
 
 ## Demo
 
-A demo application is provided to showcase the core mechanism.
+See demos on the Preternatural Cookbook - https://github.com/PreternaturalAI/Cookbook
 
 ## Support
 

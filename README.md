@@ -3,7 +3,9 @@
 [![Build all  platforms](https://github.com/PreternaturalAI/Lite/actions/workflows/swift.yml/badge.svg)](https://github.com/PreternaturalAI/Lite/actions/workflows/swift.yml)
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
 
-Lite is a toolkit designed for developers looking to quickly prototype AI applications. It provides basic, high-performance UI components for platforms like iOS and macOS, allowing for fast experimentation and development without the complexities of full-scale customization. Targeted at simplifying common development challenges, such as file handling and UI creation, Lite is ideal for rapid testing and iteration of AI concepts. However, it's not meant for detailed customization or large-scale applications, serving instead as a temporary foundation while more personalized solutions are developed.
+Lite is a toolkit designed for developers looking to quickly prototype AI applications. It provides basic, high-performance UI components for platforms like iOS and macOS, allowing for fast experimentation and development without the complexities of full-scale customization. Targeted at simplifying common development challenges, such as file handling and UI creation, Lite is ideal for rapid testing and iteration of AI concepts. 
+
+Lite is not meant for detailed customization or large-scale applications, serving instead as a temporary foundation while more personalized solutions are developed.
 
 #### Supported Platforms
 <p align="left">
@@ -28,21 +30,15 @@ Lite is a toolkit designed for developers looking to quickly prototype AI applic
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="Images/tvos-active.svg">
   <source media="(prefers-color-scheme: light)" srcset="Images/tvos.svg">
-  <img alt="macos" src="Images/tvos.svg" height="24">
+  <img alt="macos" src="Images/tvos-active.svg" height="24">
 </picture>
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="Images/watchos-active.svg">
   <source media="(prefers-color-scheme: light)" srcset="Images/watchos.svg">
-  <img alt="macos" src="Images/watchos.svg" height="24">
+  <img alt="macos" src="Images/watchos-active.svg" height="24">
 </picture>
 </p>
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="Commitment-2.png">
-  <source media="(prefers-color-scheme: light)" srcset="Commitment-2.png">
-  <img alt="Screenshot of Commitment, the native macOS Git Interface" src="Commitment-2.png">
-</picture>
 
 ## Features
 

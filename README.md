@@ -7,6 +7,21 @@ Lite is a toolkit designed for developers looking to quickly prototype AI applic
 
 Lite is not meant for detailed customization or large-scale applications, serving instead as a temporary foundation while more personalized solutions are developed.
 
+**What Lite Is:**
+
+- A toolkit for rapid prototyping of AI applications.
+- A collection of basic, high-performance UI components.
+- Provides solutions for common development challenges like file handling.
+- Offers cross-platform support for iOS, macOS, and visionOS.
+- Ideal for developers who need quick UI implementations for chat views, data lists, etc.
+
+**What Lite Is Not:**
+
+- Not a general-purpose UI framework.
+- Not meant for extensive customization or large-scale applications.
+- Does not include implementations for specific services like OpenAI; these are in the AI framework.
+- Not intended for long-term use in finalized apps; serves as a placeholder for custom implementations.
+
 #### Supported Platforms
 <p align="left">
 <picture>
@@ -69,6 +84,12 @@ dependencies: [
 ## Usage/Examples
 
 To create a request to an LLM, just create a prompt, enter in the services you'd like to use (OpenAI, Claude, Gemeni, etc...) and based on the prompt Lite will find which one will work best for your request.
+
+### Import the framework
+
+```diff
++ import Lite
+```
 
 ### Streaming
 

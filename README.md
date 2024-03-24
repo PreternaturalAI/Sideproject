@@ -4,15 +4,7 @@
 [![Build all  platforms](https://github.com/PreternaturalAI/Lite/actions/workflows/swift.yml/badge.svg)](https://github.com/PreternaturalAI/Lite/actions/workflows/swift.yml)
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
 
-Explanation about Lite goes here.
-
-## Features
-
-|  | Main Features |
-| :-------- | :-----------|
-| 📖 | Open Source |
-|🙅‍♂️|No Account Required|
-
+Lite is a framework that allows you to rapidly build your AI/ML prototypes in Swift.
 
 ## Requirements
 
@@ -22,11 +14,6 @@ Explanation about Lite goes here.
 
 ## Installation
 
-
-The Swift Package Manager is a tool for automating the distribution of Swift code and is integrated into the swift compiler.
-
-Once you have your Swift package set up, adding Lite as a dependency is as easy as adding it to the dependencies value of your Package.swift or the Package list in Xcode.
-
 ```swift
 dependencies: [
     .package(url: "https://github.com/PreternaturalAI/Lite", branch: "main")
@@ -34,8 +21,6 @@ dependencies: [
 ```
 
 ## Usage/Examples
-
-To create a request to an LLM, just create a prompt, enter in the services you'd like to use (OpenAI, Claude, Gemeni, etc...) and based on the prompt Lite will find which one will work best for your request.
 
 ### Streaming
 
@@ -55,9 +40,6 @@ for try await message in result.messagePublisher.values {
     }
 }
 ```
-## Demo
-
-A demo application is provided to showcase the core mechanism.
 
 ## Support
 

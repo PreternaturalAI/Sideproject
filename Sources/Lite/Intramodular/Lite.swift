@@ -106,6 +106,8 @@ extension Lite {
             return
         }
         
+        shouldAutoinitializeServices = false
+
         self.logger.debug("Discovering services to auto-intialize.")
         
         do {

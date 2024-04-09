@@ -19,6 +19,15 @@
       }
     },
     {
+      "identity" : "chatkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/PreternaturalAI/ChatKit.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "ba9fe7d199d2111e980ca1f8c3c6d25a00aa3d95"
+      }
+    },
+    {
       "identity" : "corepersistence",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vmanot/CorePersistence.git",

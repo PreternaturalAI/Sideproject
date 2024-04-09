@@ -24,7 +24,7 @@ jobs:
       fail-fast: false
       matrix:
         xcode: ['latest']
-        macos: ['macos-14']
+        macos: ['latest']
         scheme: ['Lite']
         command: ['build']
         platform: ['macOS'] # ADD 'iOS', 'tvOS', 'watchOS'

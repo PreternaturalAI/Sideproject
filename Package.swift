@@ -34,6 +34,13 @@ let package = Package(
         .package(url: "https://github.com/vmanot/Swallow.git", branch: "master"),
     ],
     targets: [
+        .macro(
+            name: "LiteMacros",
+            dependencies: [
+                .product(name: "MacroBuilder", package: "Swallow"),
+            ],
+            path: "Sources/LiteMacros"
+        ),
         .target(
             name: "USearchObjective",
             path: "Sources/USearch/objc",

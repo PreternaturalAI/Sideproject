@@ -32,6 +32,8 @@ extension Lite: LLMRequestHandling {
     private func _llmService<T: AbstractLLM.Prompt>(
         for prompt: inout T
     ) async throws -> (any LLMRequestHandling) {
+        try await _assertNonZeroServices()
+        
         var _prompt: any AbstractLLM.Prompt = prompt
         
         let model = try await self._model(for: &_prompt)

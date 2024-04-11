@@ -80,6 +80,14 @@ public final class Lite: _CancellablesProviding, Logging, ObservableObject {
         }
         .store(in: self.cancellables)
     }
+    
+    func _assertNonZeroServices() async throws {
+        let services = try await self.services
+        
+        guard !services.isEmpty else {
+            throw Lite.Error.failedToDiscoverServices
+        }
+    }
 }
 
 extension Lite {
@@ -176,6 +184,7 @@ extension Lite {
 
 extension Lite {
     public enum Error: Swift.Error {
+        case failedToDiscoverServices
         case failedToResolveLLMService
         case failedToResolveService
         case completionFailed(AnyError)

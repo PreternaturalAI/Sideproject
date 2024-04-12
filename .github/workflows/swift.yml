@@ -65,7 +65,7 @@ jobs:
         xcode: ['latest']
         macos: ['macos-14']
         scheme: ['Lite']
-        command: ['build']
+        command: ['docbuild']
         platform: ['macOS'] # ADD 'iOS', 'tvOS', 'watchOS'
     steps:
       - name: Switch xcode to ${{ matrix.xcode }}
@@ -86,11 +86,14 @@ jobs:
         run: xcodebuild -showdestinations -scheme ${{ matrix.scheme }}
       - name: Skip Macro Validation
         run: defaults write com.apple.dt.Xcode IDESkipMacroFingerprintValidation -bool YES
-      - name: Generate DocC Documentation
-        run: |
-          xcodebuild docbuild -scheme Lite -destination generic/platform=macOS
-          mv $(find . -name '*.doccarchive') ./DocC-Archive
-
+      - uses: mxcl/xcodebuild@v2.0.0
+        with:
+          platform: ${{ matrix.platform }}
+          scheme: ${{ matrix.scheme }}
+          action: ${{ matrix.command }} 
+          code-coverage: true
+          verbosity: xcpretty
+          upload-logs: always
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:

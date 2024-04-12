@@ -55,3 +55,46 @@ jobs:
         code-coverage: true
         verbosity: xcpretty
         upload-logs: always
+        
+  generate_and_deploy_docs:
+    name: Build Documentation
+    runs-on: ${{ matrix.macos }} 
+    strategy:
+      fail-fast: false
+      matrix:
+        xcode: ['latest']
+        macos: ['macos-14']
+        scheme: ['Lite']
+        command: ['build']
+        platform: ['macOS'] # ADD 'iOS', 'tvOS', 'watchOS'
+    steps:
+      - name: Switch xcode to ${{ matrix.xcode }}
+        uses: maxim-lobanov/setup-xcode@v1.5.1
+        with:
+          xcode-version: ${{ matrix.xcode }}
+      - name: Double-check macOS version (${{ matrix.macos }})
+        run: sw_vers
+      - name: Code Checkout
+        uses: actions/checkout@v2
+      - name: Check xcodebuild version
+        run: xcodebuild -version
+      - name: Check xcode embedded SDKs
+        run: xcodebuild -showsdks
+      - name: Show buildable schemes
+        run: xcodebuild -list
+      - name: Show eligible build destinations for ${{ matrix.scheme }}
+        run: xcodebuild -showdestinations -scheme ${{ matrix.scheme }}
+      - name: Skip Macro Validation
+        run: defaults write com.apple.dt.Xcode IDESkipMacroFingerprintValidation -bool YES
+      - name: Generate DocC Documentation
+        run: |
+          xcodebuild docbuild -scheme Lite -destination generic/platform=macOS
+          mv $(find . -name '*.doccarchive') ./DocC-Archive
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./DocC-Archive
+          keep_files: false  # Set to true if you want to keep old files
+

@@ -86,29 +86,13 @@ jobs:
         run: xcodebuild -showdestinations -scheme ${{ matrix.scheme }}
       - name: Skip Macro Validation
         run: defaults write com.apple.dt.Xcode IDESkipMacroFingerprintValidation -bool YES
-      - name: Build DocC
+      - name: Generate DocC Documentation
         run: |
-          swift package resolve;
-          
-          xcodebuild docbuild -scheme Lite -derivedDataPath /tmp/docbuild -destination "generic/platform=macOS, name=Any Mac"
-          
-          echo "Archiving documentation..."
-          
-          $(xcrun --find docc) process-archive \
-            transform-for-static-hosting /tmp/docbuild/Build/Products/Debug-iphonesimulator/Lite.doccarchive \
-            --output-path docs \
-            --hosting-base-path '';
-            
-          echo "** Archived documentation**"
-          
-          echo "<script>window.location.href += \"tutorials/table-of-contents\"</script>" > docs/index.html;
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v1
-        with:
-          # Upload only docs directory
-          path: 'docs'
+          xcodebuild docbuild -scheme Lite -destination generic/platform=macOS
+          mv $(find . -name '*.doccarchive') ./DocC-Archive
       - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v1
-
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./DocC-Archive
+          keep_files: false  # Set to true if you want to keep old files

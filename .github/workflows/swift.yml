@@ -61,7 +61,7 @@ jobs:
     runs-on: ${{ matrix.macos }}
     strategy:
       fail-fast: false
-        matrix:
+      matrix:
         xcode: ['latest']
         macos: ['macos-14']
         scheme: ['Lite']

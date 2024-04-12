@@ -20,6 +20,11 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
 jobs:
   generate_and_deploy_docs:
     name: Build Documentation
@@ -31,7 +36,7 @@ jobs:
         macos: ['macos-14']
         scheme: ['Lite']
         command: ['docbuild']
-        platform: ['macOS'] # ADD 'iOS', 'tvOS', 'watchOS'
+        platform: ['macOS', 'iOS', 'tvOS', 'watchOS']
     steps:
       - name: Switch xcode to ${{ matrix.xcode }}
         uses: maxim-lobanov/setup-xcode@v1.5.1
@@ -52,23 +57,32 @@ jobs:
       - name: Skip Macro Validation
         run: defaults write com.apple.dt.Xcode IDESkipMacroFingerprintValidation -bool YES
       - name: Generate DocC Documentation
+        id: generate_docs
         run: |
-          xcodebuild docbuild -scheme Lite -destination generic/platform=macOS -derivedDataPath ./build
+          xcodebuild docbuild -scheme Lite -destination generic/platform=${{ matrix.platform }} -derivedDataPath ./build
           doccarchive_path=$(find ./build -name '*.doccarchive' -print -quit)
           if [ -z "$doccarchive_path" ]; then
             echo "No .doccarchive file found."
             exit 1
           fi
-          
+          echo "::set-output name=doccarchive_path::$doccarchive_path"
       - name: Convert DocC Archive to Static Website
-        uses: fwcd/swift-docc-action@v1
+        run: |
+          docc_path=$(xcrun --find docc)
+          if [ -z "$docc_path" ]; then
+            echo "docc command not found."
+            exit 1
+          fi
+          ${docc_path} process-archive transform-for-static-hosting ${{ steps.generate_docs.outputs.doccarchive_path }} \
+          --output-path ./docs \
+          --hosting-base-path /Lite
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          inputs: "${{ steps.generate_docs.outputs.doccarchive_path }}"
-          output: "./docs"
-          base-url: "Lite"
+          path: './docs'
       - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./docs
-          keep_files: false
+        id: deployment
+        uses: actions/deploy-pages@v4
+

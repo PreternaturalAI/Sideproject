@@ -6,7 +6,7 @@ import ChatKit
 import LargeLanguageModels
 import Swallow
 
-public struct ChatSceneContent: DynamicView {
+public struct ChatSceneContent: View {
     @Environment(\.userInterfaceIdiom) var userInterfaceIdiom
     
     @StateObject var playground: LTChatPlayground

@@ -32,6 +32,8 @@ extension Lite: LLMRequestHandling {
     private func _llmService<T: AbstractLLM.Prompt>(
         for prompt: inout T
     ) async throws -> (any LLMRequestHandling) {
+        try await _assertNonZeroServices()
+        
         var _prompt: any AbstractLLM.Prompt = prompt
         
         let model = try await self._model(for: &_prompt)
@@ -74,7 +76,7 @@ extension Lite: LLMRequestHandling {
             {
                 result = modelIdentifier
             } else {
-                result = .one(OpenAI.Model.chat(.gpt_4_turbo_preview).__conversion())
+                result = .one(OpenAI.Model.chat(.gpt_4_turbo).__conversion())
             }
         }
         

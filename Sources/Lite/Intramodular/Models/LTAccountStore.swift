@@ -25,14 +25,13 @@ public final class LTAccountStore: ObservableObject {
     
     private(set) lazy var allKnownAccountTypeDescriptions = {
         IdentifierIndexingArray<any LTAccountTypeDescription, LTAccountTypeIdentifier>(
-            try! _SwiftRuntime.index
-                .fetch(
-                    .pureSwift,
-                    .conformsTo(LTAccountTypeDescription.self),
-                    .nonAppleFramework
-                )
-                .filter({ $0 is any _StaticInstance.Type })
-                ._initializeAll(),
+            try! TypeMetadata._queryAll(
+                .pureSwift,
+                .conformsTo(LTAccountTypeDescription.self),
+                .nonAppleFramework
+            )
+            .filter({ $0 is any _StaticInstance.Type })
+            ._initializeAll(),
             id: \.accountType
         )
         .sorted(by: { $0.title < $1.title })

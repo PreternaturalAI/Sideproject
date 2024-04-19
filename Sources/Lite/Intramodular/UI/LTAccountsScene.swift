@@ -6,7 +6,7 @@ import CorePersistence
 import Swallow
 import SwiftUIZ
 
-public struct LTAccountsScene: DynamicView {
+public struct LTAccountsScene: View {
     @StateObject var store: LTAccountStore = LTAccountStore.shared
     
     public init() {

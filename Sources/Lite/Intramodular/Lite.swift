@@ -30,21 +30,31 @@ public final class Lite: _CancellablesProviding, Logging, ObservableObject {
     
     private var shouldAutoinitializeServices: Bool
     
-    @Published private var autoinitializedServices: [any _MIService]? = nil
+    @MainActor
+    @Published private var autoinitializedServices: [any _MIService]? = nil {
+        didSet {
+            if let newValue = autoinitializedServices {
+                logger.info("Auto-initialized \(newValue.count) service(s).")
+            }
+        }
+    }
+    
+    @MainActor
     @Published private var manuallyAddedServices: [any _MIService] = []
     
     // @Published public var modelIdentifierScope: _MLModelIdentifierScope?
     
     public var services: [any _MIService] {
         get async throws {
-            if autoinitializedServices == nil {
+            if await autoinitializedServices == nil {
                 await _populateAutoinitializedServicesIfNecessary()
             }
             
-            return (autoinitializedServices ?? []).appending(contentsOf: manuallyAddedServices)
+            return await (autoinitializedServices ?? []).appending(contentsOf: manuallyAddedServices)
         }
     }
     
+    @MainActor(unsafe)
     public init(services: [any _MIService]) {
         shouldAutoinitializeServices = false
         
@@ -63,22 +73,46 @@ public final class Lite: _CancellablesProviding, Logging, ObservableObject {
         }
     }
     
+    @MainActor
     public func add(_ service: some _MIService) {
         self.manuallyAddedServices.append(service)
     }
     
     @MainActor
     private func setUp() {
+        @Sendable
+        func _runSetUp() async {
+            await self._populateAutoinitializedServicesIfNecessary()
+            
+            do {
+                try await self._assertNonZeroServices()
+            } catch {
+                runtimeIssue(error)
+            }
+        }
+        
+        Task {
+            await _runSetUp()
+        }
+        
         LTAccountStore.shared.$accounts.sink { [weak self] _ in
             guard let `self` = self else {
                 return
             }
             
             queue.addTask(priority: .userInitiated) {
-                await self._populateAutoinitializedServicesIfNecessary()
+                await _runSetUp()
             }
         }
         .store(in: self.cancellables)
+    }
+    
+    func _assertNonZeroServices() async throws {
+        let services = try await self.services
+        
+        guard !services.isEmpty else {
+            throw Lite.Error.failedToDiscoverServices
+        }
     }
 }
 
@@ -106,6 +140,8 @@ extension Lite {
             return
         }
         
+        shouldAutoinitializeServices = false
+
         self.logger.debug("Discovering services to auto-intialize.")
         
         do {
@@ -174,6 +210,7 @@ extension Lite {
 
 extension Lite {
     public enum Error: Swift.Error {
+        case failedToDiscoverServices
         case failedToResolveLLMService
         case failedToResolveService
         case completionFailed(AnyError)

@@ -25,6 +25,7 @@ public final class SafariHistoryManager {
         self.historyURL = historyURL
     }
     
+    @MainActor
     public func fetchHistory() async throws -> [SafariHistoryRecord] {
         let databaseURL = self.historyURL ?? URL.homeDirectory.appending("Library/Safari")
         let result = try FileManager.default.withUserGrantedAccess(

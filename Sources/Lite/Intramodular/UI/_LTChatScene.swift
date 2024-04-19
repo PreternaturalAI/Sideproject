@@ -6,7 +6,7 @@ import ChatKit
 import LargeLanguageModels
 import Swallow
 
-struct ChatSceneContent: DynamicView {
+public struct ChatSceneContent: View {
     @Environment(\.userInterfaceIdiom) var userInterfaceIdiom
     
     @StateObject var playground: LTChatPlayground
@@ -16,7 +16,7 @@ struct ChatSceneContent: DynamicView {
     @UserStorage("chat.inspectorVisibility")
     private var isInspectorPresented: Bool = false
     
-    var body: some View {
+    public var body: some View {
         ChatView {
             messagesList
             
@@ -95,31 +95,5 @@ struct ChatSceneContent: DynamicView {
         } label: {
             Image(systemName: .sidebarRight)
         }
-    }
-}
-
-
-extension AbstractLLM.ChatRole: ChatKit.ChatItemRoleConvertible {
-    public func __conversion() -> any ChatItemRole {
-        switch self {
-            case .system:
-                return ChatItemRoles.SenderRecipient.sender // FIXME: !!!
-            case .user:
-                return ChatItemRoles.SenderRecipient.sender
-            case .assistant:
-                return ChatItemRoles.SenderRecipient.recipient
-            case .other:
-                fatalError()
-        }
-    }
-}
-
-extension AbstractLLM.ChatMessage: ChatKit.ChatMessageConvertible {
-    public func __conversion() -> AnyChatMessage {
-        AnyChatMessage(
-            id: self.id,
-            role: self.role.__conversion(),
-            body: self.content.debugDescription
-        )
     }
 }

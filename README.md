@@ -9,25 +9,25 @@
   <source media="(prefers-color-scheme: dark)" srcset="Images/macos.svg">
   <source media="(prefers-color-scheme: light)" srcset="Images/macos-active.svg">
   <img alt="macos" src="Images/macos-active.svg" height="24">
-</picture>
-
+</picture>&nbsp;
+  
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="Images/ios.svg">
   <source media="(prefers-color-scheme: light)" srcset="Images/ios-active.svg">
   <img alt="macos" src="Images/ios-active.svg" height="24">
-</picture>
+</picture>&nbsp;
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="Images/ipados.svg">
   <source media="(prefers-color-scheme: light)" srcset="Images/ipados-active.svg">
   <img alt="macos" src="Images/ipados-active.svg" height="24">
-</picture>
+</picture>&nbsp;
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="Images/tvos.svg">
   <source media="(prefers-color-scheme: light)" srcset="Images/tvos-active.svg">
   <img alt="macos" src="Images/tvos-active.svg" height="24">
-</picture>
+</picture>&nbsp;
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="Images/watchos.svg">
@@ -35,6 +35,7 @@
   <img alt="macos" src="Images/watchos-active.svg" height="24">
 </picture>
 </p>
+
 
 Lite is a toolkit designed for developers looking to quickly prototype AI applications. It provides basic, high-performance UI components for platforms like iOS and macOS, allowing for fast experimentation and development without the complexities of full-scale customization. Targeted at simplifying common development challenges, such as file handling and UI creation, Lite is ideal for rapid testing and iteration of AI concepts. 
 
@@ -90,7 +91,6 @@ To create a request to an LLM, just create a prompt, enter in the services you'd
 ```diff
 + import Lite
 ```
-
 ### Streaming
 
 ```swift
@@ -119,7 +119,6 @@ for try await message in result.messagePublisher.values {
     }
 }
 ```
-
 ### Using GPT4 Vision (Sending Images/Files)
 ```swift
 // Initializes an image-based prompt for the language model.

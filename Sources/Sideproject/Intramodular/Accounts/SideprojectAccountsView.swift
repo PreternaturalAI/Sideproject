@@ -120,19 +120,9 @@ extension SideprojectAccountsView {
                         .shadow(color: Color.black.opacity(0.33 / 2), radius: 1)
                 }
                 
-                EditableText(
-                    account.displayName,
-                    text: $account.accountDescription
-                )
-                .onSubmit { text in
-                    if text == "Untitled" {
-                        withoutAnimation(after: .milliseconds(50)) {
-                            account.accountDescription = account.accountTypeDescription.title
-                        }
-                    }
-                }
-                .font(.body.weight(.medium))
-                .foregroundColor(.label)
+                TextView(account.displayName)
+                    .font(.body.weight(.medium))
+                    .foregroundColor(.label)
             }
             .frame(width: .greedy, alignment: .leading)
             .padding(.horizontal, 10)

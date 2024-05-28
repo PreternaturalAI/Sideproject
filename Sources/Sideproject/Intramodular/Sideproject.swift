@@ -125,8 +125,8 @@ extension Sideproject: _TaskDependenciesExporting {
     public var _exportedTaskDependencies: Dependencies {
         var result = Dependencies()
         
-        result[\.llmServices] = self
-        result[\.textEmbeddingsProvider] = self
+        result[\.llm] = self
+        result[\.embedding] = self
         
         return result
     }

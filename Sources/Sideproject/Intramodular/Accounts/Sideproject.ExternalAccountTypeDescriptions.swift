@@ -186,5 +186,28 @@ extension Sideproject.ExternalAccountTypeDescriptions {
             
         }
     }
+    
+    @HadeanIdentifier("nupis-honig-zutor-vuliv")
+    public struct Groq: Sideproject.ExternalAccountTypeDescription, _StaticInstance {
+        public var accountType: Sideproject.ExternalAccountTypeIdentifier {
+            "com.vmanot.groq"
+        }
+        
+        public var credentialType: any Sideproject.ExternalAccountCredential.Type {
+            Sideproject.ExternalAccountCredentialTypes.APIKey.self
+        }
+        
+        public var icon: Image? {
+            Image("logo/groq", bundle: .module)
+        }
+        
+        public var title: String {
+            "Groq"
+        }
+                
+        public init() {
+            
+        }
+    }
 }
 

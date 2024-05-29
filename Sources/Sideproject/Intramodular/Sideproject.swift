@@ -15,9 +15,9 @@ extension Sideproject {
 
 /// `Sideproject` is a utility class that bundles a set of services.
 ///
-/// For e.g. if you're using OpenAI to generate text and ElevenLabs to convert it to speech, you can add the Swift objects for the API clients (`OpenAI.APIClient(...)` and `ElevenLabs.APIClient(...)`) to a `Sideproject` and then send it your machine intelligence tasks (`AbstractLLM.ChatPrompt` and `NaiveTextToSpeechRequest` for example).
+/// For e.g. if you're using OpenAI to generate text and ElevenLabs to convert it to speech, you can add the Swift objects for the API clients (`OpenAI.Client(...)` and `ElevenLabs.APIClient(...)`) to a `Sideproject` and then send it your machine intelligence tasks (`AbstractLLM.ChatPrompt` and `NaiveTextToSpeechRequest` for example).
 ///
-/// It's useful to have this abstraction, because it forces you to think in terms of the _machine intelligence_ tasks that you're working with rather than specific providers. This is really useful because, for instance, in the first example if you were using `OpenAI.APIClient` directly and wanted to switch to Mistral, you'd have to update your code everywhere you're using an LLM. But with `Sideproject`, you can use types from Preternatural's AI SDK (`AbstractLLM.ChatPrompt` etc.) and let the specific model being used be an implementation detail.
+/// It's useful to have this abstraction, because it forces you to think in terms of the _machine intelligence_ tasks that you're working with rather than specific providers. This is really useful because, for instance, in the first example if you were using `OpenAI.Client` directly and wanted to switch to Mistral, you'd have to update your code everywhere you're using an LLM. But with `Sideproject`, you can use types from Preternatural's AI SDK (`AbstractLLM.ChatPrompt` etc.) and let the specific model being used be an implementation detail.
 ///
 /// You can send it abstract requests for AI/ML tasks (for e.g. an LLM chat prompt, or a TTS request), it will find the appropriate service to forward it to and use that to perform the task.
 ///
@@ -125,8 +125,8 @@ extension Sideproject: _TaskDependenciesExporting {
     public var _exportedTaskDependencies: Dependencies {
         var result = Dependencies()
         
-        result[\.llmServices] = self
-        result[\.textEmbeddingsProvider] = self
+        result[\.llm] = self
+        result[\.embedding] = self
         
         return result
     }

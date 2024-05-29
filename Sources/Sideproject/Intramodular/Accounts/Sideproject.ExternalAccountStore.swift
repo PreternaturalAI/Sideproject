@@ -22,6 +22,7 @@ extension Sideproject {
         )
         public var accounts: IdentifierIndexingArrayOf<Sideproject.ExternalAccount>
         
+        @_documentation(visibility: internal)
         @Published
         public var _testAccounts: IdentifierIndexingArrayOf<Sideproject.ExternalAccount>?
         

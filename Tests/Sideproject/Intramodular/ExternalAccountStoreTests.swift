@@ -5,11 +5,11 @@
 import Sideproject
 import XCTest
 
-final class Sideproject.ExternalAccountStoreTests: XCTestCase {
+final class ExternalAccountStoreTests: XCTestCase {
     @MainActor
     func testAccountStore() async throws {
         let store = Sideproject.ExternalAccountStore.shared
         
-        store
+        _ = store.accounts
     }
 }

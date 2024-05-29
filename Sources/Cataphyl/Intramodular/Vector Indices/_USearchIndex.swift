@@ -100,7 +100,7 @@ public final class USearchIndex {
         }
         
         self.index.load(path: path)
-
+        
         state = .loaded
     }
     
@@ -116,7 +116,7 @@ public final class USearchIndex {
         }
         
         self.index.view(path: path)
-
+        
         state = .viewing
     }
     
@@ -126,7 +126,7 @@ public final class USearchIndex {
         if !FileManager.default.fileExists(atPath: path) {
             FileManager.default.createFile(atPath: path, contents: nil, attributes: nil)
         }
-
+        
         self.index.save(path: path)
     }
     
@@ -134,7 +134,7 @@ public final class USearchIndex {
         guard state != .viewing else {
             throw Error.mutationNotAllowedInViewingIndex
         }
-
+        
         self.index.clear()
     }
     
@@ -161,7 +161,7 @@ public final class USearchIndex {
         guard state != .viewing else { throw Error.mutationNotAllowedInViewingIndex }
         
         try clear()
-
+        
         index.reserve(UInt32(items.count))
         
         for item in items {
@@ -184,4 +184,3 @@ public final class USearchIndex {
         return zip(result.0, result.1).map({ ($0, $1) })
     }
 }
-

@@ -5,7 +5,7 @@
 import Sideproject
 import XCTest
 
-final class SideprojectTests: XCTestCase {
+final class ServiceInitializationTests: XCTestCase {
     @MainActor
     func testLoadingServices() async throws {
         let services = try await Sideproject.shared.services

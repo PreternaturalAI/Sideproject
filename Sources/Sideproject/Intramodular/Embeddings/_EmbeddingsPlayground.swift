@@ -30,7 +30,7 @@ public struct _EmbeddingsPlayground: Codable, Hashable, Sendable {
 
 extension _EmbeddingsPlayground {
     public final class PlaygroundSession: _CancellablesProviding, ObservableObject {
-        @Dependency(\.textEmbeddingsProvider) var textEmbeddingsProvider
+        @Dependency(\.embedding) var embedding
         
         @PublishedAsyncBinding public var document: _EmbeddingsPlayground
         

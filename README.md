@@ -98,7 +98,7 @@ To create a request to an LLM, just create a prompt, enter in the services you'd
 let prompt = AbstractLLM.ChatPrompt(messages: [.user("PROMPT GOES HERE")])
 
 // Creates an API client instance with your unique API key.
-let openAI = OpenAI.APIClient(apiKey: "API KEY GOES HERE")
+let openAI = OpenAI.Client(apiKey: "API KEY GOES HERE")
 
 // Wraps the OpenAI client in a 'Sideproject' service layer for streamlined API access.
 let lite = Sideproject(services: [openAI])

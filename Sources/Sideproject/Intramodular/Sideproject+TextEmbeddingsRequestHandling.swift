@@ -9,7 +9,7 @@ import Swallow
 
 extension Sideproject: TextEmbeddingsRequestHandling {
     @MainActor
-    private func _textEmbeddingsProvider(
+    private func _embedding(
         for request: TextEmbeddingsRequest
     ) async throws -> any TextEmbeddingsRequestHandling {
         try await _catchAndMapError(to: Error.failedToResolveService) {
@@ -34,7 +34,7 @@ extension Sideproject: TextEmbeddingsRequestHandling {
     public func fulfill(
         _ request: TextEmbeddingsRequest
     ) async throws -> TextEmbeddings {
-        let provider = try await _textEmbeddingsProvider(for: request)
+        let provider = try await _embedding(for: request)
         
         return try await provider.fulfill(request)
     }

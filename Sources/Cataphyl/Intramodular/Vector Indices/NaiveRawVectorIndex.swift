@@ -10,7 +10,7 @@ import Swallow
 /// A naive vector index that uses an in-memory ordered dictionary to store vectors.
 ///
 /// While the cosine-similarity metric used to calculate scores is hardware accelerated, this index is still termed 'naive' because it uses a simple brute-force search as opposed to something optimized for large amounts of data (such as ANN/HNSW).
-public struct NaiveVectorIndex<Key: Hashable>: Initiable, MutableVectorIndex {
+public struct NaiveRawVectorIndex<Key: Hashable>: Initiable, MutableRawVectorIndex {
     public var storage: OrderedDictionary<Key, [Double]> = [:]
     
     public var keys: OrderedSet<Key> {
@@ -50,10 +50,10 @@ public struct NaiveVectorIndex<Key: Hashable>: Initiable, MutableVectorIndex {
     
     @inline(__always)
     public func query(
-        _ query: some VectorIndexQuery<Key>
+        _ query: some RawVectorIndexQuery<Key>
     ) throws -> [VectorIndexSearchResult<Self>] {
         switch query {
-            case let query as VectorIndexQueries.TopK<Key>:
+            case let query as RawVectorIndexQueries.TopK<Key>:
                 return rank(
                     query: query.vector,
                     topK: query.maximumNumberOfResults,
@@ -89,7 +89,7 @@ public struct NaiveVectorIndex<Key: Hashable>: Initiable, MutableVectorIndex {
 
 // MARK: - Implemented Conformances
 
-extension NaiveVectorIndex: Hashable {
+extension NaiveRawVectorIndex: Hashable {
     public func hash(into hasher: inout Hasher) {
         storage.hash(into: &hasher)
     }
@@ -99,13 +99,13 @@ extension NaiveVectorIndex: Hashable {
     }
 }
 
-extension NaiveVectorIndex: Sequence {
+extension NaiveRawVectorIndex: Sequence {
     public func makeIterator() -> AnyIterator<Key> {
         storage.keys.makeIterator().eraseToAnyIterator()
     }
 }
 
-extension NaiveVectorIndex: Codable where Key: Codable {
+extension NaiveRawVectorIndex: Codable where Key: Codable {
     public init(from decoder: Decoder) throws {
         self.storage = try OrderedDictionary(uniqueKeysWithValues: Dictionary(from: decoder))
     }

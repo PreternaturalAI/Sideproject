@@ -2,7 +2,6 @@
 // Copyright (c) Vatsal Manot
 //
 
-import BrowserKit
 import Cataphyl
 import CorePersistence
 import LargeLanguageModels
@@ -53,8 +52,8 @@ extension Sideproject {
         ///
         /// This index serves as our 'vector database' for the app. Real-world applications require careful thinking and assessment of storage techniques, and a naive `Array` backed vector index may not be ideal in many cases.
         @MainActor
-        @FileStorage<MutableValueBox<NaiveVectorIndex<Sideproject.FileFragmentIdentifier>>, NaiveVectorIndex<Sideproject.FileFragmentIdentifier>>
-        public var textEmbeddings: NaiveVectorIndex<Sideproject.FileFragmentIdentifier>
+        @FileStorage<MutableValueBox<NaiveRawVectorIndex<Sideproject.FileFragmentIdentifier>>, NaiveRawVectorIndex<Sideproject.FileFragmentIdentifier>>
+        public var textEmbeddings: NaiveRawVectorIndex<Sideproject.FileFragmentIdentifier>
         
         @MainActor
         public init(
@@ -91,17 +90,7 @@ extension Sideproject {
                 await self.documents.forEach({ $0.indexingInterval = nil })
             }
         }
-        
-        @MainActor
-        public convenience init() {
-            self.init(
-                configuration: .init(
-                    lite: .shared,
-                    directoryURL: try! CanonicalFileDirectory.userDocuments.toURL()
-                )
-            )
-        }
-        
+                
         @MainActor
         private func documentsDidChange() {
             Task {
@@ -109,6 +98,18 @@ extension Sideproject {
             }
             ._expectNoThrow()
         }
+    }
+}
+
+extension Sideproject.FileStore {
+    @MainActor
+    public convenience init() {
+        self.init(
+            configuration: .init(
+                lite: .shared,
+                directoryURL: try! CanonicalFileDirectory.userDocuments.toURL()
+            )
+        )
     }
 }
 

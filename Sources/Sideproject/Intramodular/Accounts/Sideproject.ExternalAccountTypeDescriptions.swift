@@ -186,5 +186,51 @@ extension Sideproject.ExternalAccountTypeDescriptions {
             
         }
     }
+    
+    @HadeanIdentifier("nupis-honig-zutor-vuliv")
+    public struct Groq: Sideproject.ExternalAccountTypeDescription, _StaticInstance {
+        public var accountType: Sideproject.ExternalAccountTypeIdentifier {
+            "com.vmanot.groq"
+        }
+        
+        public var credentialType: any Sideproject.ExternalAccountCredential.Type {
+            Sideproject.ExternalAccountCredentialTypes.APIKey.self
+        }
+        
+        public var icon: Image? {
+            Image("logo/groq", bundle: .module)
+        }
+        
+        public var title: String {
+            "Groq"
+        }
+                
+        public init() {
+            
+        }
+    }
+    
+    @HadeanIdentifier("fisul-tapos-hotak-nonov")
+    public struct ElevenLabs: Sideproject.ExternalAccountTypeDescription, _StaticInstance {
+        public var accountType: Sideproject.ExternalAccountTypeIdentifier {
+            "com.vmanot.elevenlabs"
+        }
+        
+        public var credentialType: any Sideproject.ExternalAccountCredential.Type {
+            Sideproject.ExternalAccountCredentialTypes.APIKey.self
+        }
+        
+        public var icon: Image? {
+            Image("logo/elevenlabs", bundle: .module)
+        }
+        
+        public var title: String {
+            "ElevenLabs"
+        }
+                
+        public init() {
+            
+        }
+    }
 }
 

@@ -235,6 +235,10 @@ extension Sideproject.ExternalAccountTypeIdentifier: _MIServiceTypeIdentifierCon
                 return ._Perplexity
             case Sideproject.ExternalAccountTypeDescriptions.Replicate().accountType:
                 return ._Replicate
+            case Sideproject.ExternalAccountTypeDescriptions.Groq().accountType:
+                return ._Groq
+            case Sideproject.ExternalAccountTypeDescriptions.ElevenLabs().accountType:
+                return ._ElevenLabs
             default:
                 throw Never.Reason.unexpected
         }

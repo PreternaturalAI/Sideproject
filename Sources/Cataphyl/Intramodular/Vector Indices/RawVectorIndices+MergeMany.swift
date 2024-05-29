@@ -4,11 +4,11 @@
 
 import Swallow
 
-extension VectorIndices {
+extension RawVectorIndices {
     /// A vector index that is a lazily-evaluated index over a collection of vector indices.
     ///
     /// Like `Publishers.MergeMany` but for vector indices.
-    public struct MergeMany<Base: RandomAccessCollection>: VectorIndex where Base.Element: VectorIndex {
+    public struct MergeMany<Base: RandomAccessCollection>: RawVectorIndex where Base.Element: RawVectorIndex {
         public typealias Key = Base.Element.Key
         
         private let base: Base
@@ -17,11 +17,11 @@ extension VectorIndices {
             self.base = base
         }
         
-        public func query<Query: VectorIndexQuery<Key>>(
+        public func query<Query: RawVectorIndexQuery<Key>>(
             _ query: Query
         ) throws -> [VectorIndexSearchResult<Self>] {
             switch query {
-                case let query as VectorIndexQueries.TopK<Key>:
+                case let query as RawVectorIndexQueries.TopK<Key>:
                     return try base
                         .flatMap({ try $0.query(query) })
                         .sorted(by: { $0.score > $1.score })

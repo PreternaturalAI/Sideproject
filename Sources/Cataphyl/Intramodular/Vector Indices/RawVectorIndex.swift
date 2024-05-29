@@ -6,15 +6,19 @@ import Foundation
 import LargeLanguageModels
 import Swallow
 
+public enum RawVectorIndices: _StaticNamespaceType {
+    
+}
+
 /// A vector index.
-public protocol VectorIndex<Key>: AsyncVectorIndex {
-    func query<Query: VectorIndexQuery<Key>>(
+public protocol RawVectorIndex<Key>: RawAsyncVectorIndex {
+    func query<Query: RawVectorIndexQuery<Key>>(
         _ query: Query
     ) throws -> [VectorIndexSearchResult<Self>]
 }
 
 /// A vector index that supports insertion/removal.
-public protocol MutableVectorIndex<Key>: VectorIndex, MutableAsyncVectorIndex {
+public protocol MutableRawVectorIndex<Key>: RawVectorIndex, MutableRawAsyncVectorIndex {
     mutating func insert(contentsOf pairs: some Sequence<(Key, [Double])>) throws
     mutating func remove(_ items: Set<Key>) throws
     mutating func removeAll() throws
@@ -22,7 +26,7 @@ public protocol MutableVectorIndex<Key>: VectorIndex, MutableAsyncVectorIndex {
 
 // MARK: - Extensions
 
-extension MutableVectorIndex {
+extension MutableRawVectorIndex {
     /// Insert a vector for a given key.
     public mutating func insert(
         _ vector: [Double],
@@ -51,11 +55,11 @@ extension MutableVectorIndex {
 
 // MARK: - Auxiliary
 
-public struct VectorIndexSearchResult<Index: AsyncVectorIndex> {
+public struct VectorIndexSearchResult<Index: RawAsyncVectorIndex> {
     public let item: Index.Key
     public let score: Double
 }
 
 public enum VectorIndexError: Error {
-    case unsupportedQuery(any VectorIndexQuery)
+    case unsupportedQuery(any RawVectorIndexQuery)
 }

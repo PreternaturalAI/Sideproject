@@ -5,15 +5,15 @@
 import LargeLanguageModels
 import Swallow
 
-public protocol AsyncVectorIndex<Key> {
+public protocol RawAsyncVectorIndex<Key> {
     associatedtype Key: Hashable
     
-    func query<Query: VectorIndexQuery<Key>>(
+    func query<Query: RawVectorIndexQuery<Key>>(
         _ query: Query
     ) async throws -> [VectorIndexSearchResult<Self>]
 }
 
-public protocol MutableAsyncVectorIndex<Key>: AsyncVectorIndex {
+public protocol MutableRawAsyncVectorIndex<Key>: RawAsyncVectorIndex {
     mutating func insert(
         contentsOf pairs: some Sequence<(Key, [Double])>
     ) async throws
@@ -27,7 +27,7 @@ public protocol MutableAsyncVectorIndex<Key>: AsyncVectorIndex {
 
 // MARK: - Extensions -
 
-extension MutableAsyncVectorIndex {
+extension MutableRawAsyncVectorIndex {
     public mutating func insert(
         _ vector: [Double],
         forKey key: Key

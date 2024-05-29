@@ -8,12 +8,14 @@ import Swallow
 import USearch
 
 public struct _USearchIndex {
+    public typealias Metric = USearchMetric
+    
     public struct Configuration: Codable, Hashable, Sendable {
         public var index: USearchMetric
     }
 }
 
-extension USearchMetric: _FileDocument {
+extension _USearchIndex: _FileDocument {
     public init(
         configuration: ReadConfiguration
     ) throws {

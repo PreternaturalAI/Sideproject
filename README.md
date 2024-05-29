@@ -101,10 +101,10 @@ let prompt = AbstractLLM.ChatPrompt(messages: [.user("PROMPT GOES HERE")])
 let openAI = OpenAI.APIClient(apiKey: "API KEY GOES HERE")
 
 // Wraps the OpenAI client in a 'Sideproject' service layer for streamlined API access.
-let lite = Sideproject(services: [openAI])
+let sideproject = Sideproject(services: [openAI])
 
 // Initiates a streaming request to the OpenAI service with the user's prompt.
-let result = try await lite.stream(prompt)
+let result = try await sideproject.stream(prompt)
 
 // Iterates over incoming messages from the OpenAI service as they arrive.
 for try await message in result.messagePublisher.values {

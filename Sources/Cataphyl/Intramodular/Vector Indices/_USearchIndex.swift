@@ -5,7 +5,7 @@
 import CorePersistence
 import Foundation
 import Swallow
-import USearch
+import _USearch
 
 public struct _USearchIndex {
     public typealias Metric = USearchMetric
@@ -39,11 +39,11 @@ extension USearchMetric: Codable {
     }
 }
 
-public typealias USearchScalar = USearch.USearchScalar
-public typealias USearchMetric = USearch.USearchMetric
+public typealias USearchScalar = _USearch.USearchScalar
+public typealias USearchMetric = _USearch.USearchMetric
 
 public final class USearchIndex {
-    let index: USearch.USearchIndex
+    let index: _USearch.USearchIndex
     
     enum State {
         case initialized
@@ -59,7 +59,7 @@ public final class USearchIndex {
         connectivity: UInt32,
         quantization: USearchScalar
     ) {
-        index = USearch.USearchIndex.make(
+        index = _USearch.USearchIndex.make(
             metric: metric,
             dimensions: dimensions,
             connectivity: connectivity,

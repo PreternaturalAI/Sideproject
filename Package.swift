@@ -70,7 +70,10 @@ let package = Package(
                 "_USearch",
             ],
             path: "Sources/Cataphyl",
-            resources: []
+            resources: [],
+            swiftSettings: [
+                .enableExperimentalFeature("AccessLevelOnImport")
+            ]
         ),
         .target(
             name: "Sideproject",
@@ -87,7 +90,10 @@ let package = Package(
                 "SwiftUIZ",
             ],
             path: "Sources/Sideproject",
-            resources: [.process("Resources")]
+            resources: [.process("Resources")],
+            swiftSettings: [
+                .enableExperimentalFeature("AccessLevelOnImport")
+            ]
         ),
         .testTarget(
             name: "SideprojectTests",

@@ -46,7 +46,9 @@ extension Sideproject.FileStore {
     }
     
     @MainActor
-    public func remove(_ document: Sideproject.File) throws {
+    public func remove(
+        _ document: Sideproject.File
+    ) throws {
         let embeddingsToRemove = self.textEmbeddings.keys.filter({ $0.document == document.id })
         
         try self.textEmbeddings.remove(embeddingsToRemove)

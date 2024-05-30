@@ -8,24 +8,26 @@ extension Sideproject.FileStore {
     @MainActor
     public func embedAllDocuments() async throws {
         try await internalTasks.perform {
-            await MainActor.run {
-                self.textEmbeddings.removeAll()
-                self.state.documentsToEmbed.insert(contentsOf: documents.map(\.id))
-            }
-            
-            try await _embedPendingDocuments()
+            try await _embedPendingDocuments(removeAll: true)
         }
     }
     
     @MainActor
     public func embedPendingDocuments() async throws {
         try await internalTasks.perform {
-            try await _embedPendingDocuments()
+            try await _embedPendingDocuments(removeAll: false)
         }
     }
     
     @MainActor
-    func _embedPendingDocuments() async throws {
+    private func _embedPendingDocuments(removeAll: Bool) async throws {
+        if removeAll {
+            await MainActor.run {
+                self.textEmbeddings.removeAll()
+                self.state.documentsToEmbed.insert(contentsOf: documents.map(\.id))
+            }
+        }
+        
         let documentsToEmbed: [Sideproject.File] = _isolateDocumentsToEmbed()
         
         do {
@@ -50,13 +52,20 @@ extension Sideproject.FileStore {
     
     @MainActor
     private func _isolateDocumentsToEmbed() -> [Sideproject.File] {
-        let documentsToEmbed: [Sideproject.File] = self.state.documentsToEmbed.compactMap({
+        let unembeddedDocuments = self.documents._mapToSet(\.id).subtracting(textEmbeddings._mapToSet(\.document.id))
+
+        var documentIDs: Set<Sideproject.File.ID> = []
+        
+        documentIDs.insert(contentsOf: self.state.documentsToEmbed)
+        documentIDs.insert(contentsOf: unembeddedDocuments)
+        
+        let result: [Sideproject.File] = documentIDs.compactMap({
             self.documents[id: $0]._selfAssumingNonNil
         })
-                
+                        
         self.state.documentsToEmbed = []
         
-        return documentsToEmbed
+        return result
     }
 }
 

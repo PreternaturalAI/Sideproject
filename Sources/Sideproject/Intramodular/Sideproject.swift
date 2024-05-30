@@ -215,7 +215,7 @@ extension Sideproject {
     public enum Error: Swift.Error {
         case failedToDiscoverServices
         case failedToResolveLLMService
-        case failedToResolveService
+        case failedToResolveService(AnyError)
         case completionFailed(AnyError)
     }
 }

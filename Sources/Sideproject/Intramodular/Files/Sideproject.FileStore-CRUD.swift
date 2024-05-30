@@ -98,7 +98,9 @@ extension Sideproject.FileStore {
                 try await document._ingest()
             }
             
-            try await _embedPendingDocuments()
+            Task {
+                try await self.embedPendingDocuments()
+            }
         }
         
         return documentsToInsert

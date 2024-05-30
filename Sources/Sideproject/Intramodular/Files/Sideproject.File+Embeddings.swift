@@ -36,6 +36,8 @@ extension Sideproject.File {
             
             try await MainActor.run {
                 try dataStore.textEmbeddings.insert(contentsOf: indexedTextEmbeddings)
+                
+                assert(!dataStore.textEmbeddings.isEmpty)
             }
         } catch {
             Task { @MainActor in

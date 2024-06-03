@@ -6,7 +6,7 @@ import Foundation
 import LargeLanguageModels
 import Swallow
 
-public enum RawVectorIndices: _StaticNamespaceType {
+public enum RawVectorIndices: _StaticSwift.Namespace {
     
 }
 

@@ -11,7 +11,7 @@ extension Sideproject.ChatFile {
 }
 
 extension Sideproject.ChatFile {
-    public enum Presets: _TypeIterableStaticNamespaceType {
+    public enum Presets: _StaticSwift.TypeIterableNamespace {
         public static var _allNamespaceTypes: [Any.Type] {
             SystemMessage.self
         }

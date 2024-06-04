@@ -47,6 +47,7 @@ let package = Package(
             sources: ["USearchObjective.mm"],
             cxxSettings: [
                 .headerSearchPath("../include/"),
+                .headerSearchPath("../fp16/include/"),
             ]
         ),
         .target(

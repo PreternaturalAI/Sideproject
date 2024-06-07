@@ -51,7 +51,7 @@ public struct NaiveRawVectorIndex<Key: Hashable>: Initiable, MutableRawVectorInd
     @inline(__always)
     public func query(
         _ query: some RawVectorIndexQuery<Key>
-    ) throws -> [VectorIndexSearchResult<Self>] {
+    ) throws -> [RawVectorIndexSearchResult<Self>] {
         switch query {
             case let query as RawVectorIndexQueries.TopK<Key>:
                 return rank(
@@ -60,7 +60,7 @@ public struct NaiveRawVectorIndex<Key: Hashable>: Initiable, MutableRawVectorInd
                     using: vDSP.cosineSimilarity
                 )
             default:
-                throw VectorIndexError.unsupportedQuery(query)
+                throw RawVectorIndexError.unsupportedQuery(query)
         }
     }
     
@@ -69,7 +69,7 @@ public struct NaiveRawVectorIndex<Key: Hashable>: Initiable, MutableRawVectorInd
         query: [Double],
         topK: Int,
         using metric: ([Double], [Double]) -> Double
-    ) -> [VectorIndexSearchResult<Self>] {
+    ) -> [RawVectorIndexSearchResult<Self>] {
         let similarities: [Double] = storage.map({ metric($0.value, query) })
         
         // Find the indices of top-k similarity values
@@ -79,7 +79,7 @@ public struct NaiveRawVectorIndex<Key: Hashable>: Initiable, MutableRawVectorInd
         let topIndices = Array(sortedCollections.prefix(topK))
         
         return topIndices.map {
-            VectorIndexSearchResult(
+            RawVectorIndexSearchResult(
                 item: storage.elements[$0].key,
                 score: similarities[$0]
             )

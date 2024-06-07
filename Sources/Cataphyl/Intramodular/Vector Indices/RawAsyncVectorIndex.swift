@@ -10,7 +10,7 @@ public protocol RawAsyncVectorIndex<Key> {
     
     func query<Query: RawVectorIndexQuery<Key>>(
         _ query: Query
-    ) async throws -> [VectorIndexSearchResult<Self>]
+    ) async throws -> [RawVectorIndexSearchResult<Self>]
 }
 
 public protocol MutableRawAsyncVectorIndex<Key>: RawAsyncVectorIndex {

@@ -96,7 +96,7 @@ extension SideprojectAccountsView {
                     .imageScale(.large)
             }
             .buttonStyle(AnyButtonStyle {
-                $0.label.modifier(_CellStyle())
+                $0.label.modifier(_CellContentStyle())
             })
         }
     }
@@ -120,19 +120,21 @@ extension SideprojectAccountsView {
                         .shadow(color: Color.black.opacity(0.33 / 2), radius: 1)
                 }
                 
-                TextView(account.displayName)
+                Text(account.displayName)
+                    .fixedSize(horizontal: false, vertical: true)
                     .font(.body.weight(.medium))
                     .foregroundColor(.label)
+                    .lineLimit(1)
+                    .truncationMode(.middle)
+                    .textSelection(.disabled)
             }
             .frame(width: .greedy, alignment: .leading)
             .padding(.horizontal, 10)
-            .modifier(_CellStyle())
+            .modifier(_CellContentStyle())
         }
     }
-}
 
-extension SideprojectAccountsView {
-    struct _CellStyle: ViewModifier {
+    private struct _CellContentStyle: ViewModifier {
         func body(content: Content) -> some View {
             content
                 .frame(CGSize(width: 126, height: 60))

@@ -6,15 +6,11 @@ import Foundation
 import LargeLanguageModels
 import Swallow
 
-public enum RawVectorIndices: _StaticSwift.Namespace {
-    
-}
-
 /// A vector index.
 public protocol RawVectorIndex<Key>: RawAsyncVectorIndex {
     func query<Query: RawVectorIndexQuery<Key>>(
         _ query: Query
-    ) throws -> [VectorIndexSearchResult<Self>]
+    ) throws -> [RawVectorIndexSearchResult<Self>]
 }
 
 /// A vector index that supports insertion/removal.
@@ -55,11 +51,15 @@ extension MutableRawVectorIndex {
 
 // MARK: - Auxiliary
 
-public struct VectorIndexSearchResult<Index: RawAsyncVectorIndex> {
+public enum RawVectorIndices: _StaticSwift.Namespace {
+    
+}
+
+public struct RawVectorIndexSearchResult<Index: RawAsyncVectorIndex> {
     public let item: Index.Key
     public let score: Double
 }
 
-public enum VectorIndexError: Error {
+public enum RawVectorIndexError: Error {
     case unsupportedQuery(any RawVectorIndexQuery)
 }

@@ -28,6 +28,10 @@ public struct _AccountEntryForm: View {
         self._credential = credential.map({ .binding($0) }) ?? .state(initialValue: nil)
     }
     
+    private var isSubmitDisabled: Bool {
+        self.credential?.isEmpty ?? true
+    }
+    
     public var body: some View {
         Group {
             _TypeCastBinding($credential.withDefaultValue(accountTypeDescription.credentialType.empty)) { proxy in
@@ -36,6 +40,7 @@ public struct _AccountEntryForm: View {
                 }
             }
         }
+        .submitDisabled(isSubmitDisabled)
         .formStyle(.grouped)
         .onSubmit(of: (any Sideproject.ExternalAccountCredential).self) { credential in
             self.credential = credential
@@ -51,6 +56,7 @@ public struct _AccountEntryForm: View {
                 DismissPresentationButton("Done") {
                     commit()
                 }
+                .disabled(isSubmitDisabled)
             }
         }
     }
@@ -78,7 +84,7 @@ public struct _AccountEntryForm: View {
                 )
                 ._focusOnAppear()
             }
-            .onSubmit {
+            .onSubmit {                
                 submit(subject)
             }
             .animation(.none, value: subject.key)

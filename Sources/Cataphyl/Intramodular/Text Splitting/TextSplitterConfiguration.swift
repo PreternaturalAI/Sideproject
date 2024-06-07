@@ -7,14 +7,6 @@ import Diagnostics
 import FoundationX
 import Swallow
 
-public enum TextSplitterError: Error {
-    case invalidConfiguration
-    case maximumSplitSizeExceeded(Int)
-    case unexpectedOverlap(between: PlainTextSplit, and: PlainTextSplit)
-    case topLevelSplitsMoreGranularThanExpected([PlainTextSplit])
-    case unknown
-}
-
 public struct TextSplitterConfiguration: Codable, Hashable, Sendable {
     public let maximumSplitSize: Int?
     public let maximumSplitOverlap: Int?

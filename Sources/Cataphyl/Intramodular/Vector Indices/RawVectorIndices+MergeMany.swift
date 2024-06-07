@@ -19,7 +19,7 @@ extension RawVectorIndices {
         
         public func query<Query: RawVectorIndexQuery<Key>>(
             _ query: Query
-        ) throws -> [VectorIndexSearchResult<Self>] {
+        ) throws -> [RawVectorIndexSearchResult<Self>] {
             switch query {
                 case let query as RawVectorIndexQueries.TopK<Key>:
                     return try base
@@ -27,10 +27,10 @@ extension RawVectorIndices {
                         .sorted(by: { $0.score > $1.score })
                         .prefix(query.maximumNumberOfResults)
                         .map {
-                            VectorIndexSearchResult(item: $0.item, score: $0.score)
+                            RawVectorIndexSearchResult(item: $0.item, score: $0.score)
                         }
                 default:
-                    throw VectorIndexError.unsupportedQuery(query)
+                    throw RawVectorIndexError.unsupportedQuery(query)
             }
         }
     }

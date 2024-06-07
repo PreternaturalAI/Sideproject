@@ -177,3 +177,13 @@ public struct _NoTextSplittingTextSplitter: TextSplitter {
         [PlainTextSplit(source: text)]
     }
 }
+
+// MARK: - Error Handling
+
+public enum TextSplitterError: Error {
+    case invalidConfiguration
+    case maximumSplitSizeExceeded(Int)
+    case unexpectedOverlap(between: PlainTextSplit, and: PlainTextSplit)
+    case topLevelSplitsMoreGranularThanExpected([PlainTextSplit])
+    case unknown
+}

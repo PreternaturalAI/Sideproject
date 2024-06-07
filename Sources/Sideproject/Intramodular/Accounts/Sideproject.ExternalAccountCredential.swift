@@ -8,6 +8,8 @@ import Swallow
 extension Sideproject {
     public protocol ExternalAccountCredential: Codable, Hashable {
         static var empty: Self { get }
+        
+        var isEmpty: Bool { get }
     }
 }
 
@@ -24,6 +26,10 @@ extension Sideproject {
             
             public var serverURL: URL?
             public var key: String
+            
+            public var isEmpty: Bool {
+                key.isEmpty
+            }
         }
     }
 }

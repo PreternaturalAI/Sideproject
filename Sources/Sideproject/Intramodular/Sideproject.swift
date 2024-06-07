@@ -29,6 +29,8 @@ public final class Sideproject: _CancellablesProviding, Logging, ObservableObjec
     
     private var shouldAutoinitializeServices: Bool
     
+    private var autodiscoveredServiceAccounts: [_AnyMIServiceAccount] = []
+
     @MainActor
     @Published private var autoinitializedServices: [any _MIService]? = nil {
         didSet {
@@ -58,18 +60,15 @@ public final class Sideproject: _CancellablesProviding, Logging, ObservableObjec
         shouldAutoinitializeServices = false
         
         self.manuallyAddedServices = services
-        
-        Task { @MainActor in
-            self.setUp()
-        }
+                
+        self.setUp()
     }
     
+    @MainActor(unsafe)
     private init() {
         shouldAutoinitializeServices = true
         
-        Task { @MainActor in
-            self.setUp()
-        }
+        self.setUp()
     }
     
     @MainActor
@@ -79,28 +78,19 @@ public final class Sideproject: _CancellablesProviding, Logging, ObservableObjec
     
     @MainActor
     private func setUp() {
-        @Sendable
-        func _runSetUp() async {
-            await self._populateAutoinitializedServicesIfNecessary()
-            
-            do {
-                try await self._assertNonZeroServices()
-            } catch {
-                runtimeIssue(error)
-            }
-        }
-        
         queue.addTask(priority: .userInitiated) {
-            await _runSetUp()
+            await self._populateAutoinitializedServicesIfNecessary()
         }
         
-        Sideproject.ExternalAccountStore.shared.$accounts.sink { [weak self] _ in
+        Sideproject.ExternalAccountStore.shared.$accounts.removeDuplicates().sink { [weak self] _ in
             guard let `self` = self else {
                 return
             }
             
             queue.addTask(priority: .userInitiated) {
-                await _runSetUp()
+                self.shouldAutoinitializeServices = true
+                
+                await self._populateAutoinitializedServicesIfNecessary()
             }
         }
         .store(in: self.cancellables)
@@ -135,20 +125,28 @@ extension Sideproject: _TaskDependenciesExporting {
 extension Sideproject {
     @MainActor
     private func _populateAutoinitializedServicesIfNecessary() async {
-        guard shouldAutoinitializeServices, autoinitializedServices == nil else {
+        guard shouldAutoinitializeServices else {
             return
         }
         
-        shouldAutoinitializeServices = false
-
         self.logger.debug("Discovering services to auto-intialize.")
-        
-        var services: [any _MIService] = []
-        
+                        
         do {
-            services = try await self._makeServices()
+            let oldAccounts = self.autodiscoveredServiceAccounts
+            let newAccounts = try self._serviceAccounts()
+
+            guard oldAccounts != newAccounts else {
+                return
+            }
+                        
+            let services: [any _MIService] = try await self._makeServices(forAccounts: newAccounts)
             
+            self.autodiscoveredServiceAccounts = newAccounts
             self.autoinitializedServices = services
+            
+            logger.info("Auto-initialized \(services.count) services.")
+            
+            shouldAutoinitializeServices = false
         } catch {
             runtimeIssue(error)
             
@@ -175,15 +173,16 @@ extension Sideproject {
     }
         
     /// Initializes all CoreMI services that can be initialized using the loaded Sideproject accounts.
-    private func _makeServices() async throws -> [any _MIService] {
+    private func _makeServices(
+        forAccounts serviceAccounts: [_AnyMIServiceAccount]
+    ) async throws -> [any _MIService] {
         let serviceTypes: [any _MIService.Type] = try TypeMetadata._queryAll(
             .conformsTo((any _MIService).self),
             .nonAppleFramework
         )
-        let serviceAccounts: [any _MIServiceAccount] = try await _serviceAccounts()
         
         var result: [any _MIService] = await serviceAccounts
-            .concurrentMap { account in
+            .asyncMap { account in
                 await serviceTypes.first(byUnwrapping: { type -> (any _MIService)? in
                     do {
                         return try await type.init(account: account)

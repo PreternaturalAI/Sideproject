@@ -59,7 +59,7 @@ extension Sideproject.FileStore {
                     maximumNumberOfResults: maximumNumberOfResults ?? self.documents.count
                 )
             )
-            .map { (item: VectorIndexSearchResult<NaiveRawVectorIndex<Sideproject.FileFragmentIdentifier>>) in
+            .map { (item: RawVectorIndexSearchResult<NaiveRawVectorIndex<Sideproject.FileFragmentIdentifier>>) in
                 SearchResult(
                     store: self,
                     fragmentID: item.item,
@@ -88,7 +88,7 @@ extension Sideproject.FileStore {
                     maximumNumberOfResults: maximumNumberOfResults ?? self.documents.count
                 )
             )
-            .map { (item: VectorIndexSearchResult<NaiveRawVectorIndex<Sideproject.FileFragmentIdentifier>>) in
+            .map { (item: RawVectorIndexSearchResult<NaiveRawVectorIndex<Sideproject.FileFragmentIdentifier>>) in
                 SearchResult(
                     store: self,
                     fragmentID: item.item,

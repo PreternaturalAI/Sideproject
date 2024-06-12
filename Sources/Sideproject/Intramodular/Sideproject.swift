@@ -215,6 +215,7 @@ extension Sideproject {
         case failedToDiscoverServices
         case failedToResolveLLMService
         case failedToResolveService(AnyError)
+        case failedToResolveLLMForModel(_MLModelIdentifier)
         case completionFailed(AnyError)
     }
 }

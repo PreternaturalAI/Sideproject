@@ -38,14 +38,32 @@ extension Sideproject {
         
         var _prompt: any AbstractLLM.Prompt = prompt
         
-        let model = try await self._model(for: &_prompt)
+        let model: _MLModelIdentifier = try await self._model(for: &_prompt)
      
         prompt = try! cast(_prompt, to: T.self)
         
         let services = try await self.services
-        let llms = services.compactMap({ $0 as? (any LLMRequestHandling) })
+        let llms: [(any LLMRequestHandling)] = services.compactMap({ $0 as? (any LLMRequestHandling) })
         
         do {
+            let llm = try await _findLLMRequestHandler(for: model, from: llms)
+            
+            return llm
+        } catch {
+            if let llm = llms.first(where: { $0._availableModels?.contains(model) ?? false }) {
+                return llm
+            } else {
+                throw error
+            }
+        }
+    }
+    
+    
+    private func _findLLMRequestHandler(
+        for model: _MLModelIdentifier,
+        from llms: [(any LLMRequestHandling)]
+    ) async throws -> (any LLMRequestHandling) {
+        try await _catchAndMapError(to: Error.failedToResolveLLMForModel(model)) {
             let result = try await llms
                 .firstAndOnly(where: { llm in
                     try await _resolveMaybeAsync(llm)
@@ -55,12 +73,6 @@ extension Sideproject {
                 .unwrap()
             
             return result
-        } catch {
-            if let llm = llms.first(where: { $0._availableModels?.contains(model) ?? false }) {
-                return llm
-            } else {
-                throw error
-            }
         }
     }
     

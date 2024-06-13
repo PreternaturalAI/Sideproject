@@ -13,7 +13,7 @@ extension Sideproject: TextEmbeddingsRequestHandling {
         for request: TextEmbeddingsRequest
     ) async throws -> any TextEmbeddingsRequestHandling {
         try await _catchAndMapError(to: Error.failedToResolveService) {
-            var model: _MLModelIdentifier? = request.model
+            var model: ModelIdentifier? = request.model
             
             if model == nil {
                 model = OpenAI.Model.embedding(.text_embedding_3_large).__conversion() // FIXME

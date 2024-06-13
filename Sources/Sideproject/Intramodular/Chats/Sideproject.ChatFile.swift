@@ -23,7 +23,7 @@ extension Sideproject {
         @_UnsafelySerialized
         public var preset: (any Sideproject.ChatFile.Preset)?
         @_UnsafelySerialized
-        public var model: _MLModelIdentifier? = "gpt-3.5-turbo"
+        public var model: ModelIdentifier? = "gpt-3.5-turbo"
         
         public init(id: ID) {
             self.id = .random()

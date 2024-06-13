@@ -43,7 +43,7 @@ public final class Sideproject: _CancellablesProviding, Logging, ObservableObjec
     @MainActor
     @Published private var manuallyAddedServices: [any _MIService] = []
     
-    // @Published public var modelIdentifierScope: _MLModelIdentifierScope?
+    // @Published public var modelIdentifierScope: ModelIdentifierScope?
     
     public var services: [any _MIService] {
         get async throws {
@@ -106,7 +106,7 @@ public final class Sideproject: _CancellablesProviding, Logging, ObservableObjec
 }
 
 extension Sideproject {
-    public var _availableModels: [_MLModelIdentifier]? {
+    public var _availableModels: [ModelIdentifier]? {
         nil
     }
 }
@@ -215,7 +215,7 @@ extension Sideproject {
         case failedToDiscoverServices
         case failedToResolveLLMService
         case failedToResolveService(AnyError)
-        case failedToResolveLLMForModel(_MLModelIdentifier)
+        case failedToResolveLLMForModel(ModelIdentifier)
         case completionFailed(AnyError)
     }
 }

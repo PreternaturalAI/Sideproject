@@ -65,21 +65,21 @@ public enum _ChatModel: CaseIterable, Hashable, Sendable {
     }
 }
 
-extension _ChatModel: _MLModelIdentifierConvertible {
-    public func __conversion() throws -> _MLModelIdentifier {
+extension _ChatModel: ModelIdentifierConvertible {
+    public func __conversion() throws -> ModelIdentifier {
         do {
             switch self {
                 case .anthropic(let model):
-                    return try _MLModelIdentifier(description: model.rawValue).unwrap()
+                    return try ModelIdentifier(description: model.rawValue).unwrap()
                 case .mistral(let model):
-                    return try _MLModelIdentifier(description: model.rawValue).unwrap()
+                    return try ModelIdentifier(description: model.rawValue).unwrap()
                 case .ollama(let model):
                     return try model.__conversion()
                 case .openai(let model):
-                    return try _MLModelIdentifier(description: model.rawValue).unwrap()
+                    return try ModelIdentifier(description: model.rawValue).unwrap()
             }
         } catch {
-            throw CustomStringError("Failed to convert \(self) to a \(_MLModelIdentifier.self).")
+            throw CustomStringError("Failed to convert \(self) to a \(ModelIdentifier.self).")
         }
     }
 }

@@ -38,7 +38,7 @@ extension Sideproject {
         
         var _prompt: any AbstractLLM.Prompt = prompt
         
-        let model: _MLModelIdentifier = try await self._model(for: &_prompt)
+        let model: ModelIdentifier = try await self._model(for: &_prompt)
      
         prompt = try! cast(_prompt, to: T.self)
         
@@ -60,7 +60,7 @@ extension Sideproject {
     
     
     private func _findLLMRequestHandler(
-        for model: _MLModelIdentifier,
+        for model: ModelIdentifier,
         from llms: [(any LLMRequestHandling)]
     ) async throws -> (any LLMRequestHandling) {
         try await _catchAndMapError(to: Error.failedToResolveLLMForModel(model)) {
@@ -78,8 +78,8 @@ extension Sideproject {
     
     private func _model(
         for prompt: inout (any AbstractLLM.Prompt)
-    ) async throws -> _MLModelIdentifier {
-        var result: _MLModelIdentifierScope
+    ) async throws -> ModelIdentifier {
+        var result: ModelIdentifierScope
         
         if let modelIdentifier = prompt.context.get(\.modelIdentifier) {
             result = modelIdentifier
@@ -104,7 +104,7 @@ extension Sideproject {
 
 extension LLMRequestHandling {
     fileprivate func _unconditionallySupports(
-        _ model: _MLModelIdentifier
+        _ model: ModelIdentifier
     ) async throws -> Bool? {
         try await _resolveMaybeAsync(self)
         

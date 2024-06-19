@@ -6,6 +6,7 @@ import CorePersistence
 import Swallow
 import SwiftUIZ
 
+@View(.dynamic)
 public struct SideprojectAccountsView: View {
     @StateObject var store: Sideproject.ExternalAccountStore = Sideproject.ExternalAccountStore.shared
     
@@ -55,9 +56,7 @@ public struct SideprojectAccountsView: View {
             }
         }
     }
-}
 
-extension SideprojectAccountsView {
     private struct EditAccountView: View {
         @Binding var account: Sideproject.ExternalAccount
         

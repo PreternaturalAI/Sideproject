@@ -99,7 +99,7 @@ public class SideprojectChatPlayground: Logging, ObservableObject {
         try await withTaskCancellationHandler { @MainActor in
             let publisher = completion.throttle(for: .milliseconds(50), scheduler: DispatchQueue.main, latest: true)
             
-            try await publisher._asyncSink { _ in
+            try await publisher.sinkAsync { _ in
                 if let message = completion.partialMessage {
                     latestMessage = Sideproject.ChatFile.Message(message)
                     

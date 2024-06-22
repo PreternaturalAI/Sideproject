@@ -8,6 +8,9 @@ import Swallow
 import SwiftUIZ
 
 public struct _AccountPicker: View {
+    @Environment(_type: SideprojectAccountsView.Configuration.self)
+    var accountsViewConfiguration: SideprojectAccountsView.Configuration
+    
     @Environment(\._submit) var submit
     @Environment(\.presentationMode) var presentationMode
 

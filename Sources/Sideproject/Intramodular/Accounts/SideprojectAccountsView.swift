@@ -8,10 +8,32 @@ import SwiftUIZ
 
 @View(.dynamic)
 public struct SideprojectAccountsView: View {
+    public struct Configuration: ExpressibleByNilLiteral, DynamicProperty {
+        public private(set) var predicate: Predicate<Sideproject.ExternalAccountTypeIdentifier>?
+        
+        public init(nilLiteral: ()) {
+            
+        }
+        
+        public init(
+            predicate: Predicate<Sideproject.ExternalAccountTypeIdentifier>?
+        ) {
+            self.predicate = predicate
+        }
+    }
+    
+    private let configuration: Configuration
+    
     @StateObject var store: Sideproject.ExternalAccountStore = Sideproject.ExternalAccountStore.shared
     
-    public init() {
+    public init(configuration: Configuration) {
+        self.configuration = nil
+    }
         
+    public var filteredData: Array<Sideproject.ExternalAccount> {
+        store.accounts.filter { _ in
+            true // FIXME: @natasha
+        }
     }
     
     public var body: some View {
@@ -19,9 +41,9 @@ public struct SideprojectAccountsView: View {
             cellGrid
                 .frame(minWidth: 126)
             
-            #if os(macOS)
+#if os(macOS)
             PathControl(url: try! store.$accounts.url)
-            #endif
+#endif
         }
         .padding()
         .environmentObject(store)
@@ -37,7 +59,7 @@ public struct SideprojectAccountsView: View {
             ) {
                 NewAccountButton()
                 
-                ForEach($store.accounts) { $account in
+                ForEach(filteredData, from: $store.accounts) { ($account: Binding<Sideproject.ExternalAccount>) in
                     PresentationLink {
                         EditAccountView(account: $account)
                             .onSubmit(of: Sideproject.ExternalAccount.self) { account in
@@ -55,8 +77,9 @@ public struct SideprojectAccountsView: View {
                 }
             }
         }
+        ._environment(Configuration.self, configuration)
     }
-
+    
     private struct EditAccountView: View {
         @Binding var account: Sideproject.ExternalAccount
         
@@ -85,7 +108,7 @@ public struct SideprojectAccountsView: View {
                         let account = try! _withLogicalParent(store) {
                             account
                         }
-                                                
+                        
                         store.accounts.append(account)
                     }
             } label: {
@@ -132,7 +155,7 @@ public struct SideprojectAccountsView: View {
             .modifier(_CellContentStyle())
         }
     }
-
+    
     private struct _CellContentStyle: ViewModifier {
         func body(content: Content) -> some View {
             content

@@ -234,3 +234,65 @@ extension Sideproject.ExternalAccountTypeDescriptions {
     }
 }
 
+extension Sideproject.ExternalAccountTypeDescription where Self == Sideproject.ExternalAccountTypeDescriptions.Groq
+{
+    public static var groq: Self {
+        .init()
+    }
+}
+
+extension Sideproject.ExternalAccountTypeDescription where Self == Sideproject.ExternalAccountTypeDescriptions.Mistral
+{
+    public static var mistral: Self {
+        .init()
+    }
+}
+
+extension Sideproject.ExternalAccountTypeDescription where Self == Sideproject.ExternalAccountTypeDescriptions.OpenAI
+{
+    public static var openAI: Self {
+        .init()
+    }
+}
+
+extension Sideproject.ExternalAccountTypeDescription where Self == Sideproject.ExternalAccountTypeDescriptions.Anthropic
+{
+    public static var anthropic: Self {
+        .init()
+    }
+}
+
+extension Sideproject.ExternalAccountTypeDescription where Self == Sideproject.ExternalAccountTypeDescriptions.HuggingFace
+{
+    public static var huggingFace: Self {
+        .init()
+    }
+}
+
+extension Sideproject.ExternalAccountTypeDescription where Self == Sideproject.ExternalAccountTypeDescriptions.Notion
+{
+    public static var notion: Self {
+        .init()
+    }
+}
+
+extension Sideproject.ExternalAccountTypeDescription where Self == Sideproject.ExternalAccountTypeDescriptions.Perplexity
+{
+    public static var perplexity: Self {
+        .init()
+    }
+}
+
+extension Sideproject.ExternalAccountTypeDescription where Self == Sideproject.ExternalAccountTypeDescriptions.Replicate
+{
+    public static var replicate: Self {
+        .init()
+    }
+}
+
+extension Sideproject.ExternalAccountTypeDescription where Self == Sideproject.ExternalAccountTypeDescriptions.ElevenLabs
+{
+    public static var elevenLabs: Self {
+        .init()
+    }
+}

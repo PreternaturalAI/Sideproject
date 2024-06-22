@@ -70,7 +70,7 @@ public struct _AccountPicker: View {
     private var content: some View {
         Form {
             List {
-                ForEach(store.allKnownAccountTypeDescriptions, id: \.accountType) { account in
+                ForEach(filteredAccountTypes, id: \.accountType) { account in
                     Cell(account: account, onSubmit: {
                         path.append(account.accountType)
                     })
@@ -118,6 +118,16 @@ public struct _AccountPicker: View {
                     }
                 }
             }
+        }
+    }
+    
+    private var filteredAccountTypes: [Sideproject.ExternalAccountTypeDescription] {
+        if let predicate = accountsViewConfiguration.predicate {
+            return store.allKnownAccountTypeDescriptions.filter { account in
+                (try? predicate.evaluate(account.accountType)) ?? false
+            }
+        } else {
+            return Array(store.allKnownAccountTypeDescriptions)
         }
     }
 }

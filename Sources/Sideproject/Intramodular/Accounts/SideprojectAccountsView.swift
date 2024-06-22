@@ -27,13 +27,19 @@ public struct SideprojectAccountsView: View {
     @StateObject var store: Sideproject.ExternalAccountStore = Sideproject.ExternalAccountStore.shared
     
     public init(configuration: Configuration) {
-        self.configuration = nil
+        self.configuration = configuration
     }
-        
-    public var filteredData: Array<Sideproject.ExternalAccount> {
-        store.accounts.filter { _ in
-            true // FIXME: @natasha
+    
+    public var filteredAccounts: IdentifierIndexingArrayOf<Sideproject.ExternalAccount> {
+        guard let predicate = configuration.predicate else {
+            return store.accounts
         }
+        
+        return IdentifierIndexingArrayOf(
+            store.accounts.filter { account in
+                (try? predicate.evaluate(account.accountType)) ?? false
+            }
+        )
     }
     
     public var body: some View {
@@ -59,7 +65,7 @@ public struct SideprojectAccountsView: View {
             ) {
                 NewAccountButton()
                 
-                ForEach(filteredData, from: $store.accounts) { ($account: Binding<Sideproject.ExternalAccount>) in
+                ForEach(filteredAccounts, from: $store.accounts) { ($account: Binding<Sideproject.ExternalAccount>) in
                     PresentationLink {
                         EditAccountView(account: $account)
                             .onSubmit(of: Sideproject.ExternalAccount.self) { account in

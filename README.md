@@ -151,9 +151,32 @@ let text = try completion._chatCompletion!._stripToText()
 return Bool(text) ?? false
 ```
 
+### Account Management
+Quickly add a way for users to add their own API Provider API keys (stored locally in their Documents folder): 
+
+```swift
+struct MyView: ViewPreview {
+    var body: some View {
+        SideprojectAccountsView()
+    }
+}
+```
+<img width="713" alt="Screenshot 2024-06-22 at 12 53 48 PM" src="https://github.com/PreternaturalAI/Sideproject/assets/1157147/2b1c7c0a-01ce-43a4-a0ad-b9c52f0069cb">
+
+Specify which providers to include: 
+
+```swift
+SideprojectAccountsView(only: [.openAI, .mistral, .anthropic])
+```
+
+Specify which providers to exlude: 
+```swift
+SideprojectAccountsView(excluding: [.elevenLabs, .notion, .replicate])
+```
+
 ## Demo
 
-See demos on the Preternatural Cookbook - https://github.com/PreternaturalAI/Cookbook
+See demos on [Preternatural Explore](https://github.com/preternatural-explore)
 
 ## Support
 

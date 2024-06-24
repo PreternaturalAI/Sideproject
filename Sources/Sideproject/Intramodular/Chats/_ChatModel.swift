@@ -83,3 +83,13 @@ extension _ChatModel: ModelIdentifierConvertible {
         }
     }
 }
+
+// MARK: - Supplementary
+
+extension ModelIdentifier {
+    public func _name(
+        for type: _ChatModel.Type
+    ) -> String {
+        _ChatModel.allCases.first(where: { (try? $0.__conversion()) == self })?.debugDescription ?? self.description
+    }
+}

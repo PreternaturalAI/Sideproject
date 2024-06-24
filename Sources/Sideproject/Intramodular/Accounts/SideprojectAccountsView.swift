@@ -30,6 +30,12 @@ public struct SideprojectAccountsView: View {
         self.configuration = configuration
     }
     
+    public init() {
+        self.init(
+            configuration: .init(predicate: nil)
+        )
+    }
+
     public var filteredAccounts: IdentifierIndexingArrayOf<Sideproject.ExternalAccount> {
         guard let predicate = configuration.predicate else {
             return store.accounts

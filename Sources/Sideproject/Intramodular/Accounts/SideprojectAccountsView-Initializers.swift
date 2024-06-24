@@ -6,13 +6,6 @@ import Foundation
 import SwiftUI
 
 extension SideprojectAccountsView {
-    
-    public init() {
-        self.init(
-            configuration: .init(predicate: nil)
-        )
-    }
-    
     /// e.g. let view = SideprojectAccountsView(only: [.openAI, .anthropic, .mistral])
     public init(only accounts: [any Sideproject.ExternalAccountTypeDescription]) {
         let identifiers = Set(accounts.map({ $0.accountType }))

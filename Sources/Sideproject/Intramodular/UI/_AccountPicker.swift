@@ -17,6 +17,7 @@ public struct _AccountPicker: View {
     @EnvironmentObject var store: Sideproject.ExternalAccountStore
     
     @State var path = NavigationPath()
+    @State private var showAccountsHelpPopover = false
     
     public var body: some View {
         NavigationStack(path: $path) {
@@ -47,7 +48,7 @@ public struct _AccountPicker: View {
     private var toolbar: some ToolbarContent {
         ToolbarItemGroup {
             Button {
-                
+                showAccountsHelpPopover.toggle()
             } label: {
                 Image(systemName: .questionmark)
                     .imageScale(.medium)
@@ -59,6 +60,9 @@ public struct _AccountPicker: View {
                 } else {
                     $0
                 }
+            }
+            .popover(isPresented: $showAccountsHelpPopover) {
+                _AccountsHelpPopoverContent()
             }
         }
         

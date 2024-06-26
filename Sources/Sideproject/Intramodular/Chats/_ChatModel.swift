@@ -20,8 +20,12 @@ public enum _ChatModel: CaseIterable, Hashable, Sendable {
         Array(Ollama.shared._allKnownModels ?? [])
             .map({ Self.ollama($0) })
         
-        Array(Mistral.Model.allCases)
-            .map({ Self.mistral($0) })
+        Array([
+            Mistral.Model.mistral_medium,
+            Mistral.Model.mistral_small,
+            Mistral.Model.mistral_tiny
+        ])
+        .map({ Self.mistral($0) })
         
         Array([
             OpenAI.Model.chat(.gpt_3_5_turbo),

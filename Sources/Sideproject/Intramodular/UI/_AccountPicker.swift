@@ -39,7 +39,7 @@ public struct _AccountPicker: View {
                     }
             }
         }
-        .frame(width: 448, height: 560)
+        .frame(idealWidth: 448, idealHeight: 560)
         .background(Color.accountModalBackgroundColor.ignoresSafeArea())
         .toolbarBackground(.hidden, for: .automatic)
     }
@@ -82,7 +82,7 @@ public struct _AccountPicker: View {
             }
         }
         .formStyle(.grouped)
-        .frame(height: 500)
+        .frame(idealHeight: 500)
         .hidden(!path.isEmpty)
     }
     

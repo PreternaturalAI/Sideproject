@@ -105,7 +105,7 @@ public struct SideprojectAccountsView: View {
                     )
                     .navigationTitle("Edit Account")
                 }
-                .frame(width: 448, height: 560/2)
+                .frame(idealWidth: 448, idealHeight: 560/2)
             }
         }
     }
@@ -178,7 +178,7 @@ public struct SideprojectAccountsView: View {
                             .fill(.quaternary)
                             .overlay {
                                 if proxy.isHovering {
-                                    Color.gray.opacity(0.1)
+                                    Color.secondary
                                         .clipShape(
                                             RoundedRectangle(cornerRadius: 12)
                                         )

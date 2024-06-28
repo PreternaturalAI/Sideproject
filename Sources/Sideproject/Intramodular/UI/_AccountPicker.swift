@@ -29,7 +29,6 @@ public struct _AccountPicker: View {
                     toolbar
                 }
             }
-            .scrollContentBackground(.hidden)
             .navigationDestination(for: Sideproject.ExternalAccountTypeIdentifier.self) { account in
                 _AccountEntryForm(.create, accountTypeDescription: store[account])
                     .onSubmit(of: Sideproject.ExternalAccount.self) { account in
@@ -91,10 +90,31 @@ public struct _AccountPicker: View {
         let onSubmit: () -> Void
         
         var body: some View {
+            #if os(iOS)
+            button
+            #endif
+            
+            #if os(macOS)
             HoverReader { hoverProxy in
-                Button {
-                    onSubmit()
-                } label: {
+                button
+                .listRowBackground {
+                    Group {
+                        hoverProxy.isHovering ? Color.white.opacity(0.05) : nil
+                    }
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        onSubmit()
+                    }
+                }
+            }
+            #endif
+        }
+        
+        var button: some View {
+            Button {
+                onSubmit()
+            } label: {
+                ZStack(alignment: .leading) {
                     HStack {
                         if let image = account.icon {
                             image
@@ -106,22 +126,15 @@ public struct _AccountPicker: View {
                             .font(.title3)
                             .foregroundStyle(Color.label)
                     }
-                    .frame(width: .greedy)
-                    .contentShape(Rectangle())
+                    .frame(width: .greedy, alignment: .center)
+                    Text(account.title).opacity(0) //FIXME: This is a hack to get the separators to the edge
                 }
-                .buttonStyle(.borderless)
-                .padding(.vertical, 12)
-                .frame(width: .greedy)
-                .listRowBackground {
-                    Group {
-                        hoverProxy.isHovering ? Color.white.opacity(0.05) : nil
-                    }
-                    .contentShape(Rectangle())
-                    .onTapGesture {
-                        onSubmit()
-                    }
-                }
+                .frame(width: .greedy, alignment: .leading)
+                .contentShape(Rectangle())
             }
+            .buttonStyle(.borderless)
+            .padding(.vertical, 12)
+            .frame(width: .greedy, alignment: .leading)
         }
     }
     

@@ -347,6 +347,29 @@ extension Sideproject.ExternalAccountTypeDescriptors {
             
         }
     }
+    
+    @HadeanIdentifier("jimas-nufon-pulub-vubam")
+    public struct Marginalia: Sideproject.ExternalAccountTypeDescriptor, _StaticInstance {
+        public var accountType: Sideproject.ExternalAccountTypeIdentifier {
+            "com.vmanot.marginalia"
+        }
+        
+        public var credentialType: any Sideproject.ExternalAccountCredential.Type {
+            Sideproject.ExternalAccountCredentialTypes.APIKey.self
+        }
+        
+        public var icon: Image? {
+            Image("logo/marginalia", bundle: .module)
+        }
+        
+        public var title: String {
+            "Marginalia"
+        }
+                
+        public init() {
+            
+        }
+    }
 }
 
 // MARK: - Supplementary
@@ -389,6 +412,13 @@ extension Sideproject.ExternalAccountTypeDescriptor where Self == Sideproject.Ex
 extension Sideproject.ExternalAccountTypeDescriptor where Self == Sideproject.ExternalAccountTypeDescriptors.Jina
 {
     public static var jina: Self {
+        Self()
+    }
+}
+
+extension Sideproject.ExternalAccountTypeDescriptor where Self == Sideproject.ExternalAccountTypeDescriptors.Marginalia
+{
+    public static var marginalia: Self {
         Self()
     }
 }

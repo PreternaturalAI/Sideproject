@@ -30,7 +30,7 @@ public struct _AccountPicker: View {
                 }
             }
             .navigationDestination(for: Sideproject.ExternalAccountTypeIdentifier.self) { account in
-                _AccountEntryForm(.create, accountTypeDescription: store[account])
+                _AccountEntryForm(.create, accountTypeDescriptor: store[account])
                     .onSubmit(of: Sideproject.ExternalAccount.self) { account in
                         submit(account)
                         
@@ -86,7 +86,7 @@ public struct _AccountPicker: View {
     }
     
     private struct Cell: View {
-        let account: Sideproject.ExternalAccountTypeDescription
+        let account: Sideproject.ExternalAccountTypeDescriptor
         let onSubmit: () -> Void
         
         var body: some View {
@@ -138,7 +138,7 @@ public struct _AccountPicker: View {
         }
     }
     
-    private var filteredAccountTypes: [Sideproject.ExternalAccountTypeDescription] {
+    private var filteredAccountTypes: [Sideproject.ExternalAccountTypeDescriptor] {
         if let predicate = accountsViewConfiguration.predicate {
             return store.allKnownAccountTypeDescriptions.filter { account in
                 (try? predicate.evaluate(account.accountType)) ?? false

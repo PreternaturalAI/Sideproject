@@ -14,17 +14,17 @@ public struct _AccountEntryForm: View {
     }
     
     public let intent: Intent
-    public let accountTypeDescription: Sideproject.ExternalAccountTypeDescription
+    public let accountTypeDescriptor: Sideproject.ExternalAccountTypeDescriptor
     
     @_ConstantOrStateOrBinding var credential: (any Sideproject.ExternalAccountCredential)?
     
     public init(
         _ intent: Intent,
-        accountTypeDescription: Sideproject.ExternalAccountTypeDescription,
+        accountTypeDescriptor: Sideproject.ExternalAccountTypeDescriptor,
         credential: Binding<(any Sideproject.ExternalAccountCredential)?>? = nil
     ) {
         self.intent = intent
-        self.accountTypeDescription = accountTypeDescription
+        self.accountTypeDescriptor = accountTypeDescriptor
         self._credential = credential.map({ .binding($0) }) ?? .state(initialValue: nil)
     }
     
@@ -34,7 +34,7 @@ public struct _AccountEntryForm: View {
     
     public var body: some View {
         Group {
-            _TypeCastBinding($credential.withDefaultValue(accountTypeDescription.credentialType.empty)) { proxy in
+            _TypeCastBinding($credential.withDefaultValue(accountTypeDescriptor.credentialType.empty)) { proxy in
                 proxy.as(Sideproject.ExternalAccountCredentialTypes.APIKey.self) { $binding in
                     APICredential(subject: $binding)
                 }
@@ -63,7 +63,7 @@ public struct _AccountEntryForm: View {
     
     private func commit() {
         let account = Sideproject.ExternalAccount(
-            accountType: accountTypeDescription.accountType,
+            accountType: accountTypeDescriptor.accountType,
             credential: credential,
             description: "Untitled"
         )

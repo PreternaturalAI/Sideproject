@@ -223,21 +223,21 @@ extension Sideproject {
 extension Sideproject.ExternalAccountTypeIdentifier: _MIServiceTypeIdentifierConvertible {
     public func __conversion() throws -> _MIServiceTypeIdentifier {
         switch self {
-            case Sideproject.ExternalAccountTypeDescriptions.Anthropic().accountType:
+            case Sideproject.ExternalAccountTypeDescriptors.Anthropic().accountType:
                 return ._Anthropic
-            case Sideproject.ExternalAccountTypeDescriptions.HuggingFace().accountType:
+            case Sideproject.ExternalAccountTypeDescriptors.HuggingFace().accountType:
                 return ._HuggingFace
-            case Sideproject.ExternalAccountTypeDescriptions.Mistral().accountType:
+            case Sideproject.ExternalAccountTypeDescriptors.Mistral().accountType:
                 return ._Mistral
-            case Sideproject.ExternalAccountTypeDescriptions.OpenAI().accountType:
+            case Sideproject.ExternalAccountTypeDescriptors.OpenAI().accountType:
                 return ._OpenAI
-            case Sideproject.ExternalAccountTypeDescriptions.Perplexity().accountType:
+            case Sideproject.ExternalAccountTypeDescriptors.Perplexity().accountType:
                 return ._Perplexity
-            case Sideproject.ExternalAccountTypeDescriptions.Replicate().accountType:
+            case Sideproject.ExternalAccountTypeDescriptors.Replicate().accountType:
                 return ._Replicate
-            case Sideproject.ExternalAccountTypeDescriptions.Groq().accountType:
+            case Sideproject.ExternalAccountTypeDescriptors.Groq().accountType:
                 return ._Groq
-            case Sideproject.ExternalAccountTypeDescriptions.ElevenLabs().accountType:
+            case Sideproject.ExternalAccountTypeDescriptors.ElevenLabs().accountType:
                 return ._ElevenLabs
             default:
                 throw Never.Reason.unexpected

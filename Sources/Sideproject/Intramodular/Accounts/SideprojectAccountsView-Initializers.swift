@@ -7,7 +7,7 @@ import SwiftUI
 
 extension SideprojectAccountsView {
     /// e.g. let view = SideprojectAccountsView(only: [.openAI, .anthropic, .mistral])
-    public init(only accounts: [any Sideproject.ExternalAccountTypeDescription]) {
+    public init(only accounts: [any Sideproject.ExternalAccountTypeDescriptor]) {
         let identifiers = Set(accounts.map({ $0.accountType }))
         self.init(
             configuration: .init(predicate: #Predicate { accountType in
@@ -17,7 +17,7 @@ extension SideprojectAccountsView {
     }
     
     /// e.g. let view = SideprojectAccountsView(excluding: [.notion, .replicate])
-    public init(excluding accounts: [any Sideproject.ExternalAccountTypeDescription]) {
+    public init(excluding accounts: [any Sideproject.ExternalAccountTypeDescriptor]) {
         let identifiers = Set(accounts.map({ $0.accountType }))
         self.init(
             configuration: .init(predicate: #Predicate { accountType in

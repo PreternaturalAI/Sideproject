@@ -35,7 +35,7 @@ public struct SideprojectAccountsView: View {
             configuration: .init(predicate: nil)
         )
     }
-
+    
     public var filteredAccounts: IdentifierIndexingArrayOf<Sideproject.ExternalAccount> {
         guard let predicate = configuration.predicate else {
             return store.accounts
@@ -100,7 +100,7 @@ public struct SideprojectAccountsView: View {
                 NavigationStack {
                     _AccountEntryForm(
                         .edit,
-                        accountTypeDescription: account.accountTypeDescription,
+                        accountTypeDescriptor: account.accountTypeDescriptor,
                         credential: $account.credential
                     )
                     .navigationTitle("Edit Account")
@@ -140,7 +140,7 @@ public struct SideprojectAccountsView: View {
         
         @Binding var account: Sideproject.ExternalAccount
         
-        var accountType: Sideproject.ExternalAccountTypeDescription {
+        var accountType: Sideproject.ExternalAccountTypeDescriptor {
             store[account.accountType]
         }
         
@@ -154,7 +154,7 @@ public struct SideprojectAccountsView: View {
                         .shadow(color: Color.black.opacity(0.33 / 2), radius: 1)
                 }
                 
-                Text(account.displayName)
+                EditableText(text: $account.displayName)
                     .fixedSize(horizontal: false, vertical: true)
                     .font(.body.weight(.medium))
                     .foregroundColor(.label)
@@ -178,15 +178,13 @@ public struct SideprojectAccountsView: View {
                             .fill(.quaternary)
                             .overlay {
                                 if proxy.isHovering {
-                                    Color.secondary
-                                        .clipShape(
-                                            RoundedRectangle(cornerRadius: 12)
-                                        )
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .fill(.quaternary)
                                         .transition(.opacity)
                                 }
                             }
                             .animation(.snappy.speed(2), value: proxy.isHovering)
-                            .shadow(color: Color.black, radius: 7)
+                            .shadow(color: Color.black, radius: 6)
                     }
                 }
             

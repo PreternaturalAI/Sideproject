@@ -9,6 +9,8 @@ import SwiftUIZ
 
 extension Sideproject {
     public struct ExternalAccount: Codable, Hashable, InterfaceModel {
+        public static let defaultAccountDescription: String = "Untitled"
+        
         public typealias ID = _TypeAssociatedID<Self, UUID>
         
         @LogicalParent var store: Sideproject.ExternalAccountStore
@@ -20,21 +22,29 @@ extension Sideproject {
         public var accountDescription: String?
         
         @MainActor
-        public var accountTypeDescription: Sideproject.ExternalAccountTypeDescription {
+        public var accountTypeDescriptor: Sideproject.ExternalAccountTypeDescriptor {
             store[accountType]
         }
         
         @MainActor
         public var displayName: String {
-            if let accountDescription {
-                guard !accountDescription.isEmpty, accountDescription != "Untitled" else {
-                    return accountTypeDescription.title
+            get {
+                if let accountDescription {
+                    guard !accountDescription.isEmpty, accountDescription != Self.defaultAccountDescription else {
+                        return accountTypeDescriptor.title
+                    }
+                    
+                    return accountDescription
                 }
                 
-                return accountDescription
+                return accountTypeDescriptor.title
+            } set {
+                guard newValue != Self.defaultAccountDescription else {
+                    return
+                }
+                
+                accountDescription = newValue.nilIfEmpty()
             }
-            
-            return accountTypeDescription.title
         }
         
         public init(
@@ -80,6 +90,13 @@ extension Sideproject {
 }
 
 // MARK: - Conformances
+
+extension Sideproject.ExternalAccount: CustomStringConvertible {
+    @MainActor(unsafe)
+    public var description: String {
+        "\(displayName) (External Account)"
+    }
+}
 
 extension Sideproject.ExternalAccount: PersistentIdentifierConvertible {
     public var persistentID: ID {

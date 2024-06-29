@@ -7,7 +7,7 @@ import Foundation
 import Swallow
 
 extension Sideproject {
-    public protocol ExternalAccountTypeDescription {
+    public protocol ExternalAccountTypeDescriptor {
         var icon: Image? { get }
         var title: String { get }
         
@@ -19,14 +19,14 @@ extension Sideproject {
 // MARK: - Implemented Conformances
 
 extension Sideproject {
-    public enum ExternalAccountTypeDescriptions {
+    public enum ExternalAccountTypeDescriptors {
         
     }
 }
 
-extension Sideproject.ExternalAccountTypeDescriptions {
+extension Sideproject.ExternalAccountTypeDescriptors {
     @HadeanIdentifier("nakar-butod-jozav-bazom")
-    public struct Anthropic: Sideproject.ExternalAccountTypeDescription, _StaticInstance {
+    public struct Anthropic: Sideproject.ExternalAccountTypeDescriptor, _StaticInstance {
         public var accountType: Sideproject.ExternalAccountTypeIdentifier {
             "com.vmanot.anthropic"
         }
@@ -49,7 +49,7 @@ extension Sideproject.ExternalAccountTypeDescriptions {
     }
     
     @HadeanIdentifier("foriz-gavat-dabog-vuvuz")
-    public struct HuggingFace: Sideproject.ExternalAccountTypeDescription, _StaticInstance {
+    public struct HuggingFace: Sideproject.ExternalAccountTypeDescriptor, _StaticInstance {
         public var accountType: Sideproject.ExternalAccountTypeIdentifier {
             "com.vmanot.huggingface"
         }
@@ -73,7 +73,7 @@ extension Sideproject.ExternalAccountTypeDescriptions {
 
     
     @HadeanIdentifier("mukar-lijok-kakus-zivah")
-    public struct Mistral: Sideproject.ExternalAccountTypeDescription, _StaticInstance {
+    public struct Mistral: Sideproject.ExternalAccountTypeDescriptor, _StaticInstance {
         public var accountType: Sideproject.ExternalAccountTypeIdentifier {
             "com.vmanot.mistral"
         }
@@ -96,7 +96,7 @@ extension Sideproject.ExternalAccountTypeDescriptions {
     }
     
     @HadeanIdentifier("kosin-bafop-fadok-hamuf")
-    public struct Notion: Sideproject.ExternalAccountTypeDescription, _StaticInstance {
+    public struct Notion: Sideproject.ExternalAccountTypeDescriptor, _StaticInstance {
         public var accountType: Sideproject.ExternalAccountTypeIdentifier {
             "com.vmanot.notion"
         }
@@ -119,7 +119,7 @@ extension Sideproject.ExternalAccountTypeDescriptions {
     }
 
     @HadeanIdentifier("sakuj-sifol-tisub-rihug")
-    public struct OpenAI: Sideproject.ExternalAccountTypeDescription, _StaticInstance {
+    public struct OpenAI: Sideproject.ExternalAccountTypeDescriptor, _StaticInstance {
         public var accountType: Sideproject.ExternalAccountTypeIdentifier {
             "com.vmanot.openai"
         }
@@ -142,7 +142,7 @@ extension Sideproject.ExternalAccountTypeDescriptions {
     }
     
     @HadeanIdentifier("dusig-rikin-gilit-gopuj")
-    public struct Perplexity: Sideproject.ExternalAccountTypeDescription, _StaticInstance {
+    public struct Perplexity: Sideproject.ExternalAccountTypeDescriptor, _StaticInstance {
         public var accountType: Sideproject.ExternalAccountTypeIdentifier {
             "com.vmanot.perplexity"
         }
@@ -165,7 +165,7 @@ extension Sideproject.ExternalAccountTypeDescriptions {
     }
 
     @HadeanIdentifier("nivun-ralib-zotuv-kiniv")
-    public struct Replicate: Sideproject.ExternalAccountTypeDescription, _StaticInstance {
+    public struct Replicate: Sideproject.ExternalAccountTypeDescriptor, _StaticInstance {
         public var accountType: Sideproject.ExternalAccountTypeIdentifier {
             "com.vmanot.replicate"
         }
@@ -188,7 +188,7 @@ extension Sideproject.ExternalAccountTypeDescriptions {
     }
     
     @HadeanIdentifier("nupis-honig-zutor-vuliv")
-    public struct Groq: Sideproject.ExternalAccountTypeDescription, _StaticInstance {
+    public struct Groq: Sideproject.ExternalAccountTypeDescriptor, _StaticInstance {
         public var accountType: Sideproject.ExternalAccountTypeIdentifier {
             "com.vmanot.groq"
         }
@@ -211,7 +211,7 @@ extension Sideproject.ExternalAccountTypeDescriptions {
     }
     
     @HadeanIdentifier("fisul-tapos-hotak-nonov")
-    public struct ElevenLabs: Sideproject.ExternalAccountTypeDescription, _StaticInstance {
+    public struct ElevenLabs: Sideproject.ExternalAccountTypeDescriptor, _StaticInstance {
         public var accountType: Sideproject.ExternalAccountTypeIdentifier {
             "com.vmanot.elevenlabs"
         }
@@ -234,65 +234,74 @@ extension Sideproject.ExternalAccountTypeDescriptions {
     }
 }
 
-extension Sideproject.ExternalAccountTypeDescription where Self == Sideproject.ExternalAccountTypeDescriptions.Groq
-{
-    public static var groq: Self {
-        .init()
-    }
-}
+// MARK: - Supplementary
 
-extension Sideproject.ExternalAccountTypeDescription where Self == Sideproject.ExternalAccountTypeDescriptions.Mistral
-{
-    public static var mistral: Self {
-        .init()
-    }
-}
-
-extension Sideproject.ExternalAccountTypeDescription where Self == Sideproject.ExternalAccountTypeDescriptions.OpenAI
-{
-    public static var openAI: Self {
-        .init()
-    }
-}
-
-extension Sideproject.ExternalAccountTypeDescription where Self == Sideproject.ExternalAccountTypeDescriptions.Anthropic
+extension Sideproject.ExternalAccountTypeDescriptor where Self == Sideproject.ExternalAccountTypeDescriptors.Anthropic
 {
     public static var anthropic: Self {
-        .init()
+        Self()
     }
 }
 
-extension Sideproject.ExternalAccountTypeDescription where Self == Sideproject.ExternalAccountTypeDescriptions.HuggingFace
-{
-    public static var huggingFace: Self {
-        .init()
-    }
-}
-
-extension Sideproject.ExternalAccountTypeDescription where Self == Sideproject.ExternalAccountTypeDescriptions.Notion
-{
-    public static var notion: Self {
-        .init()
-    }
-}
-
-extension Sideproject.ExternalAccountTypeDescription where Self == Sideproject.ExternalAccountTypeDescriptions.Perplexity
-{
-    public static var perplexity: Self {
-        .init()
-    }
-}
-
-extension Sideproject.ExternalAccountTypeDescription where Self == Sideproject.ExternalAccountTypeDescriptions.Replicate
-{
-    public static var replicate: Self {
-        .init()
-    }
-}
-
-extension Sideproject.ExternalAccountTypeDescription where Self == Sideproject.ExternalAccountTypeDescriptions.ElevenLabs
+extension Sideproject.ExternalAccountTypeDescriptor where Self == Sideproject.ExternalAccountTypeDescriptors.ElevenLabs
 {
     public static var elevenLabs: Self {
-        .init()
+        Self()
     }
+}
+
+extension Sideproject.ExternalAccountTypeDescriptor where Self == Sideproject.ExternalAccountTypeDescriptors.Groq
+{
+    public static var groq: Self {
+        Self()
+    }
+}
+
+extension Sideproject.ExternalAccountTypeDescriptor where Self == Sideproject.ExternalAccountTypeDescriptors.OpenAI
+{
+    public static var openAI: Self {
+        Self()
+    }
+}
+
+extension Sideproject.ExternalAccountTypeDescriptor where Self == Sideproject.ExternalAccountTypeDescriptors.Mistral
+{
+    public static var mistral: Self {
+        Self()
+    }
+}
+
+extension Sideproject.ExternalAccountTypeDescriptor where Self == Sideproject.ExternalAccountTypeDescriptors.HuggingFace
+{
+    public static var huggingFace: Self {
+        Self()
+    }
+}
+
+extension Sideproject.ExternalAccountTypeDescriptor where Self == Sideproject.ExternalAccountTypeDescriptors.Notion
+{
+    public static var notion: Self {
+        Self()
+    }
+}
+
+extension Sideproject.ExternalAccountTypeDescriptor where Self == Sideproject.ExternalAccountTypeDescriptors.Perplexity
+{
+    public static var perplexity: Self {
+        Self()
+    }
+}
+
+extension Sideproject.ExternalAccountTypeDescriptor where Self == Sideproject.ExternalAccountTypeDescriptors.Replicate
+{
+    public static var replicate: Self {
+        Self()
+    }
+}
+
+// MARK: - Deprecated
+
+extension Sideproject {
+    @available(*, deprecated, renamed: "ExternalAccountTypeDescriptor")
+    public typealias ExternalAccountTypeDescription = ExternalAccountTypeDescriptor
 }

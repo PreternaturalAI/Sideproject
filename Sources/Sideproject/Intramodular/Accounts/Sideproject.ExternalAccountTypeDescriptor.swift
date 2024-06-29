@@ -255,6 +255,98 @@ extension Sideproject.ExternalAccountTypeDescriptors {
             
         }
     }
+    
+    @HadeanIdentifier("vuvor-johud-bojam-vofoh")
+    public struct Jina: Sideproject.ExternalAccountTypeDescriptor, _StaticInstance {
+        public var accountType: Sideproject.ExternalAccountTypeIdentifier {
+            "com.vmanot.jina"
+        }
+        
+        public var credentialType: any Sideproject.ExternalAccountCredential.Type {
+            Sideproject.ExternalAccountCredentialTypes.APIKey.self
+        }
+        
+        public var icon: Image? {
+            Image("logo/jina", bundle: .module)
+        }
+        
+        public var title: String {
+            "Jina"
+        }
+                
+        public init() {
+            
+        }
+    }
+    
+    @HadeanIdentifier("bifur-gozik-dubig-naruj")
+    public struct VoyageAI: Sideproject.ExternalAccountTypeDescriptor, _StaticInstance {
+        public var accountType: Sideproject.ExternalAccountTypeIdentifier {
+            "com.vmanot.voyageai"
+        }
+        
+        public var credentialType: any Sideproject.ExternalAccountCredential.Type {
+            Sideproject.ExternalAccountCredentialTypes.APIKey.self
+        }
+        
+        public var icon: Image? {
+            Image("logo/voyageai", bundle: .module)
+        }
+        
+        public var title: String {
+            "VoyageAI"
+        }
+                
+        public init() {
+            
+        }
+    }
+    
+    @HadeanIdentifier("tabam-pojik-gizoj-rigoh")
+    public struct Cohere: Sideproject.ExternalAccountTypeDescriptor, _StaticInstance {
+        public var accountType: Sideproject.ExternalAccountTypeIdentifier {
+            "com.vmanot.cohere"
+        }
+        
+        public var credentialType: any Sideproject.ExternalAccountCredential.Type {
+            Sideproject.ExternalAccountCredentialTypes.APIKey.self
+        }
+        
+        public var icon: Image? {
+            Image("logo/Cohere", bundle: .module)
+        }
+        
+        public var title: String {
+            "Cohere"
+        }
+                
+        public init() {
+            
+        }
+    }
+    
+    @HadeanIdentifier("fomol-pifol-fonid-gasad")
+    public struct TogetherAI: Sideproject.ExternalAccountTypeDescriptor, _StaticInstance {
+        public var accountType: Sideproject.ExternalAccountTypeIdentifier {
+            "com.vmanot.togetherai"
+        }
+        
+        public var credentialType: any Sideproject.ExternalAccountCredential.Type {
+            Sideproject.ExternalAccountCredentialTypes.APIKey.self
+        }
+        
+        public var icon: Image? {
+            Image("logo/togetherai", bundle: .module)
+        }
+        
+        public var title: String {
+            "TogetherAI"
+        }
+                
+        public init() {
+            
+        }
+    }
 }
 
 // MARK: - Supplementary
@@ -262,6 +354,13 @@ extension Sideproject.ExternalAccountTypeDescriptors {
 extension Sideproject.ExternalAccountTypeDescriptor where Self == Sideproject.ExternalAccountTypeDescriptors.Anthropic
 {
     public static var anthropic: Self {
+        Self()
+    }
+}
+
+extension Sideproject.ExternalAccountTypeDescriptor where Self == Sideproject.ExternalAccountTypeDescriptors.Cohere
+{
+    public static var cohere: Self {
         Self()
     }
 }
@@ -280,9 +379,16 @@ extension Sideproject.ExternalAccountTypeDescriptor where Self == Sideproject.Ex
     }
 }
 
-extension Sideproject.ExternalAccountTypeDescriptor where Self == Sideproject.ExternalAccountTypeDescriptors.OpenAI
+extension Sideproject.ExternalAccountTypeDescriptor where Self == Sideproject.ExternalAccountTypeDescriptors.HuggingFace
 {
-    public static var openAI: Self {
+    public static var huggingFace: Self {
+        Self()
+    }
+}
+
+extension Sideproject.ExternalAccountTypeDescriptor where Self == Sideproject.ExternalAccountTypeDescriptors.Jina
+{
+    public static var jina: Self {
         Self()
     }
 }
@@ -294,16 +400,16 @@ extension Sideproject.ExternalAccountTypeDescriptor where Self == Sideproject.Ex
     }
 }
 
-extension Sideproject.ExternalAccountTypeDescriptor where Self == Sideproject.ExternalAccountTypeDescriptors.HuggingFace
+extension Sideproject.ExternalAccountTypeDescriptor where Self == Sideproject.ExternalAccountTypeDescriptors.Notion
 {
-    public static var huggingFace: Self {
+    public static var notion: Self {
         Self()
     }
 }
 
-extension Sideproject.ExternalAccountTypeDescriptor where Self == Sideproject.ExternalAccountTypeDescriptors.Notion
+extension Sideproject.ExternalAccountTypeDescriptor where Self == Sideproject.ExternalAccountTypeDescriptors.OpenAI
 {
-    public static var notion: Self {
+    public static var openAI: Self {
         Self()
     }
 }
@@ -322,9 +428,23 @@ extension Sideproject.ExternalAccountTypeDescriptor where Self == Sideproject.Ex
     }
 }
 
+extension Sideproject.ExternalAccountTypeDescriptor where Self == Sideproject.ExternalAccountTypeDescriptors.TogetherAI
+{
+    public static var togetherai: Self {
+        Self()
+    }
+}
+
 extension Sideproject.ExternalAccountTypeDescriptor where Self == Sideproject.ExternalAccountTypeDescriptors.ValTown
 {
     public static var valtown: Self {
+        Self()
+    }
+}
+
+extension Sideproject.ExternalAccountTypeDescriptor where Self == Sideproject.ExternalAccountTypeDescriptors.VoyageAI
+{
+    public static var voyageai: Self {
         Self()
     }
 }

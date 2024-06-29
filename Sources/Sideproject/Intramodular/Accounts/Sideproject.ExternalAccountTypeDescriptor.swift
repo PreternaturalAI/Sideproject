@@ -232,6 +232,29 @@ extension Sideproject.ExternalAccountTypeDescriptors {
             
         }
     }
+    
+    @HadeanIdentifier("titav-sijag-ruhid-vubim")
+    public struct ValTown: Sideproject.ExternalAccountTypeDescriptor, _StaticInstance {
+        public var accountType: Sideproject.ExternalAccountTypeIdentifier {
+            "com.vmanot.valtown"
+        }
+        
+        public var credentialType: any Sideproject.ExternalAccountCredential.Type {
+            Sideproject.ExternalAccountCredentialTypes.APIKey.self
+        }
+        
+        public var icon: Image? {
+            Image("logo/valtown", bundle: .module)
+        }
+        
+        public var title: String {
+            "ValTown"
+        }
+                
+        public init() {
+            
+        }
+    }
 }
 
 // MARK: - Supplementary
@@ -295,6 +318,13 @@ extension Sideproject.ExternalAccountTypeDescriptor where Self == Sideproject.Ex
 extension Sideproject.ExternalAccountTypeDescriptor where Self == Sideproject.ExternalAccountTypeDescriptors.Replicate
 {
     public static var replicate: Self {
+        Self()
+    }
+}
+
+extension Sideproject.ExternalAccountTypeDescriptor where Self == Sideproject.ExternalAccountTypeDescriptors.ValTown
+{
+    public static var valtown: Self {
         Self()
     }
 }

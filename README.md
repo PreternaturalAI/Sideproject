@@ -174,6 +174,17 @@ Specify which providers to exlude:
 SideprojectAccountsView(excluding: [.elevenLabs, .notion, .replicate])
 ```
 
+Check Account Credentials
+```swift
+let accountStore = Sideproject.ExternalAccountStore.shared
+
+accountStore.hasCredentials(type: .openAI)
+accountStore.hasCredentials(type: .anthropic)
+accountStore.hasCredentials(type: .mistral)
+accountStore.hasCredentials(type: .groq)
+accountStore.hasCredentials(type: .elevenLabs)
+```
+
 ## Demo
 
 See demos on [Preternatural Explore](https://github.com/preternatural-explore)

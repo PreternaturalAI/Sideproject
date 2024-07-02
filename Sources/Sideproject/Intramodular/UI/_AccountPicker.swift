@@ -127,7 +127,7 @@ public struct _AccountPicker: View {
                             .foregroundStyle(Color.label)
                     }
                     .frame(width: .greedy, alignment: .center)
-                    Text(account.title).opacity(0) //FIXME: This is a hack to get the separators to the edge
+                    Text(account.title).opacity(0) // FIXME: This is a hack to get the separators to the edge
                 }
                 .frame(width: .greedy, alignment: .leading)
                 .contentShape(Rectangle())

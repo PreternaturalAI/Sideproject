@@ -7,7 +7,7 @@ import Foundation
 import Swallow
 
 extension Sideproject {
-    public protocol ExternalAccountTypeDescriptor {
+    public protocol ExternalAccountTypeDescriptor: Hashable {
         var icon: Image? { get }
         var title: String { get }
         

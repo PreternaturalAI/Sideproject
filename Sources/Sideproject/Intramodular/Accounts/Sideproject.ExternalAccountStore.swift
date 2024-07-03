@@ -30,7 +30,7 @@ extension Sideproject {
             IdentifierIndexingArray<any Sideproject.ExternalAccountTypeDescriptor, Sideproject.ExternalAccountTypeIdentifier>(
                 try! TypeMetadata._queryAll(
                     .pureSwift,
-                    .conformsTo(Sideproject.ExternalAccountTypeDescriptor.self),
+                    .conformsTo((any Sideproject.ExternalAccountTypeDescriptor).self),
                     .nonAppleFramework
                 )
                 .filter({ $0 is any _StaticInstance.Type })
@@ -49,7 +49,7 @@ extension Sideproject {
 extension Sideproject.ExternalAccountStore {
     public subscript(
         _ type: Sideproject.ExternalAccountTypeIdentifier
-    ) -> Sideproject.ExternalAccountTypeDescriptor {
+    ) -> any Sideproject.ExternalAccountTypeDescriptor {
         get {
             allKnownAccountTypeDescriptions[id: type]!
         }
@@ -66,7 +66,7 @@ extension Sideproject.ExternalAccountStore {
 
 extension Sideproject.ExternalAccountStore {
     public func accounts(
-        for type: Sideproject.ExternalAccountTypeDescriptor
+        for type: any Sideproject.ExternalAccountTypeDescriptor
     ) -> [Sideproject.ExternalAccount] {
         self.accounts.filter({ $0.accountTypeDescriptor.accountType == type.accountType })
     }
@@ -75,7 +75,7 @@ extension Sideproject.ExternalAccountStore {
     ///
     /// For example `Sideproject.ExternalAccountStore.shared.credentials(for: .groq)`
     public func credentials(
-        for type: Sideproject.ExternalAccountTypeDescriptor
+        for type: any Sideproject.ExternalAccountTypeDescriptor
     ) -> [Sideproject.ExternalAccount.ID: any Sideproject.ExternalAccountCredential] {
         self.accounts
             .filter({ $0.accountTypeDescriptor.accountType == type.accountType })
@@ -84,7 +84,7 @@ extension Sideproject.ExternalAccountStore {
     }
     
     public func hasCredentials(
-        type: Sideproject.ExternalAccountTypeDescriptor
+        type: any Sideproject.ExternalAccountTypeDescriptor
     ) -> Bool {
         !credentials(for: type).isEmpty
     }

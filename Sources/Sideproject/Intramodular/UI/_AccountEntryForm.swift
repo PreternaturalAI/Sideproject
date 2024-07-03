@@ -14,13 +14,13 @@ public struct _AccountEntryForm: View {
     }
     
     public let intent: Intent
-    public let accountTypeDescriptor: Sideproject.ExternalAccountTypeDescriptor
+    public let accountTypeDescriptor: any Sideproject.ExternalAccountTypeDescriptor
     
     @_ConstantOrStateOrBinding var credential: (any Sideproject.ExternalAccountCredential)?
     
     public init(
         _ intent: Intent,
-        accountTypeDescriptor: Sideproject.ExternalAccountTypeDescriptor,
+        accountTypeDescriptor: any Sideproject.ExternalAccountTypeDescriptor,
         credential: Binding<(any Sideproject.ExternalAccountCredential)?>? = nil
     ) {
         self.intent = intent

@@ -22,7 +22,7 @@ extension Sideproject {
         public var accountDescription: String?
         
         @MainActor
-        public var accountTypeDescriptor: Sideproject.ExternalAccountTypeDescriptor {
+        public var accountTypeDescriptor: any Sideproject.ExternalAccountTypeDescriptor {
             store[accountType]
         }
         

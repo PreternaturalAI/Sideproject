@@ -86,7 +86,7 @@ public struct _AccountPicker: View {
     }
     
     private struct Cell: View {
-        let account: Sideproject.ExternalAccountTypeDescriptor
+        let account: any Sideproject.ExternalAccountTypeDescriptor
         let onSubmit: () -> Void
         
         var body: some View {
@@ -138,7 +138,7 @@ public struct _AccountPicker: View {
         }
     }
     
-    private var filteredAccountTypes: [Sideproject.ExternalAccountTypeDescriptor] {
+    private var filteredAccountTypes: [any Sideproject.ExternalAccountTypeDescriptor] {
         if let predicate = accountsViewConfiguration.predicate {
             return store.allKnownAccountTypeDescriptions.filter { account in
                 (try? predicate.evaluate(account.accountType)) ?? false

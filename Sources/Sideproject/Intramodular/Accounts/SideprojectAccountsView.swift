@@ -140,7 +140,7 @@ public struct SideprojectAccountsView: View {
         
         @Binding var account: Sideproject.ExternalAccount
         
-        var accountType: Sideproject.ExternalAccountTypeDescriptor {
+        var accountType: any Sideproject.ExternalAccountTypeDescriptor {
             store[account.accountType]
         }
         

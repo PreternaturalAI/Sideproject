@@ -25,9 +25,9 @@ jobs:
       matrix:
         xcode: ['latest']
         macos: ['macos-14']
-        scheme: ['Lite']
+        scheme: ['Sideproject']
         command: ['build']
-        platform: ['macOS'] # ADD 'iOS', 'tvOS', 'watchOS'
+        platform: ['iOS', 'macOS']
     steps:
     - name: Switch xcode to ${{ matrix.xcode }}
       uses: maxim-lobanov/setup-xcode@v1.5.1

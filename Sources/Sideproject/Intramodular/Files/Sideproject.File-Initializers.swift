@@ -43,7 +43,7 @@ extension Sideproject.File {
                 directory: .userDocuments,
                 subdirectory: "files",
                 filename: UUID().uuidString
-            ).appendingPathExtension(url._fileExtension)
+            ).appendingPathExtension(url._fileExtension.unwrap())
             
             try FileManager.default.createDirectoryIfNecessary(at: newURL.deletingLastPathComponent())
             

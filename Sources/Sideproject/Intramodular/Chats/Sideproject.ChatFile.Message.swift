@@ -43,6 +43,16 @@ extension Sideproject.ChatFile.Message {
             base[keyPath: keyPath]
         }
     }
+    
+    public subscript<T>(
+        dynamicMember keyPath: WritableKeyPath<AbstractLLM.ChatMessage, T>
+    ) -> T {
+        get {
+            base[keyPath: keyPath]
+        } set {
+            base[keyPath: keyPath] = newValue
+        }
+    }
 }
 
 extension Sideproject.ChatFile.Message: AbstractLLM.ChatMessageConvertible {

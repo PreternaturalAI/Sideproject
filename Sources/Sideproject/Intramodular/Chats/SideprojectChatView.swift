@@ -9,7 +9,7 @@ import Swallow
 public struct SideprojectChatView: View {
     @Environment(\.userInterfaceIdiom) var userInterfaceIdiom
     
-    @StateObject var playground: SideprojectChatPlayground
+    @StateObject var playground: Sideproject.ChatSession
     
     @State private var inputFieldText: String = ""
     
@@ -55,17 +55,19 @@ public struct SideprojectChatView: View {
     private var messagesList: some View {
         ChatMessageList(
             playground.document.messages
-        ) { message in
+        ) { (message: Sideproject.ChatFile.Message) in
             ChatItemCell(item: message)
                 .roleInvert(playground.ephemeralOptions.rolesReversed)
                 .onEdit { (newValue: String) in
-                    guard !newValue.isEmpty, (try? newValue == message.base._stripToText()) == false else {
+                    guard !newValue.isEmpty, (try? newValue == String(message.content)) == false else {
                         return
                     }
                     
-                    playground.sendMessage(withMutableScope(message) {
-                        $0.base.content = PromptLiteral(newValue)
-                    })
+                    let modifiedMessage: Sideproject.ChatFile.Message = withMutableScope(message) {
+                        $0.content = PromptLiteral(newValue)
+                    }
+                    
+                    playground.sendMessage(modifiedMessage)
                 }
                 .onDelete {
                     playground.delete(message.id)

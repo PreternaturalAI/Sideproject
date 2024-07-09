@@ -11,15 +11,9 @@ extension Sideproject {
     public struct ChatFile: Codable, Hashable, Identifiable, PersistentIdentifierConvertible {
         public typealias ID = _TypeAssociatedID<Self, UUID>
         
-        public struct Metadata: Codable, Hashable, Sendable {
-            public var creationDate: Date = Date()
-            public var sendDate: Date?
-            public var displayName: String = "Untitled"
-        }
-        
         public var id: ID
         public var metadata = Metadata()
-        public var messages: IdentifierIndexingArrayOf<Message> = []
+        public var messages: IdentifierIndexingArrayOf<Sideproject.ChatFile.Message> = []
         @_UnsafelySerialized
         public var preset: (any Sideproject.ChatFile.Preset)?
         @_UnsafelySerialized
@@ -32,6 +26,14 @@ extension Sideproject {
         public init() {
             self.init(id: .random())
         }
+    }
+}
+
+extension Sideproject.ChatFile {
+    public struct Metadata: Codable, Hashable, Sendable {
+        public var creationDate: Date = Date()
+        public var sendDate: Date?
+        public var displayName: String = "Untitled"
     }
 }
 

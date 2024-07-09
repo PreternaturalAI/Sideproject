@@ -10,8 +10,8 @@ import Swallow
 extension Sideproject.ChatFile {
     @dynamicMemberLookup
     public struct Message: Codable, Hashable, Identifiable, Sendable {
-        public typealias ID = _TypeAssociatedID<Self, UUID>
-        
+        public typealias ID = AnyPersistentIdentifier
+
         public struct Metadata: Codable, Hashable, Sendable {
             public var creationDate: Date = Date()
             public var sendDate: Date?
@@ -29,6 +29,13 @@ extension Sideproject.ChatFile {
             id: ID
         ) {
             self.base = base
+            
+            if let existingID: AnyPersistentIdentifier = self.base.id {
+                assert(existingID == id)
+            } else {
+                self.base.id = id
+            }
+            
             self.id = id
             self.metadata = .init()
         }
@@ -57,7 +64,10 @@ extension Sideproject.ChatFile.Message {
 
 extension Sideproject.ChatFile.Message: AbstractLLM.ChatMessageConvertible {
     public init(_ message: AbstractLLM.ChatMessage) {
-        self.init(base: message, id: .random())
+        self.init(
+            base: message,
+            id: message.id ?? AnyPersistentIdentifier(erasing: UUID())
+        )
     }
     
     public func __conversion() -> AbstractLLM.ChatMessage {

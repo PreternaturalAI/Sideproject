@@ -25,10 +25,13 @@ extension Sideproject {
         @Published public var activityPhaseOfLastItem: ChatItemActivityPhase = .idle
         
         public init(
-            document: PublishedAsyncBinding<Sideproject.ChatFile>,
+            document: @autoclosure @escaping () throws -> PublishedAsyncBinding<Sideproject.ChatFile>,
             llm: LLMRequestHandling = Sideproject.shared
         ) {
-            self._document = document
+            self._document = #try(.optimistic) {
+                try document()
+            } ?? PublishedAsyncBinding(wrappedValue: ChatFile())
+            
             self.llm = llm
         }
         
@@ -93,7 +96,7 @@ extension Sideproject {
                 try document.messages.remove(elementIdentifiedBy: message)
             }
         }
-
+        
         /// Delete a given message from the chat file.
         public func delete(
             _ message: AbstractLLM.ChatMessage.ID

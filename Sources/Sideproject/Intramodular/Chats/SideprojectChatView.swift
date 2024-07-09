@@ -9,32 +9,55 @@ import Swallow
 public struct SideprojectChatView: View {
     @Environment(\.userInterfaceIdiom) var userInterfaceIdiom
     
-    @StateObject var playground: Sideproject.ChatSession
+    @StateObject var session: Sideproject.ChatSession
     
     @State private var inputFieldText: String = ""
     
     @UserStorage("chat.inspectorVisibility")
     private var isInspectorPresented: Bool = false
     
+    public init(session: @autoclosure @escaping () -> Sideproject.ChatSession) {
+        self._session = .init(wrappedValue: session())
+    }
+
+    public init(
+        _ data: @autoclosure @escaping () throws -> Sideproject.ChatFile,
+        llm: LLMRequestHandling = Sideproject.shared
+    ) {
+        self.init(
+            session: Sideproject.ChatSession(
+                document: try PublishedAsyncBinding<Sideproject.ChatFile>(wrappedValue: data()),
+                llm: llm
+            )
+        )
+    }
+    
+    public init<T: AbstractLLM.ChatMessageConvertible>(
+        messages: some Sequence<T>,
+        llm: LLMRequestHandling = Sideproject.shared
+    ) {
+        self.init(try Sideproject.ChatFile(messages: messages), llm: llm)
+    }
+
     public var body: some View {
         ChatView {
             messagesList
             
-            if playground.document.messages.isEmpty {
+            if session.document.messages.isEmpty {
                 ContentUnavailableView("No Messages", image: "message.fill")
             }
         } input: {
             ChatInputBar(
                 text: $inputFieldText
             ) { message in
-                playground.sendMessage(message)
+                session.sendMessage(message)
             }
-            .disabled(playground.activityPhaseOfLastItem == .sending)
+            .disabled(session.activityPhaseOfLastItem == .sending)
         }
         .onChatInterrupt {
-            playground.interrupt()
+            session.interrupt()
         }
-        .activityPhaseOfLastItem(playground.activityPhaseOfLastItem)
+        .activityPhaseOfLastItem(session.activityPhaseOfLastItem)
         .frame(minWidth: 512)
         .toolbar {
             ToolbarItemGroup {
@@ -42,7 +65,7 @@ public struct SideprojectChatView: View {
                 
                 EditableText(
                     "Untitled thread",
-                    text: $playground.document.metadata.displayName
+                    text: $session.document.metadata.displayName
                 )
                 
                 Spacer()
@@ -54,10 +77,10 @@ public struct SideprojectChatView: View {
     
     private var messagesList: some View {
         ChatMessageList(
-            playground.document.messages
+            session.document.messages
         ) { (message: Sideproject.ChatFile.Message) in
             ChatItemCell(item: message)
-                .roleInvert(playground.ephemeralOptions.rolesReversed)
+                .roleInvert(session.ephemeralOptions.rolesReversed)
                 .onEdit { (newValue: String) in
                     guard !newValue.isEmpty, (try? newValue == String(message.content)) == false else {
                         return
@@ -67,13 +90,13 @@ public struct SideprojectChatView: View {
                         $0.content = PromptLiteral(newValue)
                     }
                     
-                    playground.sendMessage(modifiedMessage)
+                    session.sendMessage(modifiedMessage)
                 }
                 .onDelete {
-                    playground.delete(message.id)
+                    session.delete(message.id)
                 }
                 .onResend {
-                    playground.sendMessage(message)
+                    session.sendMessage(message)
                 }
                 .cocoaListItem(id: message.id)
                 .chatItemDecoration(placement: .besideItem) {
@@ -88,6 +111,9 @@ public struct SideprojectChatView: View {
                     .menuStyle(.button)
                     .buttonStyle(.plain)
                 }
+        }
+        .onEdit { (message, content) in
+            session.document.messages[id: message]?.content = PromptLiteral(content)
         }
     }
     

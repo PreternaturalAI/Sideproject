@@ -83,6 +83,13 @@ extension Sideproject.ExternalAccountStore {
             .compactMapValues({ $0.credential })
     }
     
+    public func credential<T: Sideproject.ExternalAccountCredential>(
+        ofType type: Sideproject.ExternalAccountCredentialTypeName<T>,
+        for accountType: any Sideproject.ExternalAccountTypeDescriptor
+    ) throws -> T {
+        try credentials(for: accountType).firstAndOnly(byUnwrapping: { $0.value as? T }).unwrap()
+    }
+    
     public func hasCredentials(
         type: any Sideproject.ExternalAccountTypeDescriptor
     ) -> Bool {

@@ -53,9 +53,9 @@ public struct SideprojectAccountsView: View {
             cellGrid
                 .frame(minWidth: 126)
             
-#if os(macOS)
+            #if os(macOS)
             PathControl(url: try! store.$accounts.url)
-#endif
+            #endif
         }
         .padding()
         .environmentObject(store)
@@ -73,12 +73,12 @@ public struct SideprojectAccountsView: View {
                 
                 ForEach(filteredAccounts, from: $store.accounts) { ($account: Binding<Sideproject.ExternalAccount>) in
                     PresentationLink {
-                        EditAccountView(account: $account)
+                        EditAccountView(account: $account._assigningLogicalParent(store, to: \.$store))
                             .onSubmit(of: Sideproject.ExternalAccount.self) { account in
                                 store.accounts[id: account.id] = account
                             }
                     } label: {
-                        Cell(account: $account._withLogicalParent(store))
+                        Cell(account: $account._assigningLogicalParent(store, to: \.$store))
                             .contextMenu {
                                 Button("Delete", role: .destructive) {
                                     store.accounts.remove(account)
@@ -117,7 +117,7 @@ public struct SideprojectAccountsView: View {
             PresentationLink {
                 _AccountPicker()
                     .onSubmit(of: Sideproject.ExternalAccount.self) { account in
-                        let account = try! _withLogicalParent(store) {
+                        let account = _withLogicalParent(store) {
                             account
                         }
                         

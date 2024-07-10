@@ -13,6 +13,20 @@ extension Sideproject {
     }
 }
 
+extension Sideproject {
+    public struct ExternalAccountCredentialTypeName<T: Sideproject.ExternalAccountCredential> {
+        fileprivate init() {
+            
+        }
+    }
+}
+
+extension Sideproject.ExternalAccountCredentialTypeName where T == Sideproject.ExternalAccountCredentialTypes.APIKey {
+    public static var apiKey: Self {
+        Self()
+    }
+}
+
 // MARK: - Implemented Conformances
 
 extension Sideproject {
@@ -50,5 +64,11 @@ extension Sideproject.ExternalAccountCredentialTypes {
         public var isEmpty: Bool {
             key.isEmpty
         }
+    }
+}
+
+extension Sideproject.ExternalAccountCredential where Self == Sideproject.ExternalAccountCredentialTypes.APIKey {
+    public static var apiKey: Self.Type {
+        Self.self
     }
 }

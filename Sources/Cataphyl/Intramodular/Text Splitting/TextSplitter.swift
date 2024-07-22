@@ -57,7 +57,7 @@ extension TextSplitter {
                         result.append(concatenated)
                     }
                     
-                    while currentTotal > maximumSplitOverlap || (currentTotal + length + effectiveSeparatorLength() > configuration.maximumSplitSize && currentTotal > 0) {
+                    while currentTotal > maximumSplitOverlap || ((Int(currentTotal + length + effectiveSeparatorLength()) > maximumSplitSize) && Bool(currentTotal > 0)) {
                         if !currentSplits.isEmpty {
                             currentTotal -= try configuration.tokenizer.tokenCount(for: currentSplits[0].text) + effectiveSeparatorLength()
                             

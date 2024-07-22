@@ -88,7 +88,8 @@ public final class SideprojectChatSession: Logging, ObservableObject {
     /// Interrupt any sending/streaming of a message.
     ///
     /// If a response was being streamed, it'll be canceled and deleted.
-    public func interrupt() {
+    @MainActor
+    public func interrupt$() {
         taskQueue.cancelAll()
     }
     

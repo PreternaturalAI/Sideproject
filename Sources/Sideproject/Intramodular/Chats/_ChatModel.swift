@@ -32,7 +32,8 @@ public enum _ChatModel: CaseIterable, Hashable, Sendable {
             OpenAI.Model.chat(.gpt_4),
             OpenAI.Model.chat(.gpt_4_1106_preview),
             OpenAI.Model.chat(.gpt_4_vision_preview),
-            OpenAI.Model.chat(.gpt_4o)
+            OpenAI.Model.chat(.gpt_4o),
+            OpenAI.Model.chat(.gpt_4o_mini)
         ])
         .map({ Self.openai($0) })
     }

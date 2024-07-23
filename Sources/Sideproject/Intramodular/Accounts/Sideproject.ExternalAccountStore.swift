@@ -4,9 +4,9 @@
 
 import CoreMI
 import CorePersistence
+import FoundationX
 import Runtime
 import Swallow
-import AppIntents
 
 extension Sideproject {
     @MainActor

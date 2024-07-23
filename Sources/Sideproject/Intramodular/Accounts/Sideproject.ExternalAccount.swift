@@ -15,7 +15,7 @@ extension Sideproject {
         
         @LogicalParent var store: Sideproject.ExternalAccountStore
         
-        public let id: ID
+        public var id: ID
         public let accountType: Sideproject.ExternalAccountTypeIdentifier
         @_UnsafelySerialized
         public var credential: (any Sideproject.ExternalAccountCredential)?

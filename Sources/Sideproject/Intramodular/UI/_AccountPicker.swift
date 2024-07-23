@@ -37,6 +37,9 @@ public struct _AccountPicker: View {
                         presentationMode.dismiss()
                     }
             }
+            ._overrideOnExitCommand {
+                presentationMode.dismiss()
+            }
         }
         .frame(idealWidth: 448, idealHeight: 560)
         .background(Color.accountModalBackgroundColor.ignoresSafeArea())

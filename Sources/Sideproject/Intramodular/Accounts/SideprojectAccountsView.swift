@@ -73,10 +73,21 @@ public struct SideprojectAccountsView: View {
                 
                 ForEach(filteredAccounts, from: $store.accounts) { ($account: Binding<Sideproject.ExternalAccount>) in
                     PresentationLink {
-                        EditAccountView(account: $account._assigningLogicalParent(store, to: \.$store))
-                            .onSubmit(of: Sideproject.ExternalAccount.self) { account in
-                                store.accounts[id: account.id] = account
-                            }
+                        withEnvironmentValue(\.presentationManager) { presentationManager in
+                            EditAccountView(account: $account._assigningLogicalParent(store, to: \.$store))
+                                .onSubmit(of: Sideproject.ExternalAccount.self) { editedAccount in
+                                    var editedAccount = editedAccount
+                                    
+                                    editedAccount.id = account.id
+                                    
+                                    store.accounts.upsert(editedAccount)
+                                    
+                                    presentationManager.dismiss()
+                                }
+                                ._overrideOnExitCommand {
+                                    presentationManager.dismiss()
+                                }
+                        }
                     } label: {
                         Cell(account: $account._assigningLogicalParent(store, to: \.$store))
                             .contextMenu {
@@ -115,14 +126,19 @@ public struct SideprojectAccountsView: View {
         
         var body: some View {
             PresentationLink {
-                _AccountPicker()
-                    .onSubmit(of: Sideproject.ExternalAccount.self) { account in
-                        let account = _withLogicalParent(store) {
-                            account
+                withEnvironmentValue(\.presentationManager) { presentationManager in
+                    _AccountPicker()
+                        .onSubmit(of: Sideproject.ExternalAccount.self) { account in
+                            let account = _withLogicalParent(store) {
+                                account
+                            }
+                            
+                            store.accounts.append(account)
                         }
-                        
-                        store.accounts.append(account)
-                    }
+                        ._overrideOnExitCommand {
+                            presentationManager.dismiss()
+                        }
+                }
             } label: {
                 Image(systemName: .plus)
                     .font(.title)

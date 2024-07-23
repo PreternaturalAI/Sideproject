@@ -3,7 +3,6 @@
 //
 
 @_exported import Cataphyl
-@_exported import CorePersistence
 @_exported import Diagnostics
 @_exported import LargeLanguageModels
 @_exported import Merge

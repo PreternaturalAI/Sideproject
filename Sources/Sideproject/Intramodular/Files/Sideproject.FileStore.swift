@@ -4,9 +4,9 @@
 
 import Cataphyl
 import CorePersistence
+import FoundationX
 import LargeLanguageModels
 import Merge
-import OpenAI
 import Swallow
 
 extension Sideproject {

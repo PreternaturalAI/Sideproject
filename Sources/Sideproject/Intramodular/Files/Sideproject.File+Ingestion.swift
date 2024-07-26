@@ -2,7 +2,7 @@
 // Copyright (c) Vatsal Manot
 //
 
-private import BrowserKit
+internal import BrowserKit
 import Cataphyl
 import CorePersistence
 import PDFKit

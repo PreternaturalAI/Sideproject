@@ -7,7 +7,7 @@
 import ChatKit
 import OpenAI
 
-extension OpenAI.Message: AnyChatMessageConvertible {
+extension OpenAI.Message: ChatKit.AnyChatMessageConvertible {
     public func __conversion() -> AnyChatMessage {
         AnyChatMessage(
             id: self.id,

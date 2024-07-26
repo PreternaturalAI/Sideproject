@@ -55,20 +55,24 @@ public final class Sideproject: _CancellablesProviding, Logging, ObservableObjec
         }
     }
     
-    @MainActor(unsafe)
-    public init(services: [any _MIService]) {
-        shouldAutoinitializeServices = false
+    public init(services: [any _MIService]?) {
+        if services != nil {
+            shouldAutoinitializeServices = false
+        } else {
+            shouldAutoinitializeServices = true
+        }
         
-        self.manuallyAddedServices = services
-                
-        self.setUp()
+        MainActor.unsafeAssumeIsolated {
+            if let services {
+                self.manuallyAddedServices = services
+            }
+            
+            self.setUp()
+        }
     }
     
-    @MainActor(unsafe)
-    private init() {
-        shouldAutoinitializeServices = true
-        
-        self.setUp()
+    private convenience init() {
+        self.init(services: nil)
     }
     
     @MainActor

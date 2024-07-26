@@ -14,7 +14,6 @@ extension Sideproject {
 }
 
 @ManagedActor
-@MainActor
 public final class SideprojectChatSession: Logging, ObservableObject {
     private let cancellables = Cancellables()
     private let taskQueue = TaskQueue()

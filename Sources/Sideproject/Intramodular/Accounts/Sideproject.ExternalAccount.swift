@@ -93,9 +93,10 @@ extension Sideproject {
 // MARK: - Conformances
 
 extension Sideproject.ExternalAccount: CustomStringConvertible {
-    @MainActor(unsafe)
     public var description: String {
-        "\(displayName) (External Account)"
+        MainActor.assumeIsolated {
+            "\(displayName) (External Account)"
+        }
     }
 }
 

@@ -17,8 +17,8 @@ let package = Package(
             targets: [
                 "Cataphyl",
                 "Sideproject",
-                "_USearchObjective",
-                "_USearch",
+                // "_USearchObjective",
+                // "_USearch",
             ]
         )
     ],
@@ -41,7 +41,7 @@ let package = Package(
             ],
             path: "Sources/SideprojectMacros"
         ),
-        .target(
+        /*.target(
             name: "_USearchObjective",
             path: "Sources/_USearch/objc",
             sources: ["USearchObjective.mm"],
@@ -61,14 +61,14 @@ let package = Package(
             cxxSettings: [
                 .headerSearchPath("./include/"),
             ]
-        ),
+        ),*/
         .target(
             name: "Cataphyl",
             dependencies: [
                 "AI",
                 "CorePersistence",
                 "Swallow",
-                "_USearch",
+                //"_USearch",
             ],
             path: "Sources/Cataphyl",
             resources: [],
@@ -103,6 +103,6 @@ let package = Package(
             ],
             path: "Tests/Sideproject"
         ),
-    ],
-    cxxLanguageStandard: CXXLanguageStandard.cxx11
+    ]/*,
+    cxxLanguageStandard: CXXLanguageStandard.cxx11*/
 )

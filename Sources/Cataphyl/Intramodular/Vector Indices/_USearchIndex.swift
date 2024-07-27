@@ -2,7 +2,7 @@
 // Copyright (c) Vatsal Manot
 //
 
-import CorePersistence
+/*import CorePersistence
 import Foundation
 import Swallow
 import _USearch
@@ -186,3 +186,4 @@ public final class USearchIndex {
         return zip(result.0, result.1).map({ ($0, $1) })
     }
 }
+*/

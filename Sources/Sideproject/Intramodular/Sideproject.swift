@@ -28,7 +28,6 @@ public final class Sideproject: _CancellablesProviding, Logging, ObservableObjec
     private let queue = TaskQueue()
     
     private var shouldAutoinitializeServices: Bool
-    
     private var autodiscoveredServiceAccounts: [_AnyMIServiceAccount] = []
 
     @MainActor
@@ -180,11 +179,9 @@ extension Sideproject {
     private func _makeServices(
         forAccounts serviceAccounts: [_AnyMIServiceAccount]
     ) async throws -> [any _MIService] {
-        let serviceTypes: [any _MIService.Type] = try TypeMetadata._queryAll(
-            .conformsTo((any _MIService).self),
-            .nonAppleFramework
-        )
-        
+        @_StaticMirrorQuery(type: (any _MIService).self)
+        var serviceTypes: [any _MIService.Type]
+
         var result: [any _MIService] = await serviceAccounts
             .asyncMap { account in
                 await serviceTypes.first(byUnwrapping: { type -> (any _MIService)? in

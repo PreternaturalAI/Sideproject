@@ -14,3 +14,12 @@
 extension Bundle {
     public static let _Sideproject = Bundle.module
 }
+
+#once {
+    Task(priority: .userInitiated) { @MainActor in
+        try await Task.sleep(.seconds(1))
+        
+        _ = Sideproject.shared
+        _ = Sideproject.ExternalAccountStore.shared
+    }
+}

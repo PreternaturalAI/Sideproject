@@ -27,14 +27,15 @@ extension Sideproject {
         public var _testAccounts: IdentifierIndexingArrayOf<Sideproject.ExternalAccount>?
         
         private(set) lazy var allKnownAccountTypeDescriptions = {
-            IdentifierIndexingArray<any Sideproject.ExternalAccountTypeDescriptor, Sideproject.ExternalAccountTypeIdentifier>(
-                try! TypeMetadata._queryAll(
-                    .pureSwift,
-                    .conformsTo((any Sideproject.ExternalAccountTypeDescriptor).self),
-                    .nonAppleFramework
-                )
-                .filter({ $0 is any _StaticInstance.Type })
-                ._initializeAll(),
+            @_StaticMirrorQuery(type: (any Sideproject.ExternalAccountTypeDescriptor).self)
+            var serviceTypes: [any Sideproject.ExternalAccountTypeDescriptor.Type]
+            
+            return IdentifierIndexingArray<any Sideproject.ExternalAccountTypeDescriptor, Sideproject.ExternalAccountTypeIdentifier>(
+                try! serviceTypes
+                    .filter({ $0 is any _StaticInstance.Type })
+                    .map({ $0 as Any.Type })
+                    ._initializeAll()
+                ,
                 id: \.accountType
             )
             .sorted(by: { $0.title < $1.title })
@@ -70,7 +71,7 @@ extension Sideproject.ExternalAccountStore {
     ) -> [Sideproject.ExternalAccount] {
         self.accounts.filter({ $0.accountTypeDescriptor.accountType == type.accountType })
     }
-
+    
     /// Returns all available credentials for a given account type, keyed by account IDs.
     ///
     /// For example `Sideproject.ExternalAccountStore.shared.credentials(for: .groq)`
@@ -103,7 +104,7 @@ extension Sideproject.ExternalAccountStore {
         guard ProcessInfo.processInfo._isRunningWithinXCTest else {
             return
         }
-                
+        
         if let key = _PreternaturalDotFile.dotfileForCurrentUser?.TEST_OPENAI_KEY {
             self._testAccounts = [Sideproject.ExternalAccount(
                 accountType: Sideproject.ExternalAccountTypeDescriptors.OpenAI().accountType,
@@ -111,7 +112,7 @@ extension Sideproject.ExternalAccountStore {
                 description: nil
             )]
         }
-
+        
         if let key = _PreternaturalDotFile.dotfileForCurrentUser?.TEST_ANTHROPIC_KEY {
             self._testAccounts = [Sideproject.ExternalAccount(
                 accountType: Sideproject.ExternalAccountTypeDescriptors.Anthropic().accountType,

@@ -84,6 +84,9 @@ extension Sideproject.ExternalAccountStore {
             .compactMapValues({ $0.credential })
     }
     
+    /// Returns all available credentials for a given account type, keyed by account IDs.
+    ///
+    /// For example `Sideproject.ExternalAccountStore.shared.credentials(ofType: .apiKey, for: .groq)`
     public func credential<T: Sideproject.ExternalAccountCredential>(
         ofType type: Sideproject.ExternalAccountCredentialTypeName<T>,
         for accountType: any Sideproject.ExternalAccountTypeDescriptor

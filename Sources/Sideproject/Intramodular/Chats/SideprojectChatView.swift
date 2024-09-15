@@ -19,7 +19,7 @@ public struct SideprojectChatView: View {
     public init(session: @autoclosure @escaping () -> Sideproject.ChatSession) {
         self._session = .init(wrappedValue: session())
     }
-
+    
     public init(
         _ data: @autoclosure @escaping () throws -> Sideproject.ChatFile,
         llm: LLMRequestHandling = Sideproject.shared
@@ -38,7 +38,7 @@ public struct SideprojectChatView: View {
     ) {
         self.init(try Sideproject.ChatFile(messages: messages), llm: llm)
     }
-
+    
     public var body: some View {
         ChatView {
             messagesList

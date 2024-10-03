@@ -1,4 +1,5 @@
 {
+  "originHash" : "c7a1bb12baaa520f9cc98a8e013e9bf18b6c8cb3e7d818b3bd9458907fa6d16c",
   "pins" : [
     {
       "identity" : "ai",
@@ -6,7 +7,7 @@
       "location" : "https://github.com/PreternaturalAI/AI.git",
       "state" : {
         "branch" : "main",
-        "revision" : "17c2410e3037530c60ecd9d4729574cabc61ee37"
+        "revision" : "72fb1f629cf101fb3580f4d964bd9d33d271215d"
       }
     },
     {
@@ -15,7 +16,7 @@
       "location" : "https://github.com/vmanot/BrowserKit.git",
       "state" : {
         "branch" : "main",
-        "revision" : "40d8f99d9283ff9dc154c0a33e27b9148575aca3"
+        "revision" : "2d20df8329f18f972fa486c936b617e15d1b4f57"
       }
     },
     {
@@ -24,7 +25,7 @@
       "location" : "https://github.com/PreternaturalAI/ChatKit.git",
       "state" : {
         "branch" : "main",
-        "revision" : "07567ca5c02c40d3b4bccef8b0a22f153b5f1606"
+        "revision" : "19127782fe3c0f59fb35772b7cc80db1c8441146"
       }
     },
     {
@@ -33,7 +34,7 @@
       "location" : "https://github.com/vmanot/CorePersistence.git",
       "state" : {
         "branch" : "main",
-        "revision" : "7e322c3616511292159efaa327e3c4a23de44461"
+        "revision" : "28d77c8a63ce40b9f5098e5099a08b3b103ff562"
       }
     },
     {
@@ -42,7 +43,7 @@
       "location" : "https://github.com/vmanot/Merge.git",
       "state" : {
         "branch" : "master",
-        "revision" : "7de49a68aae1a3a9b3fdced5e88c54005dd07596"
+        "revision" : "05704dd42ebb76c06ed53faec3cba7cea3ac0be4"
       }
     },
     {
@@ -51,7 +52,7 @@
       "location" : "https://github.com/vmanot/NetworkKit.git",
       "state" : {
         "branch" : "master",
-        "revision" : "fc3ae8c9cb9f92c943c597f9435d5f27532b6b81"
+        "revision" : "5eb6e13df2298423b10dd70109ede58cbce6dde3"
       }
     },
     {
@@ -60,7 +61,7 @@
       "location" : "https://github.com/vmanot/Swallow.git",
       "state" : {
         "branch" : "master",
-        "revision" : "e1d4e93358caa1bb74c1642c96fb6f0e1656e0c6"
+        "revision" : "be7d0eff0e4b1605268e88d48126b476f0623a7a"
       }
     },
     {
@@ -68,8 +69,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-collections",
       "state" : {
-        "revision" : "94cf62b3ba8d4bed62680a282d4c25f9c63c2efb",
-        "version" : "1.1.0"
+        "revision" : "671108c96644956dddcd89dd59c203dcdb36cec7",
+        "version" : "1.1.4"
       }
     },
     {
@@ -77,8 +78,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-syntax.git",
       "state" : {
-        "revision" : "303e5c5c36d6a558407d364878df131c3546fad8",
-        "version" : "510.0.2"
+        "revision" : "2bc86522d115234d1f588efe2bcb4ce4be8f8b82",
+        "version" : "510.0.3"
       }
     },
     {
@@ -87,7 +88,7 @@
       "location" : "https://github.com/vmanot/SwiftAPI.git",
       "state" : {
         "branch" : "master",
-        "revision" : "16f61eea60c1dcdea64a1a9d8956194db933a331"
+        "revision" : "3e47cc5f9b0cefe9ed1d0971aff22583bd9ac7b0"
       }
     },
     {
@@ -114,7 +115,7 @@
       "location" : "https://github.com/SwiftUIX/SwiftUIX.git",
       "state" : {
         "branch" : "master",
-        "revision" : "7aec5c3309fc087f47842bec8aae1559046ff3b4"
+        "revision" : "1b8dc46113d2962afbf38a9b1eb45b770a4cee78"
       }
     },
     {
@@ -123,9 +124,9 @@
       "location" : "https://github.com/SwiftUIX/SwiftUIZ.git",
       "state" : {
         "branch" : "main",
-        "revision" : "0b33a00e63683a61060cc9ac961fefab8a39a97b"
+        "revision" : "4260778caf919fddb992d56d4235de2e030d0672"
       }
     }
   ],
-  "version" : 2
+  "version" : 3
 }

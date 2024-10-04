@@ -48,7 +48,7 @@ extension Sideproject.ExternalAccountTypeDescriptors {
         }
     }
     
-    @HadeanIdentifier("ashdo-irtol-phono-resed")
+    @HadeanIdentifier("povar-firul-milij-jopat")
     public struct FalAI: Sideproject.ExternalAccountTypeDescriptor, _StaticInstance {
         public var accountType: Sideproject.ExternalAccountTypeIdentifier {
             "com.vmanot.falai"

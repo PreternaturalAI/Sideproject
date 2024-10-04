@@ -226,6 +226,8 @@ extension Sideproject.ExternalAccountTypeIdentifier: _MIServiceTypeIdentifierCon
         switch self {
             case Sideproject.ExternalAccountTypeDescriptors.Anthropic().accountType:
                 return ._Anthropic
+            case Sideproject.ExternalAccountTypeDescriptors.FalAI():
+                return ._Fal
             case Sideproject.ExternalAccountTypeDescriptors.HuggingFace().accountType:
                 return ._HuggingFace
             case Sideproject.ExternalAccountTypeDescriptors.Mistral().accountType:

@@ -48,6 +48,29 @@ extension Sideproject.ExternalAccountTypeDescriptors {
         }
     }
     
+    @HadeanIdentifier("povar-firul-milij-jopat")
+    public struct FalAI: Sideproject.ExternalAccountTypeDescriptor, _StaticInstance {
+        public var accountType: Sideproject.ExternalAccountTypeIdentifier {
+            "com.vmanot.falai"
+        }
+        
+        public var credentialType: any Sideproject.ExternalAccountCredential.Type {
+            Sideproject.ExternalAccountCredentialTypes.APIKey.self
+        }
+        
+        public var icon: Image? {
+            Image("logo/fal", bundle: .module)
+        }
+        
+        public var title: String {
+            "Fal"
+        }
+                
+        public init() {
+            
+        }
+    }
+    
     @HadeanIdentifier("foriz-gavat-dabog-vuvuz")
     public struct HuggingFace: Sideproject.ExternalAccountTypeDescriptor, _StaticInstance {
         public var accountType: Sideproject.ExternalAccountTypeIdentifier {
@@ -391,6 +414,13 @@ extension Sideproject.ExternalAccountTypeDescriptor where Self == Sideproject.Ex
 extension Sideproject.ExternalAccountTypeDescriptor where Self == Sideproject.ExternalAccountTypeDescriptors.ElevenLabs
 {
     public static var elevenLabs: Self {
+        Self()
+    }
+}
+
+extension Sideproject.ExternalAccountTypeDescriptor where Self == Sideproject.ExternalAccountTypeDescriptors.FalAI
+{
+    public static var fal: Self {
         Self()
     }
 }

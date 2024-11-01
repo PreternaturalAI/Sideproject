@@ -134,6 +134,8 @@ public struct SideprojectAccountsView: View {
                             }
                             
                             store.accounts.append(account)
+                            // ???: (@vmanot) this is a temporary hack to fix saving on first try
+                            // store.accounts = store.accounts
                         }
                         ._overrideOnExitCommand {
                             presentationManager.dismiss()

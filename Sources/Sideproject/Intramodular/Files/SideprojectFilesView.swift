@@ -46,14 +46,14 @@ public struct SideprojectDocumentsView: View {
         .toolbar {
             TaskButton {
                 try await dataStore.embedPendingDocuments()
-            } label: { (status: TaskStatus) in
+            } label: { (status: ObservableTaskStatus) in
                 indexButton(status: status)
             }
         }
     }
     
     @ViewBuilder
-    private func indexButton(status: TaskStatus<Void, Error>) -> some View {
+    private func indexButton(status: ObservableTaskStatus<Void, Error>) -> some View {
         Label {
             Text("Index")
         } icon: {

@@ -7,7 +7,7 @@
       "location" : "https://github.com/PreternaturalAI/AI.git",
       "state" : {
         "branch" : "main",
-        "revision" : "72fb1f629cf101fb3580f4d964bd9d33d271215d"
+        "revision" : "da07ef54dade7ae04686679f0858e9dea7437a1e"
       }
     },
     {
@@ -34,7 +34,7 @@
       "location" : "https://github.com/vmanot/CorePersistence.git",
       "state" : {
         "branch" : "main",
-        "revision" : "28d77c8a63ce40b9f5098e5099a08b3b103ff562"
+        "revision" : "38fd5271fa906a2d8395e4b42724142886a3c763"
       }
     },
     {
@@ -43,7 +43,7 @@
       "location" : "https://github.com/vmanot/Merge.git",
       "state" : {
         "branch" : "master",
-        "revision" : "05704dd42ebb76c06ed53faec3cba7cea3ac0be4"
+        "revision" : "860e67569be17b3af64008d09e5ef06fd2256e4e"
       }
     },
     {
@@ -52,7 +52,7 @@
       "location" : "https://github.com/vmanot/NetworkKit.git",
       "state" : {
         "branch" : "master",
-        "revision" : "5eb6e13df2298423b10dd70109ede58cbce6dde3"
+        "revision" : "8daa1ba22e5d18e1b8e469d5a0dd0c58b675eb87"
       }
     },
     {
@@ -61,7 +61,7 @@
       "location" : "https://github.com/vmanot/Swallow.git",
       "state" : {
         "branch" : "master",
-        "revision" : "be7d0eff0e4b1605268e88d48126b476f0623a7a"
+        "revision" : "6227a1114e341daf54e90df61e173599b187a9b1"
       }
     },
     {
@@ -115,7 +115,7 @@
       "location" : "https://github.com/SwiftUIX/SwiftUIX.git",
       "state" : {
         "branch" : "master",
-        "revision" : "1b8dc46113d2962afbf38a9b1eb45b770a4cee78"
+        "revision" : "836fc284a9bb07fc9ab6d2dce6ebd0e32aabde26"
       }
     },
     {

@@ -242,6 +242,8 @@ extension Sideproject.ExternalAccountTypeIdentifier: _MIServiceTypeIdentifierCon
                 return ._Groq
             case Sideproject.ExternalAccountTypeDescriptors.ElevenLabs().accountType:
                 return ._ElevenLabs
+            case Sideproject.ExternalAccountTypeDescriptors.PlayHT().accountType:
+                return ._PlayHT
             default:
                 throw Never.Reason.unexpected
         }

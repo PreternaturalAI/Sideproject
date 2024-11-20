@@ -393,6 +393,29 @@ extension Sideproject.ExternalAccountTypeDescriptors {
             
         }
     }
+    
+    @HadeanIdentifier("foluv-jufuk-zuhok-hofid")
+    public struct PlayHT: Sideproject.ExternalAccountTypeDescriptor, _StaticInstance {
+        public var accountType: Sideproject.ExternalAccountTypeIdentifier {
+            "com.vmanot.playht"
+        }
+        
+        public var credentialType: any Sideproject.ExternalAccountCredential.Type {
+            Sideproject.ExternalAccountCredentialTypes.APIKey.self
+        }
+        
+        public var icon: Image? {
+            Image("logo/playht", bundle: .module)
+        }
+        
+        public var title: String {
+            "PlayHT"
+        }
+        
+        public init() {
+            
+        }
+    }
 }
 
 // MARK: - Supplementary
@@ -505,6 +528,13 @@ extension Sideproject.ExternalAccountTypeDescriptor where Self == Sideproject.Ex
 extension Sideproject.ExternalAccountTypeDescriptor where Self == Sideproject.ExternalAccountTypeDescriptors.VoyageAI
 {
     public static var voyageai: Self {
+        Self()
+    }
+}
+
+extension Sideproject.ExternalAccountTypeDescriptor where Self == Sideproject.ExternalAccountTypeDescriptors.PlayHT
+{
+    public static var playht: Self {
         Self()
     }
 }

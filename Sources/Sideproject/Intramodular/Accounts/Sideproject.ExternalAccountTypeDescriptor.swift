@@ -416,6 +416,29 @@ extension Sideproject.ExternalAccountTypeDescriptors {
             
         }
     }
+    
+    @HadeanIdentifier("tohaz-zivir-bosov-minog")
+    public struct Rime: Sideproject.ExternalAccountTypeDescriptor, _StaticInstance {
+        public var accountType: Sideproject.ExternalAccountTypeIdentifier {
+            "com.vmanot.rime"
+        }
+        
+        public var credentialType: any Sideproject.ExternalAccountCredential.Type {
+            Sideproject.ExternalAccountCredentialTypes.APIKey.self
+        }
+        
+        public var icon: Image? {
+            Image("logo/rime", bundle: .module)
+        }
+        
+        public var title: String {
+            "Rime"
+        }
+        
+        public init() {
+            
+        }
+    }
 }
 
 // MARK: - Supplementary
@@ -538,6 +561,14 @@ extension Sideproject.ExternalAccountTypeDescriptor where Self == Sideproject.Ex
         Self()
     }
 }
+
+extension Sideproject.ExternalAccountTypeDescriptor where Self == Sideproject.ExternalAccountTypeDescriptors.Rime
+{
+    public static var rime: Self {
+        Self()
+    }
+}
+
 
 // MARK: - Deprecated
 

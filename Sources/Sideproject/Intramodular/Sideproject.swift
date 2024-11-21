@@ -244,6 +244,8 @@ extension Sideproject.ExternalAccountTypeIdentifier: _MIServiceTypeIdentifierCon
                 return ._ElevenLabs
             case Sideproject.ExternalAccountTypeDescriptors.PlayHT().accountType:
                 return ._PlayHT
+            case Sideproject.ExternalAccountTypeDescriptors.Rime().accountType:
+                return ._Rime
             default:
                 throw Never.Reason.unexpected
         }

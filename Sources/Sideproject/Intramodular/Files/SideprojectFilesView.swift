@@ -67,7 +67,7 @@ public struct SideprojectDocumentsView: View {
         }
         .font(.headline)
         .labelStyle(.titleAndIcon)
-        .animation(.default, value: TaskStatusDescription(status))
+        .animation(.default, value: ObservableTaskStatusDescription(status))
     }
 }
 

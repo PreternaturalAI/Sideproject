@@ -158,7 +158,7 @@ extension TextSplitter {
     }
 }
 
-// MARK: - Implemented Conformances
+// MARK: - Conformees
 
 /// A special `TextSplitter` that doesn't split any text, it just returns one split with the full text.
 public struct _NoTextSplittingTextSplitter: TextSplitter {

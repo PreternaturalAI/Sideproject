@@ -12,7 +12,7 @@ public protocol VectorIndexQuery<Item> {
     associatedtype Item
 }
 
-// MARK: - Implemented Conformances
+// MARK: - Conformees
 
 extension VectorIndexQueries {
     /// A k-nearest neighbor search.

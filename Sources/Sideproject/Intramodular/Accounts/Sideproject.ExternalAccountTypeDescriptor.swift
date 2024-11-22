@@ -16,7 +16,7 @@ extension Sideproject {
     }
 }
 
-// MARK: - Implemented Conformances
+// MARK: - Conformees
 
 extension Sideproject {
     public enum ExternalAccountTypeDescriptors {

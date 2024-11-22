@@ -28,10 +28,10 @@ public final class Sideproject: _CancellablesProviding, Logging, ObservableObjec
     private let queue = TaskQueue()
     
     private var shouldAutoinitializeServices: Bool
-    private var autodiscoveredServiceAccounts: [_AnyMIServiceAccount] = []
-
+    private var autodiscoveredServiceAccounts: [CoreMI._AnyServiceAccount] = []
+    
     @MainActor
-    @Published private var autoinitializedServices: [any _MIService]? = nil {
+    @Published private var autoinitializedServices: [any CoreMI._ServiceClientProtocol]? = nil {
         didSet {
             if let newValue = autoinitializedServices {
                 logger.info("Auto-initialized \(newValue.count) service(s).")
@@ -40,11 +40,11 @@ public final class Sideproject: _CancellablesProviding, Logging, ObservableObjec
     }
     
     @MainActor
-    @Published private var manuallyAddedServices: [any _MIService] = []
+    @Published private var manuallyAddedServices: [any CoreMI._ServiceClientProtocol] = []
     
     // @Published public var modelIdentifierScope: ModelIdentifierScope?
     
-    public var services: [any _MIService] {
+    public var services: [any CoreMI._ServiceClientProtocol] {
         get async throws {
             await self.queue.perform {
                 await _populateAutoinitializedServicesIfNecessary()
@@ -54,7 +54,7 @@ public final class Sideproject: _CancellablesProviding, Logging, ObservableObjec
         }
     }
     
-    public init(services: [any _MIService]?) {
+    public init(services: [any CoreMI._ServiceClientProtocol]?) {
         if services != nil {
             shouldAutoinitializeServices = false
         } else {
@@ -133,16 +133,16 @@ extension Sideproject {
         }
         
         self.logger.debug("Discovering services to auto-intialize.")
-                        
+        
         do {
-            let oldAccounts = self.autodiscoveredServiceAccounts
+            let oldAccounts: [CoreMI._AnyServiceAccount] = self.autodiscoveredServiceAccounts
             let newAccounts = try self._serviceAccounts()
-
+            
             guard oldAccounts != newAccounts else {
                 return
             }
-                        
-            let services: [any _MIService] = try await self._makeServices(forAccounts: newAccounts)
+            
+            let services: [any CoreMI._ServiceClientProtocol] = try await self._makeServices(forAccounts: newAccounts)
             
             self.autodiscoveredServiceAccounts = newAccounts
             self.autoinitializedServices = services
@@ -159,32 +159,33 @@ extension Sideproject {
     
     /// Converts Sideproject accounts loaded from Sideproject's managed account store to CoreMI accounts.
     @MainActor
-    private func _serviceAccounts() throws -> [_AnyMIServiceAccount] {
+    private func _serviceAccounts() throws -> [CoreMI._AnyServiceAccount] {
         let allAccounts: IdentifierIndexingArrayOf<Sideproject.ExternalAccount> = Sideproject.ExternalAccountStore.shared.accounts + (Sideproject.ExternalAccountStore.shared._testAccounts ?? [])
         
         return try allAccounts.compactMap { (account: Sideproject.ExternalAccount) in
-            let credential = _MIServiceAPIKeyCredential(
+            let credential = CoreMI._ServiceCredentialTypes.APIKeyCredential (
                 apiKey: (account.credential as! Sideproject.ExternalAccountCredentialTypes.APIKey).key
             )
-            let service: _MIServiceTypeIdentifier = try account.accountType.__conversion()
             
-            return _AnyMIServiceAccount(
-                serviceIdentifier: service,
+            let service: CoreMI._ServiceVendorIdentifier = try account.accountType.__conversion()
+            
+            return CoreMI._AnyServiceAccount(
+                serviceVendorIdentifier: service,
                 credential: credential
             )
         }
     }
-        
+    
     /// Initializes all CoreMI services that can be initialized using the loaded Sideproject accounts.
     private func _makeServices(
-        forAccounts serviceAccounts: [_AnyMIServiceAccount]
-    ) async throws -> [any _MIService] {
-        @_StaticMirrorQuery(type: (any _MIService).self)
-        var serviceTypes: [any _MIService.Type]
-
-        var result: [any _MIService] = await serviceAccounts
+        forAccounts serviceAccounts: [CoreMI._AnyServiceAccount]
+    ) async throws -> [any CoreMI._ServiceClientProtocol] {
+        @_StaticMirrorQuery(type: (any CoreMI._ServiceClientProtocol).self)
+        var serviceTypes: [any CoreMI._ServiceClientProtocol.Type]
+        
+        var result: [any CoreMI._ServiceClientProtocol] = await serviceAccounts
             .asyncMap { account in
-                await serviceTypes.first(byUnwrapping: { type -> (any _MIService)? in
+                await serviceTypes.first(byUnwrapping: { type -> (any CoreMI._ServiceClientProtocol)? in
                     do {
                         return try await type.init(account: account)
                     } catch {
@@ -203,7 +204,7 @@ extension Sideproject {
             .compactMap({ $0 })
         
         // FIXME: Ollama is special-cased.
-        if let ollama = try await serviceTypes.firstAndOnly(byUnwrapping: { try? await $0.init(account: _AnyMIServiceAccount(serviceIdentifier: ._Ollama, credential: nil)) }) {
+        if let ollama = try await serviceTypes.firstAndOnly(byUnwrapping: { try? await $0.init(account: CoreMI._AnyServiceAccount(serviceVendorIdentifier: ._Ollama, credential: nil)) }) {
             result += ollama
         }
         
@@ -221,8 +222,8 @@ extension Sideproject {
     }
 }
 
-extension Sideproject.ExternalAccountTypeIdentifier: _MIServiceTypeIdentifierConvertible {
-    public func __conversion() throws -> _MIServiceTypeIdentifier {
+extension Sideproject.ExternalAccountTypeIdentifier: CoreMI._ServiceVendorIdentifierConvertible {
+    public func __conversion() throws -> CoreMI._ServiceVendorIdentifier {
         switch self {
             case Sideproject.ExternalAccountTypeDescriptors.Anthropic().accountType:
                 return ._Anthropic

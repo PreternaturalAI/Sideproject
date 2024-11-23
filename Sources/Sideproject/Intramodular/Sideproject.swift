@@ -247,6 +247,10 @@ extension Sideproject.ExternalAccountTypeIdentifier: CoreMI._ServiceVendorIdenti
                 return ._PlayHT
             case Sideproject.ExternalAccountTypeDescriptors.Rime().accountType:
                 return ._Rime
+            case Sideproject.ExternalAccountTypeDescriptors.HumeAI().accountType:
+                return ._HumeAI
+            case Sideproject.ExternalAccountTypeDescriptors.NeetsAI().accountType:
+                return ._NeetsAI
             default:
                 throw Never.Reason.unexpected
         }

@@ -40,7 +40,7 @@ extension TextTokenizer {
     }
 }
 
-// MARK: - Implemented Conformances
+// MARK: - Conformees
 
 public struct _StringCharacterTokenizer: HadeanIdentifiable, Codable, TextTokenizer {
     public typealias Token = Character

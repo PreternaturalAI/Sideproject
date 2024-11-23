@@ -87,7 +87,7 @@ public struct OrderedDictionaryVectorIndex<Key: Hashable>: Initiable, _NoasyncMu
     }
 }
 
-// MARK: - Implemented Conformances
+// MARK: - Conformees
 
 extension OrderedDictionaryVectorIndex: Hashable {
     public func hash(into hasher: inout Hasher) {

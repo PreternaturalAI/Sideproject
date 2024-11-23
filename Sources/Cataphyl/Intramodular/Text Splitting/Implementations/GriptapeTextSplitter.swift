@@ -118,7 +118,7 @@ extension GriptapeTextSeparator: ExpressibleByStringLiteral {
     }
 }
 
-// MARK: - Implemented Conformances
+// MARK: - Conformees
 
 public enum GriptapeTextSplitters {
     public struct Markdown: GriptapeTextSplitter {

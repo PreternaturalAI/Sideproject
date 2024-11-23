@@ -16,7 +16,7 @@ extension Sideproject {
     }
 }
 
-// MARK: - Implemented Conformances
+// MARK: - Conformees
 
 extension Sideproject {
     public enum ExternalAccountTypeDescriptors {
@@ -393,6 +393,98 @@ extension Sideproject.ExternalAccountTypeDescriptors {
             
         }
     }
+    
+    @HadeanIdentifier("foluv-jufuk-zuhok-hofid")
+    public struct PlayHT: Sideproject.ExternalAccountTypeDescriptor, _StaticInstance {
+        public var accountType: Sideproject.ExternalAccountTypeIdentifier {
+            "com.vmanot.playht"
+        }
+        
+        public var credentialType: any Sideproject.ExternalAccountCredential.Type {
+            Sideproject.ExternalAccountCredentialTypes.APIKey.self
+        }
+        
+        public var icon: Image? {
+            Image("logo/playht", bundle: .module)
+        }
+        
+        public var title: String {
+            "PlayHT"
+        }
+        
+        public init() {
+            
+        }
+    }
+    
+    @HadeanIdentifier("tohaz-zivir-bosov-minog")
+    public struct Rime: Sideproject.ExternalAccountTypeDescriptor, _StaticInstance {
+        public var accountType: Sideproject.ExternalAccountTypeIdentifier {
+            "com.vmanot.rime"
+        }
+        
+        public var credentialType: any Sideproject.ExternalAccountCredential.Type {
+            Sideproject.ExternalAccountCredentialTypes.APIKey.self
+        }
+        
+        public var icon: Image? {
+            Image("logo/rime", bundle: .module)
+        }
+        
+        public var title: String {
+            "Rime"
+        }
+        
+        public init() {
+            
+        }
+    }
+    
+    @HadeanIdentifier("kinot-tugug-rojum-sinis")
+    public struct HumeAI: Sideproject.ExternalAccountTypeDescriptor, _StaticInstance {
+        public var accountType: Sideproject.ExternalAccountTypeIdentifier {
+            "com.vmanot.humeai"
+        }
+        
+        public var credentialType: any Sideproject.ExternalAccountCredential.Type {
+            Sideproject.ExternalAccountCredentialTypes.APIKey.self
+        }
+        
+        public var icon: Image? {
+            Image("logo/humeai", bundle: .module)
+        }
+        
+        public var title: String {
+            "HumeAI"
+        }
+        
+        public init() {
+            
+        }
+    }
+    
+    @HadeanIdentifier("tabut-fozak-tajah-bagaj")
+    public struct NeetsAI: Sideproject.ExternalAccountTypeDescriptor, _StaticInstance {
+        public var accountType: Sideproject.ExternalAccountTypeIdentifier {
+            "com.vmanot.neetsai"
+        }
+        
+        public var credentialType: any Sideproject.ExternalAccountCredential.Type {
+            Sideproject.ExternalAccountCredentialTypes.APIKey.self
+        }
+        
+        public var icon: Image? {
+            Image("logo/neetsai", bundle: .module)
+        }
+        
+        public var title: String {
+            "NeetsAI"
+        }
+        
+        public init() {
+            
+        }
+    }
 }
 
 // MARK: - Supplementary
@@ -508,6 +600,35 @@ extension Sideproject.ExternalAccountTypeDescriptor where Self == Sideproject.Ex
         Self()
     }
 }
+
+extension Sideproject.ExternalAccountTypeDescriptor where Self == Sideproject.ExternalAccountTypeDescriptors.PlayHT
+{
+    public static var playht: Self {
+        Self()
+    }
+}
+
+extension Sideproject.ExternalAccountTypeDescriptor where Self == Sideproject.ExternalAccountTypeDescriptors.Rime
+{
+    public static var rime: Self {
+        Self()
+    }
+}
+
+extension Sideproject.ExternalAccountTypeDescriptor where Self == Sideproject.ExternalAccountTypeDescriptors.HumeAI
+{
+    public static var humeai: Self {
+        Self()
+    }
+}
+
+extension Sideproject.ExternalAccountTypeDescriptor where Self == Sideproject.ExternalAccountTypeDescriptors.NeetsAI
+{
+    public static var neetsai: Self {
+        Self()
+    }
+}
+
 
 // MARK: - Deprecated
 

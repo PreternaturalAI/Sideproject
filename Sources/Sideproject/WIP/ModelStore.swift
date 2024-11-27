@@ -2,18 +2,24 @@
 // Copyright (c) Vatsal Manot
 //
 
-import AsyncAlgorithms
 import Foundation
 import HuggingFace
+import CorePersistence
 import SwiftUIX
 
 public final class ModelStore: ObservableObject {
     @Published public var suggestions: [Suggestion] = []
-    @Published public var models: [Model] = []
+    
+    @FileStorage(
+        .appDocuments,
+        path: "models.json",
+        coder: .json,
+        options: .init(readErrorRecoveryStrategy: .discardAndReset)
+    ) public var models: [Model]
+        
+    private var hub: HuggingFace.Hub.Client
     
     private let fileManager = FileManager.default
-    
-    private var hub: HuggingFace.Hub.Client
     
     @MainActor
     init(from account: Sideproject.ExternalAccount) throws {
@@ -283,7 +289,7 @@ extension ModelStore {
 }
 
 extension ModelStore {
-    public struct Model: Hashable, Identifiable, Sendable {
+    public struct Model: Codable, Hashable, Identifiable, Sendable {
         public typealias ID = String
         
         public var name: String
@@ -298,7 +304,14 @@ extension ModelStore {
             url?.lastPathComponent ?? name
         }
         
-        public enum DownloadState: Hashable, Sendable {
+        public var isDownloading: Bool {
+            switch state {
+                case .downloading: return true
+                default: return false
+            }
+        }
+        
+        public enum DownloadState: Codable, Hashable, Sendable {
             case notDownloaded
             case downloading(progress: Double)
             case downloaded

@@ -61,13 +61,13 @@ public struct SideprojectDocumentsView: View {
                 if status == .active {
                     ActivityIndicator()
                 } else {
-                    Image(systemName: "chevron.forward.to.line")
+                    Image(systemName: .chevronForwardToLine)
                 }
             }
         }
         .font(.headline)
         .labelStyle(.titleAndIcon)
-        .animation(.default, value: TaskStatusDescription(status))
+        .animation(.default, value: ObservableTaskStatusDescription(status))
     }
 }
 

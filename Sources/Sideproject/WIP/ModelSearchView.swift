@@ -5,7 +5,7 @@
 //  Created by Purav Manot on 20/11/24.
 //
 
-import SwiftUI
+import SwiftUIX
 
 public struct ModelSearchView: View {
     @State private var selectedAccount: Sideproject.ExternalAccount? = nil
@@ -22,7 +22,6 @@ public struct ModelSearchView: View {
                 .background(Color.systemBackground)
         } detail: {
             if let account = Sideproject.ExternalAccountStore.shared.accounts(for: .huggingFace).first {
-                
                 switch selectedTab {
                     case .discover:
                         ModelListView(account: account)
@@ -32,6 +31,9 @@ public struct ModelSearchView: View {
             }
         }
         .searchable(text: $text, placement: .toolbar)
+        .onSubmit(of: .search) {
+            
+        }
         .toolbar {
             Picker(selection: $selectedTab) {
                 ForEach(Tab.allCases, id: \.self) { tab in
@@ -41,6 +43,10 @@ public struct ModelSearchView: View {
             }
             .pickerStyle(.segmented)
         }
+    }
+    
+    func downloadModel() {
+        print("downloading model")
     }
 }
 
@@ -60,11 +66,45 @@ extension ModelSearchView {
         
         var body: some View {
             List {
-                Section("Suggestions") {
-                    ForEach(store.suggestions) { suggestion in
-                        Text(suggestion.name)
+                Section("Models") {
+                    ForEach(store.models, id: \.id) { model in
+                        HStack {
+                            Text(model.name)
+                            
+                            Spacer()
+
+                            Button {
+                                Task {
+                                    let url = try await store.download(modelNamed: model.name)
+                                }
+                            } label: {
+                                Image(systemName: .arrowDown)
+                            }
+                            .disabled(model.isDownloading)
+                            .buttonStyle(.borderless)
+                        }
+                        
                     }
                 }
+                
+                
+                Section("Active downloads") {
+                    ForEach(store.models.filter({ return $0.isDownloading }), id: \ModelStore.Model.id) { (model: ModelStore.Model) in
+                        Group {
+                            Text(model.name)
+                            
+                            switch model.state {
+                                case .downloading(let progress):
+                                    ProgressView(value: progress)
+                                        .progressViewStyle(.linear)
+                                        .padding(.horizontal, 5)
+                                default:
+                                    EmptyView()
+                            }
+                        }
+                    }
+                }
+                 
             }
         }
     }

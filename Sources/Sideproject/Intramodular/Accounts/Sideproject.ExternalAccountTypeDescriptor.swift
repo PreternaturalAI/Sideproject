@@ -393,6 +393,29 @@ extension Sideproject.ExternalAccountTypeDescriptors {
             
         }
     }
+    
+    @HadeanIdentifier("jahov-batom-ruhof-fubom")
+    public struct xAI: Sideproject.ExternalAccountTypeDescriptor, _StaticInstance {
+        public var accountType: Sideproject.ExternalAccountTypeIdentifier {
+            "com.vmanot.xai"
+        }
+        
+        public var credentialType: any Sideproject.ExternalAccountCredential.Type {
+            Sideproject.ExternalAccountCredentialTypes.APIKey.self
+        }
+        
+        public var icon: Image? {
+            Image("logo/xAI", bundle: .module)
+        }
+        
+        public var title: String {
+            "xAI"
+        }
+                
+        public init() {
+            
+        }
+    }
 }
 
 // MARK: - Supplementary
@@ -505,6 +528,13 @@ extension Sideproject.ExternalAccountTypeDescriptor where Self == Sideproject.Ex
 extension Sideproject.ExternalAccountTypeDescriptor where Self == Sideproject.ExternalAccountTypeDescriptors.VoyageAI
 {
     public static var voyageai: Self {
+        Self()
+    }
+}
+
+extension Sideproject.ExternalAccountTypeDescriptor where Self == Sideproject.ExternalAccountTypeDescriptors.xAI
+{
+    public static var xAI: Self {
         Self()
     }
 }

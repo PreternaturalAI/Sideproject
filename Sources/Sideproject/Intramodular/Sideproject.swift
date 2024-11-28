@@ -240,6 +240,8 @@ extension Sideproject.ExternalAccountTypeIdentifier: _MIServiceTypeIdentifierCon
                 return ._Replicate
             case Sideproject.ExternalAccountTypeDescriptors.Groq().accountType:
                 return ._Groq
+            case Sideproject.ExternalAccountTypeDescriptors.xAI().accountType:
+                return ._xAI
             case Sideproject.ExternalAccountTypeDescriptors.ElevenLabs().accountType:
                 return ._ElevenLabs
             default:

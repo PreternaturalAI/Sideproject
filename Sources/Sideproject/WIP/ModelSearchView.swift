@@ -7,10 +7,15 @@
 
 import SwiftUIX
 
+// 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
+
 public struct ModelSearchView: View {
+    @StateObject private var modelStore = try! ModelStore()
+    
     @State private var selectedAccount: Sideproject.ExternalAccount? = nil
     @State private var selectedTab: Tab = .downloaded
     @State private var text: String = ""
+    @State private var isShowingAllDownloads: Bool = false
     
     public init() {
         
@@ -18,35 +23,62 @@ public struct ModelSearchView: View {
     
     public var body: some View {
         NavigationSplitView {
+            
+        } detail: {
             SideprojectAccountsView()
                 .background(Color.systemBackground)
-        } detail: {
-            if let account = Sideproject.ExternalAccountStore.shared.accounts(for: .huggingFace).first {
-                switch selectedTab {
-                    case .discover:
-                        ModelListView(account: account)
-                    case .downloaded:
-                        ModelAssetsDetailView(account: account)
+        }
+        .inspector(isPresented: .constant(true)) {
+            Group {
+                if let account = Sideproject.ExternalAccountStore.shared.accounts(for: .huggingFace).first {
+                    ModelAssetsListView(account: account, selectedTab: $selectedTab, searchText: $text)
                 }
             }
-        }
-        .searchable(text: $text, placement: .toolbar)
-        .onSubmit(of: .search) {
-            
-        }
-        .toolbar {
-            Picker(selection: $selectedTab) {
-                ForEach(Tab.allCases, id: \.self) { tab in
-                    Text(tab.description)
-                        .tag(tab)
+            .environmentObject(modelStore)
+            .safeAreaInset(edge: .top) {
+                VStack(spacing: 5) {
+                    SearchBar(text: $text, onEditingChanged: { _ in }) {
+                        guard let account = Sideproject.ExternalAccountStore.shared.accounts(for: .huggingFace).first else { return }
+                        
+                        Task {
+                            do {
+                                try await attemptDownload(for: text, using: account)
+                            } catch {
+                                print(error)
+                                print(error.localizedDescription)
+                            }
+                        }
+                    }
+                    
+                    Picker(selection: $selectedTab) {
+                        ForEach(Tab.allCases, id: \.self) { tab in
+                            Text(tab.description)
+                                .tag(tab)
+                        }
+                    }
+                    .pickerStyle(.segmented)
                 }
+                .padding(.horizontal, 5)
             }
-            .pickerStyle(.segmented)
         }
     }
     
-    func downloadModel() {
-        print("downloading model")
+    @discardableResult
+    func attemptDownload(for searchText: String, using account: Sideproject.ExternalAccount) async throws -> URL? {
+        var urlString = searchText
+        guard urlString.contains("huggingface") else { return nil }
+        
+        if !urlString.hasPrefix("https://") {
+            urlString = "https://" + urlString
+        }
+        
+        guard let url = URL(string: urlString) else { return nil }
+        var components = url.pathComponents
+        
+        components.removeAll { $0 == "/" }
+        let name = components.joined(separator: "/")
+        
+        return try await modelStore.download(modelNamed: name, using: account)
     }
 }
 
@@ -55,82 +87,73 @@ public struct ModelSearchView: View {
 }
 
 extension ModelSearchView {
-    struct ModelListView: View {
-        @StateObject var store: ModelStore
-        @State private var text: String = ""
+    struct ModelAssetsListView: View {
+        @EnvironmentObject private var store: ModelStore
         
-        init(account: Sideproject.ExternalAccount) {
-            self._store = StateObject(wrappedValue: try! ModelStore(from: account))
-            
-        }
+        var account: Sideproject.ExternalAccount
         
-        var body: some View {
-            List {
-                Section("Models") {
-                    ForEach(store.models, id: \.id) { model in
-                        HStack {
-                            Text(model.name)
-                            
-                            Spacer()
+        @Binding var selectedTab: ModelSearchView.Tab
+        @Binding var searchText: String
 
-                            Button {
-                                Task {
-                                    let url = try await store.download(modelNamed: model.name)
-                                }
-                            } label: {
-                                Image(systemName: .arrowDown)
-                            }
-                            .disabled(model.isDownloading)
-                            .buttonStyle(.borderless)
-                        }
-                        
-                    }
-                }
-                
-                
-                Section("Active downloads") {
-                    ForEach(store.models.filter({ return $0.isDownloading }), id: \ModelStore.Model.id) { (model: ModelStore.Model) in
-                        Group {
-                            Text(model.name)
-                            
-                            switch model.state {
-                                case .downloading(let progress):
-                                    ProgressView(value: progress)
-                                        .progressViewStyle(.linear)
-                                        .padding(.horizontal, 5)
-                                default:
-                                    EmptyView()
-                            }
-                        }
-                    }
-                }
-                 
-            }
-        }
-    }
-    
-    struct ModelAssetsDiscoverView: View {
-        var body: some View {
-            Text("_")
-        }
-    }
-    
-    struct ModelAssetsDetailView: View {
-        @StateObject var store: ModelStore
-        
-        init(account: Sideproject.ExternalAccount) {
-            self._store = StateObject(wrappedValue: try! ModelStore(from: account))
-            
-        }
-        
         var body: some View {
             List {
-                Section("Your models") {
-                    ForEach(store.models) { model in
-                        Text(model.displayName)
+                DisclosureGroup("^[\(store.activeDownloads.count) downloads](inflect: true)") {
+                    ForEach(store.activeDownloads) { model in
+                        ModelDownloadRow(model: model)
                     }
                 }
+                
+                switch selectedTab {
+                    case .discover:
+                        Section("Available models") {
+                            ForEach(store.models.filter(searchFilter), id: \.id) { model in
+                                HStack {
+                                    Text(model.name)
+                                    
+                                    Spacer()
+                                    
+                                    Button {
+                                        Task {
+                                            do {
+                                                let url = try await store.download(modelNamed: model.name, using: account)
+                                                print(url)
+                                            } catch {
+                                                print(error)
+                                                print(error.localizedDescription)
+                                            }
+                                            
+                                        }
+                                    } label: {
+                                        Image(systemName: .arrowDown)
+                                    }
+                                    .disabled(model.isDownloading)
+                                    .buttonStyle(.borderless)
+                                }
+                            }
+                        }
+                    case .downloaded:
+                        Section("Your models") {
+                            ForEach(store.models.filter { $0.state == .downloaded }.filter(searchFilter)) { model in
+                                HStack {
+                                    Text(model.displayName)
+                                    
+                                    Button {
+                                        store.delete(model.id)
+                                    } label: {
+                                        Image(systemName: .trash)
+                                    }
+                                }
+                            }
+                        }
+                }
             }
+        }
+        
+        func searchFilter(model: ModelStore.Model) -> Bool {
+            let searchText = searchText.trimmingWhitespaceAndNewlines()
+            guard !searchText.isEmpty else { return true }
+            
+            return model.name.localizedCaseInsensitiveContains(searchText)
         }
     }
 }

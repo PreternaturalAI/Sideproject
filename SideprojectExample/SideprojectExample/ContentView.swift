@@ -11,7 +11,9 @@ import Sideproject
 struct ContentView: View {
     var body: some View {
         NavigationSplitView {
-            List(0..<5)
+            List(0..<5) { i in
+                Text(String(i))
+            }
         } detail: {
             SideprojectAccountsView()
         }

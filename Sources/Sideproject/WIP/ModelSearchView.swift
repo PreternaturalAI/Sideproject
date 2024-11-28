@@ -76,6 +76,10 @@ public struct ModelSearchView: View {
         components.removeAll { $0 == "/" }
         let name = components.joined(separator: "/")
         
+        if !modelStore.models.map { $0.name }.contains(name) {
+            return nil
+        }
+        
         return try await modelStore.download(modelNamed: name, using: account)
     }
 }

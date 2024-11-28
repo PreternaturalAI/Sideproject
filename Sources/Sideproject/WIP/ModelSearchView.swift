@@ -7,8 +7,6 @@
 
 import SwiftUIX
 
-// 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
-
 public struct ModelSearchView: View {
     @StateObject private var modelStore = try! ModelStore()
     

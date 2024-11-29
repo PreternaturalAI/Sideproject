@@ -52,8 +52,8 @@ extension Sideproject {
         ///
         /// This index serves as our 'vector database' for the app. Real-world applications require careful thinking and assessment of storage techniques, and a naive `Array` backed vector index may not be ideal in many cases.
         @MainActor
-        @FileStorage<MutableValueBox<NaiveRawVectorIndex<Sideproject.FileFragmentIdentifier>>, NaiveRawVectorIndex<Sideproject.FileFragmentIdentifier>>
-        public var textEmbeddings: NaiveRawVectorIndex<Sideproject.FileFragmentIdentifier>
+        @FileStorage<MutableValueBox<OrderedDictionaryVectorIndex<Sideproject.FileFragmentIdentifier>>, OrderedDictionaryVectorIndex<Sideproject.FileFragmentIdentifier>>
+        public var textEmbeddings: OrderedDictionaryVectorIndex<Sideproject.FileFragmentIdentifier>
         
         @MainActor
         public init(

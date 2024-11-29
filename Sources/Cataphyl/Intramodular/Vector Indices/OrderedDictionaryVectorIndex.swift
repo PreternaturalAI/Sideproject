@@ -10,7 +10,7 @@ import Swallow
 /// A naive vector index that uses an in-memory ordered dictionary to store vectors.
 ///
 /// While the cosine-similarity metric used to calculate scores is hardware accelerated, this index is still termed 'naive' because it uses a simple brute-force search as opposed to something optimized for large amounts of data (such as ANN/HNSW).
-public struct NaiveRawVectorIndex<Key: Hashable>: Initiable, MutableRawVectorIndex {
+public struct OrderedDictionaryVectorIndex<Key: Hashable>: Initiable, _NoasyncMutableVectorIndex {
     public var storage: OrderedDictionary<Key, [Double]> = [:]
     
     public var keys: OrderedSet<Key> {
@@ -50,17 +50,17 @@ public struct NaiveRawVectorIndex<Key: Hashable>: Initiable, MutableRawVectorInd
     
     @inline(__always)
     public func query(
-        _ query: some RawVectorIndexQuery<Key>
-    ) throws -> [RawVectorIndexSearchResult<Self>] {
+        _ query: some VectorIndexQuery<Key>
+    ) throws -> [VectorIndexQueryResultItem<Self>] {
         switch query {
-            case let query as RawVectorIndexQueries.TopK<Key>:
+            case let query as VectorIndexQueries.TopK<Key>:
                 return rank(
                     query: query.vector,
                     topK: query.maximumNumberOfResults,
                     using: vDSP.cosineSimilarity
                 )
             default:
-                throw RawVectorIndexError.unsupportedQuery(query)
+                throw VectorIndexError.unsupportedQuery(query)
         }
     }
     
@@ -69,7 +69,7 @@ public struct NaiveRawVectorIndex<Key: Hashable>: Initiable, MutableRawVectorInd
         query: [Double],
         topK: Int,
         using metric: ([Double], [Double]) -> Double
-    ) -> [RawVectorIndexSearchResult<Self>] {
+    ) -> [VectorIndexQueryResultItem<Self>] {
         let similarities: [Double] = storage.map({ metric($0.value, query) })
         
         // Find the indices of top-k similarity values
@@ -79,7 +79,7 @@ public struct NaiveRawVectorIndex<Key: Hashable>: Initiable, MutableRawVectorInd
         let topIndices = Array(sortedCollections.prefix(topK))
         
         return topIndices.map {
-            RawVectorIndexSearchResult(
+            VectorIndexQueryResultItem(
                 item: storage.elements[$0].key,
                 score: similarities[$0]
             )
@@ -87,9 +87,9 @@ public struct NaiveRawVectorIndex<Key: Hashable>: Initiable, MutableRawVectorInd
     }
 }
 
-// MARK: - Implemented Conformances
+// MARK: - Conformees
 
-extension NaiveRawVectorIndex: Hashable {
+extension OrderedDictionaryVectorIndex: Hashable {
     public func hash(into hasher: inout Hasher) {
         storage.hash(into: &hasher)
     }
@@ -99,13 +99,13 @@ extension NaiveRawVectorIndex: Hashable {
     }
 }
 
-extension NaiveRawVectorIndex: Sequence {
+extension OrderedDictionaryVectorIndex: Sequence {
     public func makeIterator() -> AnyIterator<Key> {
         storage.keys.makeIterator().eraseToAnyIterator()
     }
 }
 
-extension NaiveRawVectorIndex: Codable where Key: Codable {
+extension OrderedDictionaryVectorIndex: Codable where Key: Codable {
     public init(from decoder: Decoder) throws {
         self.storage = try OrderedDictionary(uniqueKeysWithValues: Dictionary(from: decoder))
     }
@@ -114,3 +114,11 @@ extension NaiveRawVectorIndex: Codable where Key: Codable {
         try Dictionary(storage).encode(to: encoder)
     }
 }
+
+extension OrderedDictionaryVectorIndex: @unchecked Sendable where Key: Sendable {
+    
+}
+
+// MARK: - Deprecated
+
+public typealias NaiveVectorIndex = OrderedDictionaryVectorIndex

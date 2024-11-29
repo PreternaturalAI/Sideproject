@@ -227,10 +227,16 @@ extension Sideproject.ExternalAccountTypeIdentifier: CoreMI._ServiceVendorIdenti
         switch self {
             case Sideproject.ExternalAccountTypeDescriptors.Anthropic().accountType:
                 return ._Anthropic
+            case Sideproject.ExternalAccountTypeDescriptors.ElevenLabs().accountType:
+                return ._ElevenLabs
             case Sideproject.ExternalAccountTypeDescriptors.FalAI().accountType:
                 return ._Fal
+            case Sideproject.ExternalAccountTypeDescriptors.Groq().accountType:
+                return ._Groq
             case Sideproject.ExternalAccountTypeDescriptors.HuggingFace().accountType:
                 return ._HuggingFace
+            case Sideproject.ExternalAccountTypeDescriptors.HumeAI().accountType:
+                return ._HumeAI
             case Sideproject.ExternalAccountTypeDescriptors.Mistral().accountType:
                 return ._Mistral
             case Sideproject.ExternalAccountTypeDescriptors.OpenAI().accountType:
@@ -239,18 +245,12 @@ extension Sideproject.ExternalAccountTypeIdentifier: CoreMI._ServiceVendorIdenti
                 return ._Perplexity
             case Sideproject.ExternalAccountTypeDescriptors.Replicate().accountType:
                 return ._Replicate
-            case Sideproject.ExternalAccountTypeDescriptors.Groq().accountType:
-                return ._Groq
-            case Sideproject.ExternalAccountTypeDescriptors.ElevenLabs().accountType:
-                return ._ElevenLabs
             case Sideproject.ExternalAccountTypeDescriptors.PlayHT().accountType:
                 return ._PlayHT
-            case Sideproject.ExternalAccountTypeDescriptors.Rime().accountType:
-                return ._Rime
-            case Sideproject.ExternalAccountTypeDescriptors.HumeAI().accountType:
-                return ._HumeAI
             case Sideproject.ExternalAccountTypeDescriptors.NeetsAI().accountType:
                 return ._NeetsAI
+            case Sideproject.ExternalAccountTypeDescriptors.Rime().accountType:
+                return ._Rime
             default:
                 throw Never.Reason.unexpected
         }

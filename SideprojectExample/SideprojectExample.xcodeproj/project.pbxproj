@@ -8,6 +8,18 @@
 
 /* Begin PBXBuildFile section */
 		982C81952CF76BA200D723ED /* Sideproject in Frameworks */ = {isa = PBXBuildFile; productRef = 982C81942CF76BA200D723ED /* Sideproject */; };
+		98A6013E2CF9ECDC00C2886E /* SwallowUI in Frameworks */ = {isa = PBXBuildFile; productRef = 98A6013D2CF9ECDC00C2886E /* SwallowUI */; };
+		98A601402CF9ED0500C2886E /* AppIconBuilder in Frameworks */ = {isa = PBXBuildFile; productRef = 98A6013F2CF9ED0500C2886E /* AppIconBuilder */; };
+		98A601422CF9ED0500C2886E /* CapsuleUI in Frameworks */ = {isa = PBXBuildFile; productRef = 98A601412CF9ED0500C2886E /* CapsuleUI */; };
+		98A601442CF9ED0500C2886E /* ColorPresetUI in Frameworks */ = {isa = PBXBuildFile; productRef = 98A601432CF9ED0500C2886E /* ColorPresetUI */; };
+		98A601462CF9ED0500C2886E /* CommandPalette in Frameworks */ = {isa = PBXBuildFile; productRef = 98A601452CF9ED0500C2886E /* CommandPalette */; };
+		98A601482CF9ED0500C2886E /* DiffUI in Frameworks */ = {isa = PBXBuildFile; productRef = 98A601472CF9ED0500C2886E /* DiffUI */; };
+		98A6014A2CF9ED0500C2886E /* FeyUI in Frameworks */ = {isa = PBXBuildFile; productRef = 98A601492CF9ED0500C2886E /* FeyUI */; };
+		98A6014C2CF9ED0500C2886E /* Flowchart in Frameworks */ = {isa = PBXBuildFile; productRef = 98A6014B2CF9ED0500C2886E /* Flowchart */; };
+		98A6014E2CF9ED0500C2886E /* MenuUI in Frameworks */ = {isa = PBXBuildFile; productRef = 98A6014D2CF9ED0500C2886E /* MenuUI */; };
+		98A601502CF9ED0500C2886E /* OnboardingUI in Frameworks */ = {isa = PBXBuildFile; productRef = 98A6014F2CF9ED0500C2886E /* OnboardingUI */; };
+		98A601522CF9ED0500C2886E /* shadcn in Frameworks */ = {isa = PBXBuildFile; productRef = 98A601512CF9ED0500C2886E /* shadcn */; };
+		98A601542CF9ED0500C2886E /* visionOS_UI in Frameworks */ = {isa = PBXBuildFile; productRef = 98A601532CF9ED0500C2886E /* visionOS_UI */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -27,7 +39,19 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				98A601422CF9ED0500C2886E /* CapsuleUI in Frameworks */,
+				98A601502CF9ED0500C2886E /* OnboardingUI in Frameworks */,
+				98A6014C2CF9ED0500C2886E /* Flowchart in Frameworks */,
+				98A601522CF9ED0500C2886E /* shadcn in Frameworks */,
+				98A6013E2CF9ECDC00C2886E /* SwallowUI in Frameworks */,
+				98A601482CF9ED0500C2886E /* DiffUI in Frameworks */,
+				98A601462CF9ED0500C2886E /* CommandPalette in Frameworks */,
+				98A6014E2CF9ED0500C2886E /* MenuUI in Frameworks */,
+				98A601542CF9ED0500C2886E /* visionOS_UI in Frameworks */,
 				982C81952CF76BA200D723ED /* Sideproject in Frameworks */,
+				98A601402CF9ED0500C2886E /* AppIconBuilder in Frameworks */,
+				98A601442CF9ED0500C2886E /* ColorPresetUI in Frameworks */,
+				98A6014A2CF9ED0500C2886E /* FeyUI in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -38,6 +62,7 @@
 			isa = PBXGroup;
 			children = (
 				982C81832CF76B5F00D723ED /* SideprojectExample */,
+				98A6013C2CF9ECDC00C2886E /* Frameworks */,
 				982C81822CF76B5F00D723ED /* Products */,
 			);
 			sourceTree = "<group>";
@@ -48,6 +73,13 @@
 				982C81812CF76B5F00D723ED /* SideprojectExample.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		98A6013C2CF9ECDC00C2886E /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -71,6 +103,18 @@
 			name = SideprojectExample;
 			packageProductDependencies = (
 				982C81942CF76BA200D723ED /* Sideproject */,
+				98A6013D2CF9ECDC00C2886E /* SwallowUI */,
+				98A6013F2CF9ED0500C2886E /* AppIconBuilder */,
+				98A601412CF9ED0500C2886E /* CapsuleUI */,
+				98A601432CF9ED0500C2886E /* ColorPresetUI */,
+				98A601452CF9ED0500C2886E /* CommandPalette */,
+				98A601472CF9ED0500C2886E /* DiffUI */,
+				98A601492CF9ED0500C2886E /* FeyUI */,
+				98A6014B2CF9ED0500C2886E /* Flowchart */,
+				98A6014D2CF9ED0500C2886E /* MenuUI */,
+				98A6014F2CF9ED0500C2886E /* OnboardingUI */,
+				98A601512CF9ED0500C2886E /* shadcn */,
+				98A601532CF9ED0500C2886E /* visionOS_UI */,
 			);
 			productName = SideprojectExample;
 			productReference = 982C81812CF76B5F00D723ED /* SideprojectExample.app */;
@@ -102,6 +146,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				982C81932CF76BA200D723ED /* XCLocalSwiftPackageReference "../../Sideproject" */,
+				98A6013B2CF9ECC200C2886E /* XCLocalSwiftPackageReference "../../SwallowUI" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 982C81822CF76B5F00D723ED /* Products */;
@@ -334,12 +379,64 @@
 			isa = XCLocalSwiftPackageReference;
 			relativePath = ../../Sideproject;
 		};
+		98A6013B2CF9ECC200C2886E /* XCLocalSwiftPackageReference "../../SwallowUI" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../../SwallowUI;
+		};
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
 		982C81942CF76BA200D723ED /* Sideproject */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Sideproject;
+		};
+		98A6013D2CF9ECDC00C2886E /* SwallowUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SwallowUI;
+		};
+		98A6013F2CF9ED0500C2886E /* AppIconBuilder */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = AppIconBuilder;
+		};
+		98A601412CF9ED0500C2886E /* CapsuleUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = CapsuleUI;
+		};
+		98A601432CF9ED0500C2886E /* ColorPresetUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = ColorPresetUI;
+		};
+		98A601452CF9ED0500C2886E /* CommandPalette */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = CommandPalette;
+		};
+		98A601472CF9ED0500C2886E /* DiffUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = DiffUI;
+		};
+		98A601492CF9ED0500C2886E /* FeyUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = FeyUI;
+		};
+		98A6014B2CF9ED0500C2886E /* Flowchart */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Flowchart;
+		};
+		98A6014D2CF9ED0500C2886E /* MenuUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = MenuUI;
+		};
+		98A6014F2CF9ED0500C2886E /* OnboardingUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = OnboardingUI;
+		};
+		98A601512CF9ED0500C2886E /* shadcn */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = shadcn;
+		};
+		98A601532CF9ED0500C2886E /* visionOS_UI */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = visionOS_UI;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

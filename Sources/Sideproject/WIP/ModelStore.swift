@@ -10,23 +10,29 @@ import SwiftUIX
 public final class ModelStore: ObservableObject {
     @FileStorage(
         .appDocuments,
-        path: "models.json",
+        path: "SideProjectExample/models.json",
         coder: .json,
         options: .init(readErrorRecoveryStrategy: .discardAndReset)
     ) public var models: [Model]
     
-    var activeDownloads: [Model] {
-        models.filter { $0.isDownloading }
+    public var downloadedModels: [Model] {
+        models.filter { $0.state == .downloaded && $0.url.isNotNil }
     }
     
-    private var downloaders: [Model.ID: [HuggingFace.Hub.Client.HubFileDownloader]] = [:]
-        
+    public var activeDownloads: [Model] {
+        models.filter { $0.isDownloading }
+    }
+            
     private var hub: HuggingFace.Hub.Client?
     
     private let fileManager = FileManager.default
     
     @MainActor
-    init() throws {
+    public init() {
+        if !FileManager.default.isReadable(at: downloadsURL) {
+            fatalError("Cannot read downloads folder")
+        }
+        
         if !FileManager.default.fileExists(atPath: downloadsURL.path) {
             _ = try? FileManager.default.createDirectory(
                 at: downloadsURL,
@@ -37,8 +43,6 @@ public final class ModelStore: ObservableObject {
         if models.isEmpty {
             models = ModelStore.exampleModelNames.map { Model(name: $0, state: .notDownloaded) }
         }
-        
-        print(models.filter { $0.isDownloading })
         
         refreshFromDisk()
     }
@@ -77,11 +81,13 @@ public final class ModelStore: ObservableObject {
     @MainActor
     public func download(
         modelNamed name: String,
-        using account: Sideproject.ExternalAccount
+        using accountStore: Sideproject.ExternalAccountStore
     ) async throws -> URL {
-        let model: Model
-        
+        let account = try Sideproject.ExternalAccountStore.shared.accounts(for: .huggingFace).first.unwrap()
         self.hub = try .init(from: account)
+        
+        let model: Model
+
         
         if let existingModel = models.first(where: { $0.name == name }) {
             model = existingModel
@@ -107,11 +113,10 @@ public final class ModelStore: ObservableObject {
         let modelDirectory: URL = try await hub.unwrap().snapshot(
             from: repo,
             matching: modelFiles,
-            outputHandler: { progress, downloaders in
+            outputHandler: { progress in
                 Task { @MainActor in
                     if let index = self.models.firstIndex(where: { $0.id == name }) {
                         self.models[index].state = .downloading(progress: progress.fractionCompleted)
-                        self.downloaders[self.models[index].id] = downloaders
                         
                         print("[\(name)] Download progress: \(progress.fractionCompleted * 100)")
                     } else {
@@ -124,29 +129,14 @@ public final class ModelStore: ObservableObject {
         if let index = self.models.firstIndex(where: { $0.id == name }) {
             self.models[index].state = .downloaded
             self.models[index].url = modelDirectory
-            self.downloaders.removeValue(forKey: self.models[index].id)
         }
         
         return modelDirectory
     }
     
     func cancelDownload(for model: Model) {
-        downloaders[model.id]?.forEach { $0.cancel() }
-        downloaders.removeValue(forKey: model.id)
-        
         guard let index = models.firstIndex(where: { $0.id == model.id }) else { return }
         models[index].state = .notDownloaded
-    }
-    
-    func deleteModel(_ model: Model) {
-        cancelDownload(for: model)
-        
-        guard let index = models.firstIndex(where: { $0.id == model.id }) else { return }
-        let model = models.remove(at: index)
-        
-        if let url = model.url {
-            try? fileManager.removeItem(atPath: url.path())
-        }
     }
 }
 
@@ -192,6 +182,8 @@ extension ModelStore {
                 print(modelURL)
                 try fileManager.removeItem(at: modelURL)
             }
+            
+            cancelDownload(for: model)
             
             models.removeAll(where: { $0.id == model.id })
         } catch {
@@ -308,65 +300,6 @@ extension ModelStore {
 
 extension ModelStore {
     
-}
-
-extension ModelStore {
-    public struct Model: Codable, Hashable, Identifiable, Sendable {
-        public typealias ID = String
-        
-        public var name: String
-        public var url: URL?
-        public var state: DownloadState
-        
-        public var id: ID {
-            name
-        }
-        
-        public var displayName: String {
-            url?.lastPathComponent ?? name
-        }
-        
-        public var isDownloading: Bool {
-            switch state {
-                case .downloading: return true
-                default: return false
-            }
-        }
-        
-        public var downloadProgess: Double {
-            switch state {
-                case .downloading(let progress):
-                    return progress
-                default:
-                    return 0.0
-            }
-        }
-        
-        public enum DownloadState: Codable, Hashable, Sendable {
-            case notDownloaded
-            case downloading(progress: Double)
-            case downloaded
-            case failed(String)
-        }
-    }
-    
-    public struct Suggestion: Hashable, Identifiable, Sendable {
-        public let name: String
-        
-        public var id: AnyHashable {
-            name
-        }
-        
-        public init(name: String) {
-            self.name = name
-        }
-        
-        public init(url: URL) {
-            let name = url.path().deletingPrefix("huggingface.co").deletingPrefix("/")
-            
-            self.init(name: name)
-        }
-    }
 }
 
 extension ModelStore {

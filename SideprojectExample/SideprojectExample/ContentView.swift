@@ -15,7 +15,11 @@ struct ContentView: View {
                 Text(String(i))
             }
         } detail: {
-            SideprojectAccountsView()
+            Text("")
         }
     }
+}
+
+#Preview {
+    ContentView()
 }

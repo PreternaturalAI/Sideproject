@@ -27,7 +27,7 @@ extension Sideproject.ExternalAccountCredentialTypeName where T == Sideproject.E
     }
 }
 
-// MARK: - Implemented Conformances
+// MARK: - Conformees
 
 extension Sideproject {
     public enum ExternalAccountCredentialTypes {

@@ -11,7 +11,7 @@ public struct ModelSearchView: View {
     @StateObject private var modelStore: ModelStore = ModelStore()
     
     @State private var selectedTab: Tab = .downloaded
-    @State private var text: String = ""
+    @State private var searchText: String = ""
     @State private var isShowingAllDownloads: Bool = false
     
     public init() {
@@ -23,11 +23,11 @@ public struct ModelSearchView: View {
             SideprojectAccountsView()
                 .background(.black)
         } detail: {
-            TableView(selectedTab: $selectedTab)
+            TableView(selectedTab: $selectedTab, searchText: $searchText)
         }
         .environmentObject(modelStore)
         .environmentObject(Sideproject.ExternalAccountStore.shared)
-        .searchable(text: $text, placement: .toolbar)
+        .searchable(text: $searchText, placement: .toolbar)
         .toolbar {
             ToolbarItem(placement: .secondaryAction) {
                 Picker(selection: $selectedTab) {
@@ -42,7 +42,7 @@ public struct ModelSearchView: View {
         .onSubmit(of: .search) {
             Task {
                 do {
-                    try await attemptDownload(for: text, using: Sideproject.ExternalAccountStore.shared)
+                    try await attemptDownload(for: searchText, using: Sideproject.ExternalAccountStore.shared)
                 } catch {
                     print(error)
                     print(error.localizedDescription)

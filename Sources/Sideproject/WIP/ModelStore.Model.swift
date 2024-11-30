@@ -14,7 +14,7 @@ extension ModelStore {
         public var name: String
         public var url: URL?
         public var state: DownloadState
-        public var lastUsed: Date = .now
+        public var lastUsed: Date?
         
         public var id: ID {
             name

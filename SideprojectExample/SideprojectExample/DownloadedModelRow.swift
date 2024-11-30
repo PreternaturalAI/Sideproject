@@ -10,7 +10,7 @@ import Sideproject
 import SwiftUI
 
 struct DownloadedModelRow: View {
-    @StateObject var modelStore = try! ModelStore()
+    @StateObject var modelStore = ModelStore()
     
     var body: some View {
         Table(modelStore.models) {

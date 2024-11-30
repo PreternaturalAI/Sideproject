@@ -44,6 +44,8 @@ public final class ModelStore: ObservableObject {
             models = ModelStore.exampleModelNames.map { Model(name: $0, state: .notDownloaded) }
         }
         
+        models.enumerated().forEach { models[$0].lastUsed = $1.isOnDisk ? $1.lastUsed : nil }
+        
         refreshFromDisk()
     }
     

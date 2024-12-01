@@ -75,7 +75,9 @@ public final class Sideproject: _CancellablesProviding, Logging, ObservableObjec
     }
     
     @MainActor
-    public func add(_ service: some CoreMI._ServiceClientProtocol) {
+    public func add(
+        _ service: some CoreMI._ServiceClientProtocol
+    ) {
         self.manuallyAddedServices.append(service)
     }
     

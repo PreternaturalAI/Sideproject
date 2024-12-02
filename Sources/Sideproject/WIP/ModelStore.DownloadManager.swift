@@ -50,6 +50,7 @@ public extension ModelStore {
         }
         
         func removeDownload(for repoId: String) {
+            downloads[repoId]?.cancel()
             downloads.removeValue(forKey: repoId)
         }
     }

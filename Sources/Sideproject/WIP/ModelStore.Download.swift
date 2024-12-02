@@ -20,6 +20,11 @@ extension ModelStore {
         let repo: HuggingFace.Hub.Repo
         let files: [String]
         let destination: URL
+        
+        lazy var sourceURLs: [URL] = {
+            files.map { constructURL(for: $0) }
+        }()
+        
         private let hfToken: String?
         
         private let stateSubject = CurrentValueSubject<ModelDownloadManager.DownloadState, Never>(.notStarted)
@@ -34,21 +39,31 @@ extension ModelStore {
             self.hfToken = hfToken
             self.progress = 0
             super.init()
-            setupSession()
+            
+            Task {
+                await setupSession()
+            }
         }
         
-        private func setupSession() {
+        private func setupSession() async {
             let identifier = "ai.preternatural.model-downloader-\(destination.absoluteString)"
             let config = URLSessionConfiguration.background(withIdentifier: identifier)
             config.isDiscretionary = false
             config.sessionSendsLaunchEvents = true
             
-            session = URLSession(configuration: config, delegate: self, delegateQueue: nil)
+            let session = URLSession(configuration: config, delegate: self, delegateQueue: nil)
+            self.tasks = await session.allTasks.compactMap { task in
+                guard let url = task.originalRequest?.url else { return nil }
+                
+                return sourceURLs.contains(url) ? task as? URLSessionDownloadTask : nil
+            }
+            
+            self.session = session
         }
         
         func start() {
-            tasks = files.compactMap { filename in
-                createTask(for: filename)
+            tasks = sourceURLs.compactMap { filename in
+                createTask(for: filename.url)
             }
             
             tasks.forEach { $0.resume() }
@@ -61,8 +76,9 @@ extension ModelStore {
             await withTaskGroup(of: Void.self) { group in
                 for task in tasks {
                     group.addTask {
-                        guard let url = task.originalRequest?.url else { return }
-                        guard let data = await task.cancelByProducingResumeData() else { return }
+                        guard let url: URL = task.originalRequest?.url else { return }
+                        guard self.sourceURLs.contains(url) else { return }
+                        guard let data: Data = await task.cancelByProducingResumeData() else { return }
                         
                         self.resumeData[url] = data
                     }
@@ -73,7 +89,6 @@ extension ModelStore {
             progressByTaskID = [:]
             
             stateSubject.value = .paused(progress: progress)
-            print("paused")
         }
         
         func resume() {
@@ -81,17 +96,16 @@ extension ModelStore {
             progressByTaskID = [:]
 
             print("attempting to resume")
-            for filename in files {
-                let url = constructURL(for: filename)
+            for url in sourceURLs {
                 let task: URLSessionDownloadTask?
                 
-                if let data = resumeData[url] {
+                if let data: Data = resumeData[url] {
                     task = session?.downloadTask(withResumeData: data)
                 } else {
-                    task = createTask(for: filename)
+                    task = createTask(for: url)
                 }
                 
-                guard let task = task else { continue }
+                guard let task: URLSessionDownloadTask = task else { continue }
                 task.resume()
                 self.tasks.append(task)
             }
@@ -123,13 +137,36 @@ extension ModelStore {
             return url
         }
         
-        private func createTask(for filename: String) -> URLSessionDownloadTask? {
-            let url = constructURL(for: filename)
-            var request = URLRequest(url: url)
-            if let hfToken = hfToken {
+        private func createTask(for url: URL) -> URLSessionDownloadTask? {
+            var request: URLRequest = URLRequest(url: url)
+            
+            if let hfToken: String = hfToken {
                 request.setValue("Bearer \(hfToken)", forHTTPHeaderField: "Authorization")
             }
             
+            // TODO: (@pmanot) - Test and remove this if not needed
+            /*
+            if let existing = await session?.allTasks.filter({ $0.originalRequest?.url == url }).first {
+                switch existing.state {
+                    case .running:
+                        // print("Already downloading \(url)")
+                        break
+                    case .suspended:
+                        // print("Resuming suspended download task for \(url)")
+                        existing.resume()
+                        break
+                    case .canceling:
+                        // print("Starting new download task for \(url), previous was canceling")
+                        break
+                    case .completed:
+                        // print("Starting new download task for \(url), previous is complete but the file is no longer present (I think it's cached)")
+                        break
+                    @unknown default:
+                        // print("Unknown state for running task; cancelling and creating a new one")
+                        existing.cancel()
+                }
+            }
+            */
             return session?.downloadTask(with: request)
         }
         
@@ -185,7 +222,6 @@ extension ModelStore.Download: URLSessionDownloadDelegate {
         self.progressByTaskID[downloadTask.taskIdentifier] = Double(totalBytesWritten) / Double(totalBytesExpectedToWrite)
         
         self.progress = progressByTaskID.values.reduce(0, +)/Double(progressByTaskID.values.count)
-        print(self.progress)
         
         stateSubject.value = .downloading(progress: progress)
     }
@@ -222,8 +258,12 @@ extension ModelStore.Download: URLSessionDownloadDelegate {
         task: URLSessionTask,
         didCompleteWithError error: Error?
     ) {
-        if let error = error {
-            stateSubject.value = .failed(error.localizedDescription)
+        if let url = task.originalRequest?.url, self.resumeData[url] != nil {
+            return
+        } else {
+            if let error = error {
+                stateSubject.value = .failed(error.localizedDescription)
+            }
         }
     }
 }

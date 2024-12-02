@@ -182,6 +182,26 @@ extension ModelSearchView.TableView {
                                     .controlSize(.small)
                                     .progressViewStyle(.circular)
                             } else {
+                                Image(systemName: model.isPaused ? "arrow.trianglehead.clockwise" : "pause.circle.fill")
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                                    .frame(width: 15, height: 15)
+                            }
+                        }
+                        .frame(width: 15, height: 15)
+                    }
+                    .buttonStyle(.plain)
+                    .onHover { isHovering = $0 }
+                    
+                    Button {
+                        modelStore.cancelDownload(for: model)
+                    } label: {
+                        Group {
+                            if !isHovering {
+                                ProgressView(value: model.downloadProgess)
+                                    .controlSize(.small)
+                                    .progressViewStyle(.circular)
+                            } else {
                                 Image(systemName: model.isPaused ? .clockArrowCirclepath : .pauseCircleFill)
                                     .resizable()
                                     .aspectRatio(contentMode: .fit)

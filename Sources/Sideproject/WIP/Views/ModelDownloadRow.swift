@@ -24,13 +24,22 @@ extension ModelSearchView {
                             .padding(.horizontal, 5)
                         
                         Button {
-                            // TODO: (@pmanot) Implement pause/resume functionality
+                            Task { @MainActor in
+                                switch model.state {
+                                    case .paused(let _):
+                                        print("resuming")
+                                        modelStore.resumeDownload(for: model)
+                                    default:
+                                        print("pausing")
+                                        await modelStore.pauseDownload(for: model)
+                                }
+                            }
                         } label: {
                             Image(systemName: .pauseCircleFill)
                         }
                         
                         Button {
-                            modelStore.cancelDownload(for: model)
+                           // modelStore.cancelDownload(for: model)
                         } label: {
                             Image(systemName: .xmarkCircleFill)
                         }

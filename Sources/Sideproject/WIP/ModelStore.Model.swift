@@ -13,7 +13,7 @@ extension ModelStore {
         
         public var name: String
         public var url: URL?
-        public var state: DownloadState
+        public var state: ModelDownloadManager.DownloadState
         public var lastUsed: Date?
         
         public var id: ID {
@@ -42,7 +42,14 @@ extension ModelStore {
         
         public var isDownloading: Bool {
             switch state {
-                case .downloading: return true
+                case .downloading, .paused: return true
+                default: return false
+            }
+        }
+        
+        public var isPaused: Bool {
+            switch state {
+                case .paused: return true
                 default: return false
             }
         }
@@ -54,18 +61,11 @@ extension ModelStore {
         
         public var downloadProgess: Double {
             switch state {
-                case .downloading(let progress):
+                case .downloading(let progress), .paused(let progress):
                     return progress
                 default:
                     return 0.0
             }
-        }
-        
-        public enum DownloadState: Codable, Hashable, Sendable {
-            case notDownloaded
-            case downloading(progress: Double)
-            case downloaded
-            case failed(String)
         }
     }
 }

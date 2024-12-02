@@ -16,7 +16,10 @@ public final class ModelStore: ObservableObject {
     ) public var models: [Model]
     
     public var downloadedModels: [Model] {
-        models.filter { $0.state == .downloaded && $0.url.isNotNil }
+        models.filter {
+            guard let url = $0.url else { return false }
+            return $0.state == .completed(url)
+        }
     }
     
     public var activeDownloads: [Model] {
@@ -24,6 +27,8 @@ public final class ModelStore: ObservableObject {
     }
             
     private var hub: HuggingFace.Hub.Client?
+    private let downloadManager = ModelDownloadManager()
+    private var cancellables: [String: AnyCancellable] = [:]
     
     private let fileManager = FileManager.default
     
@@ -41,10 +46,15 @@ public final class ModelStore: ObservableObject {
         }
         
         if models.isEmpty {
-            models = ModelStore.exampleModelNames.map { Model(name: $0, state: .notDownloaded) }
+            print("initialized with hardcoded models")
+            models = ModelStore.exampleModelNames.map { Model(name: $0, state: .notStarted) }
         }
         
         models.enumerated().forEach { models[$0].lastUsed = $1.isOnDisk ? $1.lastUsed : nil }
+        downloadManager.downloads.forEach { (key: String, value: ModelStore.Download) in
+            guard let index = models.firstIndex (where: { $0.id == key }) else { return }
+            models[index].state = .downloading(progress: value.progress)
+        }
         
         refreshFromDisk()
     }
@@ -78,7 +88,7 @@ public final class ModelStore: ObservableObject {
         "CodeLlamaTokenizer": "LlamaTokenizer",
         "GemmaTokenizer": "PreTrainedTokenizer",
     ]
-    
+    /*
     @discardableResult
     @MainActor
     public func download(
@@ -135,10 +145,105 @@ public final class ModelStore: ObservableObject {
         
         return modelDirectory
     }
+    */
     
-    func cancelDownload(for model: Model) {
-        guard let index = models.firstIndex(where: { $0.id == model.id }) else { return }
-        models[index].state = .notDownloaded
+    
+    @MainActor
+    public func download(
+        modelNamed name: String,
+        using accountStore: Sideproject.ExternalAccountStore
+    ) async throws -> URL {
+        let account = try Sideproject.ExternalAccountStore.shared.accounts(for: .huggingFace).first.unwrap()
+        
+        self.hub = try .init(from: account)
+        let model: Model
+        
+        if let existingModel = models.first(where: { $0.name == name }) {
+            model = existingModel
+        } else {
+            assert(!models.contains(where: { $0.id == name }))
+            
+            model = Model(
+                name: name,
+                url: nil,
+                state: .downloading(progress: 0)
+            )
+            
+            self.models.append(model)
+        }
+
+        let repo = HuggingFace.Hub.Repo(id: name)
+        let modelFiles: [String] = ["config.json", "*.safetensors"]
+        let filenames = try await hub.unwrap().getFilenames(from: repo, matching: modelFiles)
+        
+        let modelDownload = downloadManager.download(
+            repo: repo,
+            files: filenames,
+            destination: downloadsURL.appending(component: repo.id),
+            hfToken: hub?.hfToken
+        )
+        
+        cancellables[name] = modelDownload.state
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] state in
+                guard let self = self,
+                      let index = self.models.firstIndex(where: { $0.id == name }) else { return }
+                
+                self.models[index].state = state
+                
+                switch state {
+                    case .completed(let url):
+                        self.models[index].url = url
+                    default:
+                        return
+                }
+                
+                /*
+                switch state {
+                    case .downloading(let progress):
+                        self.models[index].state = .downloading(progress: progress)
+                    case .completed(let url):
+                        self.models[index].state = .download
+                        self.models[index].url = url
+                    case .failed:
+                        self.models[index].state = .notDownloaded
+                    case .paused(let progress):
+                        self.models[index].state = .paused(progress: progress)
+                    case .notStarted:
+                        self.models[index].state = .notDownloaded
+                }
+                 */
+            }
+        
+        modelDownload.start()
+        return downloadsURL.appending(component: repo.id)
+    }
+    
+    @MainActor
+    public func pauseDownload(for model: Model) async {
+        guard let modelDownload = downloadManager.downloads[model.id] else { return }
+        await modelDownload.pause()
+    }
+    
+    @MainActor
+    public func resumeDownload(for model: Model) {
+        guard let download = downloadManager.downloads[model.id] else { return }
+        print("got download")
+        download.resume()
+    }
+    
+    @MainActor
+    public func cancelDownload(for model: Model) {
+        guard let download = downloadManager.downloads[model.id] else { return }
+        
+        download.cancel()
+        
+        downloadManager.removeDownload(for: model.id)
+        cancellables.removeValue(forKey: model.id)
+        
+        if let index = models.firstIndex(where: { $0.id == model.id }) {
+            models[index].state = .notStarted
+        }
     }
 }
 
@@ -175,9 +280,11 @@ extension ModelStore {
     public func delete(
         _ model: Model.ID
     ) {
-        guard let model = models.first(where: { $0.id == model }) else {
+        guard let index = models.firstIndex(where: { $0.id == model }) else {
             return
         }
+        
+        let model = models[index]
         
         do {
             if let modelURL = model.url {
@@ -187,7 +294,8 @@ extension ModelStore {
             
             cancelDownload(for: model)
             
-            models.removeAll(where: { $0.id == model.id })
+            models[index].state = .notStarted
+            models[index].url = nil
         } catch {
             assertionFailure(String(describing: error))
         }
@@ -218,7 +326,7 @@ extension ModelStore {
                 let model = Model(
                     name: modelName,
                     url: modelURL,
-                    state: isDownloaded ? .downloaded : .notDownloaded
+                    state: isDownloaded ? .completed(modelURL) : .notStarted
                 )
                 
                 if self.containsModel(named: model.name) {
@@ -312,6 +420,10 @@ extension ModelStore {
 
 extension ModelStore {
     public static let exampleModelNames: [String] = [
+        "openai/whisper-large-v3",
+        "openai/whisper-tiny",
+        "openai/whisper-base",
+        "openai/whisper-small",
         "qwq",
         "qwen2.5-coder",
         "llama3.2-vision",

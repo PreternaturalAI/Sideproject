@@ -6,98 +6,71 @@
 //
 
 import Foundation
+import CorePersistence
+import HuggingFace
 
-// MARK: Incomplete, WIP
-/*
-extension ModelStore {
-    class DownloadManager {
-        private(set) var destination: URL
-        private var tasks: [URL: URLSessionTask] = [:]
-        private var urlSession: URLSession? = nil
 
-        
-        var source: URL {
-            // https://huggingface.co/coreml-projects/Llama-2-7b-chat-coreml/resolve/main/tokenizer.json?download=true
-            var url = URL(string: endpoint ?? "https://huggingface.co")!
-            if repo.type != .models {
-                url = url.appending(component: repo.type.rawValue)
-            }
-            url = url.appending(path: repo.id)
-            url = url.appending(path: "resolve/main") // TODO: revisions
-            url = url.appending(path: relativeFilename)
-            return url
+public extension ModelStore {
+    class ModelDownloadManager {
+        public enum DownloadState: Codable, Hashable, Sendable {
+            case notStarted
+            case downloading(progress: Double)
+            case paused(progress: Double)
+            case completed(URL)
+            case failed(String)
         }
         
-        var destination: URL {
-            repoDestination.appending(path: relativeFilename)
-        }
-        
-        var downloaded: Bool {
-            FileManager.default.fileExists(atPath: destination.path)
-        }
-        
-        func prepareDestination() throws {
-            let directoryURL = destination.deletingLastPathComponent()
-            try FileManager.default.createDirectory(at: directoryURL, withIntermediateDirectories: true, attributes: nil)
-        }
-        
-        func download(outputHandler: @escaping (Double) -> Void) async throws -> URL {
-            guard !downloaded else { return destination }
-            
-            try prepareDestination()
-            let downloader = HuggingFace.Downloader(from: source, to: destination, using: hfToken, inBackground: backgroundSession)
-            let sessionIdentifier = "swift-transformers.hub.downloader"
-            
-            var config = URLSessionConfiguration.default
-            if inBackground {
-                config = URLSessionConfiguration.background(withIdentifier: sessionIdentifier)
-                config.isDiscretionary = false
-                config.sessionSendsLaunchEvents = true
+        @FileStorage(
+            .appDocuments,
+            path: "SideProjectExample/downloads.json",
+            coder: .json,
+            options: .init(readErrorRecoveryStrategy: .discardAndReset)
+        )
+        var downloads: [String: ModelStore.Download]
+
+        func download(
+            repo: HuggingFace.Hub.Repo,
+            files: [String],
+            destination: URL,
+            hfToken: String?
+        ) -> Download {
+            let id = repo.id
+            if let existingDownload = downloads[id] {
+                return existingDownload
             }
             
-            self.urlSession = URLSession(configuration: config, delegate: self, delegateQueue: nil)
-            
-            return destination
+            let download = Download(
+                repo: repo,
+                files: files,
+                destination: destination,
+                hfToken: hfToken
+            )
+            downloads[id] = download
+            return download
         }
-
-        private func setupDownload(from url: URL, with authToken: String?) async {
-            downloadState.value = .downloading(0)
-            
-            urlSession?.getAllTasks { tasks in
-                // If there's an existing pending background task with the same URL, let it proceed.
-                if let existing = tasks.filter({ $0.originalRequest?.url == url }).first {
-                    switch existing.state {
-                        case .running:
-                            // print("Already downloading \(url)")
-                            return
-                        case .suspended:
-                            // print("Resuming suspended download task for \(url)")
-                            existing.resume()
-                            return
-                        case .canceling:
-                            // print("Starting new download task for \(url), previous was canceling")
-                            break
-                        case .completed:
-                            // print("Starting new download task for \(url), previous is complete but the file is no longer present (I think it's cached)")
-                            break
-                        @unknown default:
-                            // print("Unknown state for running task; cancelling and creating a new one")
-                            existing.cancel()
-                    }
-                }
-                
-                var request = URLRequest(url: url)
-                
-                if let authToken = authToken {
-                    request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
-                }
-                
-                self.urlSession?.downloadTask(with: request).resume()
-            }
+        
+        func removeDownload(for repoId: String) {
+            downloads.removeValue(forKey: repoId)
         }
     }
 }
 
+// MARK: - Conformances
+
+extension ModelStore.ModelDownloadManager.DownloadState: Equatable {
+    public static func == (lhs: ModelStore.ModelDownloadManager.DownloadState, rhs: ModelStore.ModelDownloadManager.DownloadState) -> Bool {
+        switch (lhs, rhs) {
+            case (.notStarted, .notStarted): return true
+            case (.downloading(let p1), .downloading(let p2)): return p1 == p2
+            case (.paused, .paused): return true
+            case (.completed(let u1), .completed(let u2)): return u1 == u2
+            case (.failed, .failed): return true
+            default: return false
+        }
+    }
+}
+
+/*
 extension HuggingFace {
     class Downloader: NSObject {
         private(set) var destination: URL

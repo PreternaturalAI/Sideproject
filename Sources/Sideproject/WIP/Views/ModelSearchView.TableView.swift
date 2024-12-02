@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import SwiftUI
+import SwiftUIX
 
 extension ModelSearchView {
     struct TableView: View {
@@ -108,7 +108,7 @@ extension ModelSearchView {
         @TableRowBuilder<ModelStore.Model>
         var tableRowContent: some TableRowContent<ModelStore.Model> {
             Section("Downloads") {
-                ForEach(models) { model in
+                ForEach(modelStore.activeDownloads) { model in
                     TableRow(model)
                 }
             }
@@ -165,16 +165,24 @@ extension ModelSearchView.TableView {
             Group {
                 if model.isDownloading {
                     Button {
-                        // TODO: Implement cancelling downloads
-                        modelStore.cancelDownload(for: model)
+                        Task { @MainActor in
+                            switch model.state {
+                                case .paused:
+                                    print("resuming")
+                                    modelStore.resumeDownload(for: model)
+                                default:
+                                    print("pausing")
+                                    await modelStore.pauseDownload(for: model)
+                            }
+                        }
                     } label: {
                         Group {
                             if !isHovering {
                                 ProgressView(value: model.downloadProgess)
+                                    .controlSize(.small)
                                     .progressViewStyle(.circular)
-                                    .frame(width: 5, height: 5)
                             } else {
-                                Image(systemName: .xmarkCircleFill)
+                                Image(systemName: model.isPaused ? .clockArrowCirclepath : .pauseCircleFill)
                                     .resizable()
                                     .aspectRatio(contentMode: .fit)
                                     .frame(width: 15, height: 15)

@@ -57,6 +57,7 @@ extension ModelStore {
         
         @MainActor
         func pause() async {
+            print("attempting to pause")
             await withTaskGroup(of: Void.self) { group in
                 for task in tasks {
                     group.addTask {
@@ -72,6 +73,7 @@ extension ModelStore {
             progressByTaskID = [:]
             
             stateSubject.value = .paused(progress: progress)
+            print("paused")
         }
         
         func resume() {

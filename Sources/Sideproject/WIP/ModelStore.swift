@@ -51,12 +51,28 @@ public final class ModelStore: ObservableObject {
         }
         
         models.enumerated().forEach { models[$0].lastUsed = $1.isOnDisk ? $1.lastUsed : nil }
+        refreshFromDisk()
+        
         downloadManager.downloads.forEach { (key: String, value: ModelStore.Download) in
             guard let index = models.firstIndex (where: { $0.id == key }) else { return }
             models[index].state = .downloading(progress: value.progress)
+            
+            cancellables[key] = value.state.receive(on: DispatchQueue.main)
+                .sink { [weak self] state in
+                    print(state)
+                    guard let self = self,
+                          let index = self.models.firstIndex(where: { $0.id == key }) else { return }
+                    
+                    self.models[index].state = state
+                    
+                    switch state {
+                        case .completed(let url):
+                            self.models[index].url = url
+                        default:
+                            return
+                    }
+                }
         }
-        
-        refreshFromDisk()
     }
     
     @MainActor
@@ -188,6 +204,7 @@ public final class ModelStore: ObservableObject {
             .sink { [weak self] state in
                 guard let self = self,
                       let index = self.models.firstIndex(where: { $0.id == name }) else { return }
+                print(state)
                 
                 self.models[index].state = state
                 
@@ -228,7 +245,6 @@ public final class ModelStore: ObservableObject {
     @MainActor
     public func resumeDownload(for model: Model) {
         guard let download = downloadManager.downloads[model.id] else { return }
-        print("got download")
         download.resume()
     }
     

@@ -196,22 +196,14 @@ extension ModelSearchView.TableView {
                     Button {
                         modelStore.cancelDownload(for: model)
                     } label: {
-                        Group {
-                            if !isHovering {
-                                ProgressView(value: model.downloadProgess)
-                                    .controlSize(.small)
-                                    .progressViewStyle(.circular)
-                            } else {
-                                Image(systemName: model.isPaused ? .clockArrowCirclepath : .pauseCircleFill)
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fit)
-                                    .frame(width: 15, height: 15)
-                            }
-                        }
-                        .frame(width: 15, height: 15)
+                        Image(systemName: .xmarkCircleFill)
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 15, height: 15)
+                            .frame(width: 15, height: 15)
                     }
                     .buttonStyle(.plain)
-                    .onHover { isHovering = $0 }
+                    
                 } else {
                     Button("Get") {
                         Task {

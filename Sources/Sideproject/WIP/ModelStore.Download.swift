@@ -117,6 +117,8 @@ extension ModelStore {
             tasks.forEach { task in
                 task.cancel()
             }
+            session?.invalidateAndCancel()
+            
             tasks = []
             completedTasks = 0
             progress = 0

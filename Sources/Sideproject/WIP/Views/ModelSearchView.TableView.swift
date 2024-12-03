@@ -9,15 +9,15 @@ import Foundation
 import SwiftUIX
 
 extension ModelSearchView {
-    struct TableView: View {
+    public struct TableView: View {
         @EnvironmentObject private var modelStore: ModelStore
         @EnvironmentObject private var accountStore: Sideproject.ExternalAccountStore
         
-        @State private var selectedModel: ModelStore.Model.ID? = nil
+        @Binding private var selectedTab: ModelSearchView.Tab
+        @Binding private var selection: ModelStore.Model.ID?
+
         @State private var sortOrder: [KeyPathComparator<ModelStore.Model>] = [KeyPathComparator(\ModelStore.Model.size), KeyPathComparator(\ModelStore.Model.name), KeyPathComparator(\ModelStore.Model.lastUsed)]
-        
-        @Binding var selectedTab: ModelSearchView.Tab
-        @Binding var searchText: String
+        @State private var searchText: String = ""
         
         private var models: [ModelStore.Model] {
             modelStore[keyPath: selectedTab.keyPath]
@@ -25,8 +25,13 @@ extension ModelSearchView {
                 .filter(filterPredicate)
         }
         
-        var body: some View {
-            Table(of: ModelStore.Model.self, selection: $selectedModel, sortOrder: $sortOrder) {
+        public init(selectedTab: Binding<ModelSearchView.Tab>, selection: Binding<ModelStore.Model.ID?>) {
+            self._selectedTab = selectedTab
+            self._selection = selection
+        }
+        
+        public var body: some View {
+            Table(of: ModelStore.Model.self, selection: $selection, sortOrder: $sortOrder) {
                 tableColumnContent
             } rows: {
                 tableRowContent
@@ -54,7 +59,28 @@ extension ModelSearchView {
                 }
             }
             .border(.quaternary, width: 1)
-            .padding()
+            .toolbar {
+                ToolbarItem(placement: .secondaryAction) {
+                    Picker(selection: $selectedTab) {
+                        ForEach(Tab.allCases, id: \.self) { tab in
+                            Text(tab.description)
+                                .tag(tab)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                }
+            }
+            .searchable(text: $searchText, placement: .toolbar)
+            .onSubmit(of: .search) {
+                Task {
+                    do {
+                        try await attemptDownload(for: searchText, using: Sideproject.ExternalAccountStore.shared)
+                    } catch {
+                        print(error)
+                        print(error.localizedDescription)
+                    }
+                }
+            }
         }
         
         @TableColumnBuilder<ModelStore.Model, KeyPathComparator<ModelStore.Model>>
@@ -136,6 +162,28 @@ extension ModelSearchView {
             }
         }
         
+        @discardableResult
+        private func attemptDownload(for searchText: String, using accountStore: Sideproject.ExternalAccountStore) async throws -> URL? {
+            var urlString = searchText
+            guard urlString.contains("huggingface") else { return nil }
+            
+            if !urlString.hasPrefix("https://") {
+                urlString = "https://" + urlString
+            }
+            
+            guard let url = URL(string: urlString) else { return nil }
+            var components = url.pathComponents
+            
+            components.removeAll { $0 == "/" }
+            let name = components.joined(separator: "/")
+            
+            if !modelStore.models.map({ $0.name }).contains(name) {
+                return nil
+            }
+            
+            return try await modelStore.download(modelNamed: name, using: accountStore)
+        }
+        
         private func filterPredicate(model: ModelStore.Model) -> Bool {
             let needle = self.searchText.trimmingCharacters(in: .whitespacesAndNewlines)
             
@@ -148,6 +196,7 @@ extension ModelSearchView {
             
             return nameMatch || urlMatch
         }
+        
     }
 }
 

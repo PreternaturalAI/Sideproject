@@ -5,7 +5,6 @@
 import Diagnostics
 import HuggingFace
 
-
 extension HuggingFace.Hub.Client {
     @MainActor
     init(from account: Sideproject.ExternalAccount) throws {

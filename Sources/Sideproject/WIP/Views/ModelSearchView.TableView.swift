@@ -209,7 +209,6 @@ extension ModelSearchView.TableView {
         
         
         var model: ModelStore.Model
-        
         var body: some View {
             Group {
                 if model.isDownloading {
@@ -218,7 +217,7 @@ extension ModelSearchView.TableView {
                             switch model.state {
                                 case .paused:
                                     print("resuming")
-                                    modelStore.resumeDownload(for: model)
+                                    await modelStore.resumeDownload(for: model)
                                 default:
                                     print("pausing")
                                     await modelStore.pauseDownload(for: model)

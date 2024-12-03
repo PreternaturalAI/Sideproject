@@ -55,9 +55,15 @@ public final class ModelStore: ObservableObject {
         
         downloadManager.downloads.forEach { (key: String, value: ModelStore.Download) in
             guard let index = models.firstIndex (where: { $0.id == key }) else { return }
-            models[index].state = .downloading(progress: value.progress)
             
-            cancellables[key] = value.state.receive(on: DispatchQueue.main)
+            if let url = models[index].url, models[index].state == .completed(url) {
+                print("completed \(key)")
+                return
+            }
+            
+            models[index].state = value.state
+            
+            cancellables[key] = value.statePublisher.receive(on: DispatchQueue.main)
                 .sink { [weak self] state in
                     print(state)
                     guard let self = self,
@@ -68,7 +74,6 @@ public final class ModelStore: ObservableObject {
                     switch state {
                         case .completed(let url):
                             self.models[index].url = url
-                            downloadManager.removeDownload(for: self.models[index].name)
                         default:
                             return
                     }
@@ -105,65 +110,6 @@ public final class ModelStore: ObservableObject {
         "CodeLlamaTokenizer": "LlamaTokenizer",
         "GemmaTokenizer": "PreTrainedTokenizer",
     ]
-    /*
-    @discardableResult
-    @MainActor
-    public func download(
-        modelNamed name: String,
-        using accountStore: Sideproject.ExternalAccountStore
-    ) async throws -> URL {
-        let account = try Sideproject.ExternalAccountStore.shared.accounts(for: .huggingFace).first.unwrap()
-        self.hub = try .init(from: account)
-        
-        let model: Model
-
-        
-        if let existingModel = models.first(where: { $0.name == name }) {
-            model = existingModel
-        } else {
-            assert(!models.contains(where: { $0.id == name }))
-            
-            model = Model(
-                name: name,
-                url: nil,
-                state: .downloading(progress: 0)
-            )
-            
-            self.models.append(model)
-        }
-        
-        
-        let repo = HuggingFace.Hub.Repo(id: name)
-        let modelFiles: [String] = [
-            "config.json",
-            "*.safetensors"
-        ]
-        
-        let modelDirectory: URL = try await hub.unwrap().snapshot(
-            from: repo,
-            matching: modelFiles,
-            outputHandler: { progress in
-                Task { @MainActor in
-                    if let index = self.models.firstIndex(where: { $0.id == name }) {
-                        self.models[index].state = .downloading(progress: progress.fractionCompleted)
-                        
-                        print("[\(name)] Download progress: \(progress.fractionCompleted * 100)")
-                    } else {
-                        assertionFailure()
-                    }
-                }
-            }
-        )
-        
-        if let index = self.models.firstIndex(where: { $0.id == name }) {
-            self.models[index].state = .downloaded
-            self.models[index].url = modelDirectory
-        }
-        
-        return modelDirectory
-    }
-    */
-    
     
     @MainActor
     public func download(
@@ -190,8 +136,8 @@ public final class ModelStore: ObservableObject {
         }
 
         let repo = HuggingFace.Hub.Repo(id: name)
-        let modelFiles: [String] = ["*.safetensors", "config.json", "tokenizer.json", "tokenizer_config.json"]
-        let filenames = try await hub.unwrap().getFilenames(from: repo, matching: modelFiles)
+        //let modelFiles: [String] = ["*.safetensors", "config.json", "tokenizer.json", "tokenizer_config.json"]
+        let filenames = try await hub.unwrap().getFilenames(from: repo, matching: [])
         
         let modelDownload = downloadManager.download(
             repo: repo,
@@ -200,12 +146,11 @@ public final class ModelStore: ObservableObject {
             hfToken: hub?.hfToken
         )
         
-        cancellables[name] = modelDownload.state
+        cancellables[name] = modelDownload.statePublisher
             .receive(on: DispatchQueue.main)
             .sink { [weak self] state in
                 guard let self = self,
                       let index = self.models.firstIndex(where: { $0.id == name }) else { return }
-                print(state)
                 
                 self.models[index].state = state
                 
@@ -215,25 +160,9 @@ public final class ModelStore: ObservableObject {
                     default:
                         return
                 }
-                
-                /*
-                switch state {
-                    case .downloading(let progress):
-                        self.models[index].state = .downloading(progress: progress)
-                    case .completed(let url):
-                        self.models[index].state = .download
-                        self.models[index].url = url
-                    case .failed:
-                        self.models[index].state = .notDownloaded
-                    case .paused(let progress):
-                        self.models[index].state = .paused(progress: progress)
-                    case .notStarted:
-                        self.models[index].state = .notDownloaded
-                }
-                 */
             }
         
-        modelDownload.start()
+        await modelDownload.startOrResume(with: hub?.hfToken)
         return downloadsURL.appending(component: repo.id)
     }
     
@@ -244,9 +173,9 @@ public final class ModelStore: ObservableObject {
     }
     
     @MainActor
-    public func resumeDownload(for model: Model) {
+    public func resumeDownload(for model: Model) async {
         guard let download = downloadManager.downloads[model.id] else { return }
-        download.resume()
+        await download.startOrResume(with: hub?.hfToken)
     }
     
     @MainActor

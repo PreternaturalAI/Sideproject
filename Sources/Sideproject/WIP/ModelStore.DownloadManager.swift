@@ -40,11 +40,10 @@ public extension ModelStore {
             }
             
             let download = Download(
-                repo: repo,
-                files: files,
-                destination: destination,
-                hfToken: hfToken
+                sourceURLs: files.map { constructHuggingFaceURL(for: $0, repo: repo) },
+                destination: destination
             )
+            
             downloads[id] = download
             return download
         }
@@ -52,6 +51,20 @@ public extension ModelStore {
         func removeDownload(for repoId: String) {
             downloads[repoId]?.cancel()
             downloads.removeValue(forKey: repoId)
+        }
+        
+        private func constructHuggingFaceURL(for filename: String, repo: HuggingFace.Hub.Repo) -> URL {
+            var url = URL(string: "https://huggingface.co")!
+            
+            if repo.type != .models {
+                url = url.appending(component: repo.type.rawValue)
+            }
+            
+            url = url.appending(path: repo.id)
+                .appending(path: "resolve/main")
+                .appending(path: filename)
+            
+            return url
         }
     }
 }

@@ -10,60 +10,68 @@ import HuggingFace
 
 extension ModelStore {
     class Download: NSObject, Codable {
-        private var session: URLSession?
+        private var session: URLSession!
         private var tasks: [URLSessionDownloadTask] = []
         private var resumeData: [URL: Data] = [:]
         private var completedTasks: Int = 0
         private var progressByTaskID: [Int: Double] = [:]
         public var progress: Double
         
-        let repo: HuggingFace.Hub.Repo
-        let files: [String]
-        let destination: URL
-        
-        lazy var sourceURLs: [URL] = {
-            files.map { constructURL(for: $0) }
-        }()
-        
-        private let hfToken: String?
+        private let destination: URL
+        private let sourceURLs: [URL]
         
         private let stateSubject = CurrentValueSubject<ModelDownloadManager.DownloadState, Never>(.notStarted)
-        var state: AnyPublisher<ModelDownloadManager.DownloadState, Never> {
+        public var statePublisher: AnyPublisher<ModelDownloadManager.DownloadState, Never> {
             stateSubject.eraseToAnyPublisher()
         }
         
-        init(repo: HuggingFace.Hub.Repo, files: [String], destination: URL, hfToken: String?) {
-            self.repo = repo
-            self.files = files
+        public var state: ModelDownloadManager.DownloadState {
+            stateSubject.value
+        }
+        
+        public init(sourceURLs: [URL], destination: URL) {
+            self.sourceURLs = sourceURLs
             self.destination = destination
-            self.hfToken = hfToken
+            
             self.progress = 0
             super.init()
             
-            Task {
-                await setupSession()
-            }
+            setupSession()
         }
         
-        private func setupSession() async {
+        private func setupSession() {
             let identifier = "ai.preternatural.model-downloader-\(destination.absoluteString)"
             let config = URLSessionConfiguration.background(withIdentifier: identifier)
             config.isDiscretionary = false
             config.sessionSendsLaunchEvents = true
             
-            let session = URLSession(configuration: config, delegate: self, delegateQueue: nil)
-            self.tasks = await session.allTasks.compactMap { task in
+            self.session = URLSession(configuration: config, delegate: self, delegateQueue: nil)
+        }
+        
+        func startOrResume(with hfToken: String?) async {
+            let allTasks: [URLSessionDownloadTask] = await session.allTasks.compactMap { (task: URLSessionTask) in
                 guard let url = task.originalRequest?.url else { return nil }
+                guard task.state != .canceling else { return nil }
                 
                 return sourceURLs.contains(url) ? task as? URLSessionDownloadTask : nil
             }
             
-            self.session = session
-        }
-        
-        func start() {
-            tasks = sourceURLs.compactMap { filename in
-                createTask(for: filename.url)
+            for url in sourceURLs {
+                if let task = allTasks.first(where: { $0.originalRequest?.url == url }) {
+                    self.tasks.append(task)
+                } else {
+                    let task: URLSessionDownloadTask
+                    
+                    if let data: Data = resumeData[url] {
+                        task = session.downloadTask(withResumeData: data)
+                    } else {
+                        task = createTask(for: url, hfToken: hfToken)
+                    }
+                    
+                    self.tasks.append(task)
+                }
+                
+                continue
             }
             
             tasks.forEach { $0.resume() }
@@ -91,33 +99,8 @@ extension ModelStore {
             stateSubject.value = .paused(progress: progress)
         }
         
-        func resume() {
-            tasks = []
-            progressByTaskID = [:]
-
-            print("attempting to resume")
-            for url in sourceURLs {
-                let task: URLSessionDownloadTask?
-                
-                if let data: Data = resumeData[url] {
-                    task = session?.downloadTask(withResumeData: data)
-                } else {
-                    task = createTask(for: url)
-                }
-                
-                guard let task: URLSessionDownloadTask = task else { continue }
-                task.resume()
-                self.tasks.append(task)
-            }
-            
-            stateSubject.value = .downloading(progress: progress)
-        }
-        
         func cancel() {
-            tasks.forEach { task in
-                task.cancel()
-            }
-            session?.invalidateAndCancel()
+            session.invalidateAndCancel()
             
             tasks = []
             completedTasks = 0
@@ -125,69 +108,26 @@ extension ModelStore {
             stateSubject.value = .notStarted
         }
         
-        private func constructURL(for filename: String) -> URL {
-            var url = URL(string: "https://huggingface.co")!
-            
-            if repo.type != .models {
-                url = url.appending(component: repo.type.rawValue)
-            }
-            
-            url = url.appending(path: repo.id)
-                .appending(path: "resolve/main")
-                .appending(path: filename)
-            
-            return url
-        }
-        
-        private func createTask(for url: URL) -> URLSessionDownloadTask? {
+        private func createTask(for url: URL, hfToken: String?) -> URLSessionDownloadTask {
             var request: URLRequest = URLRequest(url: url)
             
             if let hfToken: String = hfToken {
                 request.setValue("Bearer \(hfToken)", forHTTPHeaderField: "Authorization")
             }
             
-            // TODO: (@pmanot) - Test and remove this if not needed
-            /*
-            if let existing = await session?.allTasks.filter({ $0.originalRequest?.url == url }).first {
-                switch existing.state {
-                    case .running:
-                        // print("Already downloading \(url)")
-                        break
-                    case .suspended:
-                        // print("Resuming suspended download task for \(url)")
-                        existing.resume()
-                        break
-                    case .canceling:
-                        // print("Starting new download task for \(url), previous was canceling")
-                        break
-                    case .completed:
-                        // print("Starting new download task for \(url), previous is complete but the file is no longer present (I think it's cached)")
-                        break
-                    @unknown default:
-                        // print("Unknown state for running task; cancelling and creating a new one")
-                        existing.cancel()
-                }
-            }
-            */
-            return session?.downloadTask(with: request)
-        }
-        
-        private func fileDestination(for filename: String) -> URL {
-            destination.appending(path: filename)
+            return session.downloadTask(with: request)
         }
         
         enum CodingKeys: String, CodingKey {
-            case repo, files, destination, hfToken, progress, completedTasks
+            case sourceURLs, destination, progress, completedTasks
         }
         
         convenience required init(from decoder: Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
-            let repo = try container.decode(HuggingFace.Hub.Repo.self, forKey: .repo)
-            let files = try container.decode([String].self, forKey: .files)
+            let sourceURLs = try container.decode([URL].self, forKey: .sourceURLs)
             let destination = try container.decode(URL.self, forKey: .destination)
-            let hfToken = try container.decodeIfPresent(String.self, forKey: .hfToken)
             
-            self.init(repo: repo, files: files, destination: destination, hfToken: hfToken)
+            self.init(sourceURLs: sourceURLs, destination: destination)
             
             self.progress = try container.decode(Double.self, forKey: .progress)
             self.completedTasks = try container.decode(Int.self, forKey: .completedTasks)
@@ -195,11 +135,10 @@ extension ModelStore {
         
         func encode(to encoder: Encoder) throws {
             var container = encoder.container(keyedBy: CodingKeys.self)
-            try container.encode(repo, forKey: .repo)
-            try container.encode(files, forKey: .files)
+            
+            try container.encode(sourceURLs, forKey: .sourceURLs)
             try container.encode(destination, forKey: .destination)
             try container.encode(progress, forKey: .progress)
-            try container.encode(hfToken, forKey: .hfToken)
             try container.encode(completedTasks, forKey: .completedTasks)
         }
     }
@@ -223,7 +162,7 @@ extension ModelStore.Download: URLSessionDownloadDelegate {
         
         self.progressByTaskID[downloadTask.taskIdentifier] = Double(totalBytesWritten) / Double(totalBytesExpectedToWrite)
         
-        self.progress = progressByTaskID.values.reduce(0, +)/Double(progressByTaskID.values.count)
+        self.progress = progressByTaskID.values.reduce(0, +)/Double(sourceURLs.count)
         
         stateSubject.value = .downloading(progress: progress)
     }
@@ -234,7 +173,7 @@ extension ModelStore.Download: URLSessionDownloadDelegate {
         didFinishDownloadingTo location: URL
     ) {
         guard let filename = downloadTask.originalRequest?.url?.lastPathComponent else { return }
-        let fileDestination = self.fileDestination(for: filename)
+        let fileDestination = destination.appending(path: filename)
         
         do {
             try FileManager.default.createDirectory(

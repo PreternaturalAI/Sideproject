@@ -68,6 +68,7 @@ public final class ModelStore: ObservableObject {
                     switch state {
                         case .completed(let url):
                             self.models[index].url = url
+                            downloadManager.removeDownload(for: self.models[index].name)
                         default:
                             return
                     }
@@ -189,7 +190,7 @@ public final class ModelStore: ObservableObject {
         }
 
         let repo = HuggingFace.Hub.Repo(id: name)
-        let modelFiles: [String] = ["config.json", "*.safetensors"]
+        let modelFiles: [String] = ["*.safetensors", "config.json", "tokenizer.json", "tokenizer_config.json"]
         let filenames = try await hub.unwrap().getFilenames(from: repo, matching: modelFiles)
         
         let modelDownload = downloadManager.download(
@@ -337,14 +338,22 @@ extension ModelStore {
                 let modelName: String = directory.deletingLastPathComponent().lastPathComponent + "/" + directory.lastPathComponent
                 let modelURL = directory
                 let modelFiles = try fileManager.contentsOfDirectory(atPath: directory.path)
-                let isDownloaded = modelFiles.contains(where: { $0.hasSuffix(".safetensors") })
+                let isDownloaded: Bool = {
+                    print(modelFiles)
+                    let otherSet =  Set(["model.safetensors", "config.json", "tokenizer.json", "tokenizer_config.json"])
+                    print(otherSet)
+                    
+                    return Set(modelFiles) == (otherSet)
+                }()
+                
+                print(isDownloaded)
                 
                 let model = Model(
                     name: modelName,
                     url: modelURL,
                     state: isDownloaded ? .completed(modelURL) : .notStarted
                 )
-                
+                print(model.state)
                 if self.containsModel(named: model.name) {
                     self[_modelWithName: model.name] = model
                 } else {

@@ -39,9 +39,16 @@ public extension ModelStore {
                 return existingDownload
             }
             
+            var dictionary: [URL: String] = [:]
+            
+            for filename in files {
+                let url = constructURL(for: filename, repo: repo)
+                dictionary[url] = filename
+            }
+            
             let download = Download(
                 name: repo.id,
-                sourceURLs: files.map { constructURL(for: $0, repo: repo) },
+                sourceURLs: dictionary,
                 destination: destination
             )
             

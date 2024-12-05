@@ -17,7 +17,7 @@ extension ModelStore {
         private var progressByTaskID: [Int: Double] = [:]
     
         private let destination: URL
-        private let sourceURLs: [URL]
+        private let sourceURLsByFilenames: [URL: String]
         private let stateSubject = CurrentValueSubject<HuggingFaceDownloadManager.DownloadState, Never>(.notStarted)
         
         public let name: String
@@ -40,9 +40,9 @@ extension ModelStore {
             }
         }
         
-        public init(name: String, sourceURLs: [URL], destination: URL) {
+        public init(name: String, sourceURLs: [URL: String], destination: URL) {
             self.name = name
-            self.sourceURLs = sourceURLs
+            self.sourceURLsByFilenames = sourceURLs
             self.destination = destination
             
             self.progress = 0
@@ -66,12 +66,12 @@ extension ModelStore {
                 guard let url = task.originalRequest?.url else { return nil }
                 guard task.state != .canceling else { return nil }
                 
-                return sourceURLs.contains(url) ? task as? URLSessionDownloadTask : nil
+                return sourceURLsByFilenames.keys.contains(url) ? task as? URLSessionDownloadTask : nil
             }
             
-            print(sourceURLs)
+            print(sourceURLsByFilenames)
 
-            for url in sourceURLs {
+            for url in sourceURLsByFilenames.keys {
                 if let task = allTasks.first(where: { $0.originalRequest?.url == url }) {
                     self.tasks.append(task)
                 } else {
@@ -92,7 +92,7 @@ extension ModelStore {
             tasks.forEach { $0.resume() }
             
             print("\(tasks.count) tasks")
-            print("\(sourceURLs.count) urls")
+            print("\(sourceURLsByFilenames.keys.count) urls")
             
             stateSubject.value = .downloading(progress: 0)
         }
@@ -104,7 +104,7 @@ extension ModelStore {
                 for task in tasks {
                     group.addTask {
                         guard let url: URL = task.originalRequest?.url else { return }
-                        guard self.sourceURLs.contains(url) else { return }
+                        guard self.sourceURLsByFilenames.keys.contains(url) else { return }
                         guard let data: Data = await task.cancelByProducingResumeData() else { return }
                         
                         self.resumeData[url] = data
@@ -139,18 +139,18 @@ extension ModelStore {
         }
                 
         enum CodingKeys: String, CodingKey {
-            case name, sourceURLs, destination, progress, completedTasks
+            case name, sourceURLsByFilenames, destination, progress, completedTasks
         }
         
         public convenience required init(from decoder: Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
             
-            let sourceURLs = try container.decode([URL].self, forKey: .sourceURLs)
+            let sourceURLsByFilenames = try container.decode([URL: String].self, forKey: .sourceURLsByFilenames)
             let destination = try container.decode(URL.self, forKey: .destination)
             
             let name = try container.decode(String.self, forKey: .name)
             
-            self.init(name: name, sourceURLs: sourceURLs, destination: destination)
+            self.init(name: name, sourceURLs: sourceURLsByFilenames, destination: destination)
             
             self.progress = try container.decode(Double.self, forKey: .progress)
             self.completedTasks = try container.decode(Int.self, forKey: .completedTasks)
@@ -159,7 +159,7 @@ extension ModelStore {
         public func encode(to encoder: Encoder) throws {
             var container = encoder.container(keyedBy: CodingKeys.self)
             
-            try container.encode(sourceURLs, forKey: .sourceURLs)
+            try container.encode(sourceURLsByFilenames, forKey: .sourceURLsByFilenames)
             try container.encode(destination, forKey: .destination)
             try container.encode(name, forKey: .name)
             try container.encode(progress, forKey: .progress)
@@ -187,7 +187,7 @@ extension ModelStore.Download: URLSessionDownloadDelegate {
         
         self.progressByTaskID[downloadTask.taskIdentifier] = Double(totalBytesWritten) / Double(totalBytesExpectedToWrite)
         
-        self.progress = progressByTaskID.values.reduce(0, +)/Double(sourceURLs.count)
+        self.progress = progressByTaskID.values.reduce(0, +)/Double(sourceURLsByFilenames.values.count)
         
         print("\(name): \(progress)")
         stateSubject.value = .downloading(progress: progress)
@@ -198,15 +198,15 @@ extension ModelStore.Download: URLSessionDownloadDelegate {
         downloadTask: URLSessionDownloadTask,
         didFinishDownloadingTo location: URL
     ) {
-        guard var components = downloadTask.originalRequest?.url?.pathComponents else { return }
-        components.removeAll { $0 == "/" } 
+        guard let url: URL = downloadTask.originalRequest?.url else { return }
+        guard let path: String = sourceURLsByFilenames[url] else { return }
         
-        let fileDestination = destination.appending(path: components.joined(separator: "/"), directoryHint: .inferFromPath)
-        
-        print("TASK COMPLETED FOR: \(components)")
+        let fileDestination: URL = destination.appending(path: path)
+
+        print("COMPLETED FOR \(path)")
         do {
             try FileManager.default.createDirectory(
-                at: fileDestination.deletingLastPathComponent(),
+                at: fileDestination,
                 withIntermediateDirectories: true
             )
             if FileManager.default.fileExists(atPath: fileDestination.path) {

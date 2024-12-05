@@ -19,6 +19,10 @@ public final class ModelStore: ObservableObject {
         models.filter(\.isOnDisk)
     }
     
+    public var availableModels: [Model] {
+        models.filter { !$0.isOnDisk }
+    }
+    
     public var activeDownloads: [Model.ID: Download] {
         downloadManager.downloads
     }

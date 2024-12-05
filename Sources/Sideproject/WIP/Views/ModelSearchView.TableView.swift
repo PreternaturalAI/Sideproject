@@ -118,7 +118,7 @@ extension ModelSearchView {
             
             TableColumn("Info", sortUsing: KeyPathComparator(\.size)) { (model: ModelStore.Model) in
                 HStack {
-                    if selectedTab == .discover {
+                    if selectedTab == .discover && !model.isOnDisk || modelStore.activeDownloads[model.id] != nil {
                         ModelDownloadButton(model: model)
                             .environmentObject(modelStore)
                             .environmentObject(accountStore)
@@ -139,6 +139,22 @@ extension ModelSearchView {
                 ForEach(modelStore.activeDownloadKeys, id: \.self) { (id: ModelStore.Model.ID) in
                     if let model: ModelStore.Model = models.first (where: { $0.id == id }) {
                         TableRow(model)
+                            .contextMenu {
+                                Button("Copy Name") {
+                                    NSPasteboard.general.setString(model.name, forType: .string)
+                                }
+                                Button("Show in Finder") {
+                                    if let url = model.url {
+                                        NSWorkspace.shared.selectFile(url.path(percentEncoded: false), inFileViewerRootedAtPath: "")
+                                    }
+                                }
+                                .disabled(model.url == nil)
+                                
+                                Button("Remove..") {
+                                    modelStore.delete(model.id)
+                                }
+                                .disabled(!model.isOnDisk)
+                            }
                     }
                 }
             }
@@ -165,6 +181,7 @@ extension ModelSearchView {
                 }
             }
         }
+        
         
         @discardableResult
         private func attemptDownload(for searchText: String, using accountStore: Sideproject.ExternalAccountStore) async throws -> URL? {
@@ -253,9 +270,9 @@ extension ModelSearchView.TableView {
                             .resizable()
                             .aspectRatio(contentMode: .fit)
                             .frame(width: 15, height: 15)
-                            .frame(width: 15, height: 15)
                     }
                     .buttonStyle(.plain)
+                    
                 } else {
                     Button("Get") {
                         Task { @MainActor in

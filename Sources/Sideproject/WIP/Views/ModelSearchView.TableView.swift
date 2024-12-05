@@ -37,6 +37,7 @@ extension ModelSearchView {
                 tableRowContent
             }
             .tableStyle(.inset)
+            .animation(.bouncy, value: modelStore.models)
             .alternatingRowBackgrounds(.disabled)
             .safeAreaInset(edge: .bottom, alignment: .leading) {
                 VStack(spacing: 0) {
@@ -46,9 +47,7 @@ extension ModelSearchView {
                         .frame(maxWidth: .infinity)
                     
                     HStack {
-                        Button(systemName: .plus) {
-                            
-                        }
+                        Image(systemName: .plus)
                         
                         Image(systemName: .minus)
                         
@@ -121,6 +120,7 @@ extension ModelSearchView {
                 HStack {
                     if selectedTab == .discover {
                         ModelDownloadButton(model: model)
+                            .environmentObject(modelStore)
                             .environmentObject(accountStore)
                     } else {
                         Text(model.sizeDescription)
@@ -136,8 +136,10 @@ extension ModelSearchView {
         @TableRowBuilder<ModelStore.Model>
         var tableRowContent: some TableRowContent<ModelStore.Model> {
             Section("Downloads") {
-                ForEach(modelStore.activeDownloads) { model in
-                    TableRow(model)
+                ForEach(modelStore.activeDownloadKeys, id: \.self) { (id: ModelStore.Model.ID) in
+                    if let model: ModelStore.Model = models.first (where: { $0.id == id }) {
+                        TableRow(model)
+                    }
                 }
             }
             
@@ -209,14 +211,14 @@ extension ModelSearchView.TableView {
         
         @State private var isHovering: Bool = false
         
-        
         var model: ModelStore.Model
+        
         var body: some View {
             Group {
-                if model.isDownloading {
+                if let download: ModelStore.Download = modelStore.activeDownloads[model.id] {
                     Button {
                         Task { @MainActor in
-                            switch model.state {
+                            switch download.state {
                                 case .paused:
                                     print("resuming")
                                     await modelStore.resumeDownload(for: model)
@@ -228,11 +230,12 @@ extension ModelSearchView.TableView {
                     } label: {
                         Group {
                             if !isHovering {
-                                ProgressView(value: model.downloadProgess)
+                                ProgressView(value: download.progress)
                                     .controlSize(.small)
                                     .progressViewStyle(.circular)
+                                    .animation(.linear, value: download.progress)
                             } else {
-                                Image(systemName: model.isPaused ? "arrow.trianglehead.clockwise" : "pause.circle.fill")
+                                Image(systemName: download.isPaused ? "arrow.trianglehead.clockwise" : "pause.circle.fill")
                                     .resizable()
                                     .aspectRatio(contentMode: .fit)
                                     .frame(width: 15, height: 15)
@@ -253,10 +256,9 @@ extension ModelSearchView.TableView {
                             .frame(width: 15, height: 15)
                     }
                     .buttonStyle(.plain)
-                    
                 } else {
                     Button("Get") {
-                        Task {
+                        Task { @MainActor in
                             do {
                                 let url = try await modelStore.download(modelNamed: model.name, using: accountStore)
                                 print(url)
@@ -264,11 +266,10 @@ extension ModelSearchView.TableView {
                                 print(error)
                                 print(error.localizedDescription)
                             }
-                            
                         }
                     }
                     .buttonStyle(XcodeGetButtonStyle())
-                    .disabled(!accountStore.containsAccount(for: .huggingFace) || model.isDownloading)
+                    .disabled(!accountStore.containsAccount(for: .huggingFace))
                 }
             }
             .id(model.id)

@@ -26,7 +26,7 @@ public extension ModelStore {
             coder: .json,
             options: .init(readErrorRecoveryStrategy: .discardAndReset)
         )
-        var downloads: [String: ModelStore.Download]
+        var downloads: [ModelStore.Model.ID: ModelStore.Download]
 
         func download(
             repo: HuggingFace.Hub.Repo,

@@ -16,14 +16,15 @@ public final class ModelStore: ObservableObject {
     ) public var models: [Model]
     
     public var downloadedModels: [Model] {
-        models.filter {
-            guard let url = $0.url else { return false }
-            return $0.state == .completed(url)
-        }
+        models.filter(\.isOnDisk)
     }
     
-    public var activeDownloads: [Model] {
-        models.filter { $0.isDownloading }
+    public var activeDownloads: [Model.ID: Download] {
+        downloadManager.downloads
+    }
+    
+    public var activeDownloadKeys: [Model.ID] {
+        Array(downloadManager.downloads.keys)
     }
             
     private var hub: HuggingFace.Hub.Client?
@@ -46,15 +47,11 @@ public final class ModelStore: ObservableObject {
         }
         
         if models.isEmpty {
-            print("initialized with hardcoded models")
-            models = ModelStore.exampleModelNames.map { Model(name: $0, state: .notStarted) }
+            debugPrint("initialized with hardcoded models")
+            models = ModelStore.exampleModelNames.map { Model(name: $0) }
         }
         
         models.enumerated().forEach { models[$0].lastUsed = $1.isOnDisk ? $1.lastUsed : nil }
-        print(models.first(where: { $0.isOnDisk })?.name)
-        
-        // problematic?
-        
     }
     
     @MainActor
@@ -84,6 +81,21 @@ public final class ModelStore: ObservableObject {
         "CodeLlamaTokenizer": "LlamaTokenizer",
         "GemmaTokenizer": "PreTrainedTokenizer",
     ]
+    
+    public func binding(for id: Model.ID) -> Binding<Model>? {
+        guard let model = models.first (where: { $0.id == id }) else {
+            return nil
+        }
+            
+        return Binding {
+            return self.models.first (where: { $0.id == id }) ?? model
+        } set: { newValue in
+            if let index = self.models.firstIndex (where: { $0.id == id }) {
+                self.models[index] = newValue
+            }
+        }
+        
+    }
     
     @MainActor
     public func download(
@@ -158,10 +170,6 @@ public final class ModelStore: ObservableObject {
         
         downloadManager.removeDownload(for: model.id)
         cancellables.removeValue(forKey: model.id)
-        
-        if let index = models.firstIndex(where: { $0.id == model.id }) {
-            models[index].state = .notStarted
-        }
     }
 }
 
@@ -205,14 +213,13 @@ extension ModelStore {
         let model = models[index]
         
         do {
+            cancelDownload(for: model)
+
             if let modelURL = model.url {
                 print(modelURL)
                 try fileManager.removeItem(at: modelURL)
             }
             
-            cancelDownload(for: model)
-            
-            models[index].state = .notStarted
             models[index].url = nil
         } catch {
             assertionFailure(String(describing: error))
@@ -221,49 +228,6 @@ extension ModelStore {
 }
 
 extension ModelStore {
-    /*
-     public func loadTokenizer(
-     for model: Model.ID
-     ) async throws -> Tokenizers.Tokenizer {
-     var model: String = await self[_model: model].name
-     
-     if model == "mlx-community/stablelm-2-zephyr-1_6b-4bit" {
-     model = "stabilityai/stablelm-2-zephyr-1_6b"
-     }
-     do {
-     let config = HuggingFace.LanguageModelConfigurationFromHub(modelName: model)
-     
-     guard var tokenizerConfig = try await config.tokenizerConfig else {
-     throw Error(message: "missing config")
-     }
-     
-     var tokenizerData = try await config.tokenizerData
-     
-     if let tokenizerClass = tokenizerConfig.tokenizerClass?.stringValue,
-     let replacement = replacementTokenizers[tokenizerClass] {
-     var dictionary = tokenizerConfig.dictionary
-     dictionary["tokenizer_class"] = replacement
-     tokenizerConfig = HuggingFace.Config(dictionary)
-     }
-     
-     if let tokenizerClass = tokenizerConfig.tokenizerClass?.stringValue {
-     switch tokenizerClass {
-     case "T5Tokenizer":
-     break
-     default:
-     tokenizerData = discardUnhandledMerges(tokenizerData: tokenizerData)
-     }
-     }
-     
-     return try HuggingFace.PreTrainedTokenizer(
-     tokenizerConfig: tokenizerConfig,
-     tokenizerData: tokenizerData
-     )
-     } catch {
-     return try await AutoTokenizer.from(pretrained: model)
-     }
-     }
-     */
     private func discardUnhandledMerges(
         tokenizerData: HuggingFace.Config
     ) -> HuggingFace.Config {
@@ -285,10 +249,6 @@ extension ModelStore {
         }
         return tokenizerData
     }
-}
-
-extension ModelStore {
-    
 }
 
 extension ModelStore {

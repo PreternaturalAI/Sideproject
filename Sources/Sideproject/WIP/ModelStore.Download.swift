@@ -9,7 +9,7 @@ import Foundation
 import HuggingFace
 
 extension ModelStore {
-    class Download: NSObject, Codable {
+    public class Download: NSObject, Codable {
         private var session: URLSession!
         private var tasks: [URLSessionDownloadTask] = []
         private var resumeData: [URL: Data] = [:]
@@ -28,6 +28,15 @@ extension ModelStore {
         
         public var state: HuggingFaceDownloadManager.DownloadState {
             stateSubject.value
+        }
+        
+        public var isPaused: Bool {
+            switch self.state {
+                case .paused:
+                    return true
+                default:
+                    return false
+            }
         }
         
         public init(sourceURLs: [URL], destination: URL) {
@@ -125,7 +134,7 @@ extension ModelStore {
             case sourceURLs, destination, progress, completedTasks
         }
         
-        convenience required init(from decoder: Decoder) throws {
+        public convenience required init(from decoder: Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
             let sourceURLs = try container.decode([URL].self, forKey: .sourceURLs)
             let destination = try container.decode(URL.self, forKey: .destination)
@@ -136,7 +145,7 @@ extension ModelStore {
             self.completedTasks = try container.decode(Int.self, forKey: .completedTasks)
         }
         
-        func encode(to encoder: Encoder) throws {
+        public func encode(to encoder: Encoder) throws {
             var container = encoder.container(keyedBy: CodingKeys.self)
             
             try container.encode(sourceURLs, forKey: .sourceURLs)
@@ -150,7 +159,7 @@ extension ModelStore {
 // MARK: Conformances
 
 extension ModelStore.Download: URLSessionDownloadDelegate {
-    func urlSession(
+    public func urlSession(
         _ session: URLSession,
         downloadTask: URLSessionDownloadTask,
         didWriteData bytesWritten: Int64,
@@ -171,7 +180,7 @@ extension ModelStore.Download: URLSessionDownloadDelegate {
         stateSubject.value = .downloading(progress: progress)
     }
     
-    func urlSession(
+    public func urlSession(
         _ session: URLSession,
         downloadTask: URLSessionDownloadTask,
         didFinishDownloadingTo location: URL
@@ -198,7 +207,7 @@ extension ModelStore.Download: URLSessionDownloadDelegate {
         }
     }
     
-    func urlSession(
+    public func urlSession(
         _ session: URLSession,
         task: URLSessionTask,
         didCompleteWithError error: Error?

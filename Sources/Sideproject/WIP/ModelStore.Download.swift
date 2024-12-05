@@ -15,17 +15,18 @@ extension ModelStore {
         private var resumeData: [URL: Data] = [:]
         private var completedTasks: Int = 0
         private var progressByTaskID: [Int: Double] = [:]
-        public var progress: Double
-        
+    
         private let destination: URL
         private let sourceURLs: [URL]
+        private let stateSubject = CurrentValueSubject<HuggingFaceDownloadManager.DownloadState, Never>(.notStarted)
         
-        private let stateSubject = CurrentValueSubject<ModelDownloadManager.DownloadState, Never>(.notStarted)
-        public var statePublisher: AnyPublisher<ModelDownloadManager.DownloadState, Never> {
+        public var progress: Double
+        
+        public var statePublisher: AnyPublisher<HuggingFaceDownloadManager.DownloadState, Never> {
             stateSubject.eraseToAnyPublisher()
         }
         
-        public var state: ModelDownloadManager.DownloadState {
+        public var state: HuggingFaceDownloadManager.DownloadState {
             stateSubject.value
         }
         
@@ -48,7 +49,8 @@ extension ModelStore {
             self.session = URLSession(configuration: config, delegate: self, delegateQueue: nil)
         }
         
-        func startOrResume(with hfToken: String?) async {
+        @MainActor
+        public func startOrResume(with hfToken: String?) async {
             let allTasks: [URLSessionDownloadTask] = await session.allTasks.compactMap { (task: URLSessionTask) in
                 guard let url = task.originalRequest?.url else { return nil }
                 guard task.state != .canceling else { return nil }
@@ -79,7 +81,7 @@ extension ModelStore {
         }
         
         @MainActor
-        func pause() async {
+        public func pause() async {
             print("attempting to pause")
             await withTaskGroup(of: Void.self) { group in
                 for task in tasks {
@@ -99,7 +101,8 @@ extension ModelStore {
             stateSubject.value = .paused(progress: progress)
         }
         
-        func cancel() {
+        @MainActor
+        public func cancel() {
             session.invalidateAndCancel()
             
             tasks = []
@@ -117,7 +120,7 @@ extension ModelStore {
             
             return session.downloadTask(with: request)
         }
-        
+                
         enum CodingKeys: String, CodingKey {
             case sourceURLs, destination, progress, completedTasks
         }
@@ -144,6 +147,7 @@ extension ModelStore {
     }
 }
 
+// MARK: Conformances
 
 extension ModelStore.Download: URLSessionDownloadDelegate {
     func urlSession(

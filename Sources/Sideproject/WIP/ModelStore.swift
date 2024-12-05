@@ -27,20 +27,20 @@ public final class ModelStore: ObservableObject {
     }
             
     private var hub: HuggingFace.Hub.Client?
-    private let downloadManager = ModelDownloadManager()
+    private let downloadManager = HuggingFaceDownloadManager()
     private var cancellables: [String: AnyCancellable] = [:]
     
     private let fileManager = FileManager.default
     
     @MainActor
     public init() {
-        if !FileManager.default.isReadable(at: downloadsURL) {
+        if !FileManager.default.isReadable(at: documentsDirectory) {
             fatalError("Cannot read downloads folder")
         }
         
-        if !FileManager.default.fileExists(atPath: downloadsURL.path) {
+        if !FileManager.default.fileExists(atPath: documentsDirectory.path) {
             _ = try? FileManager.default.createDirectory(
-                at: downloadsURL,
+                at: documentsDirectory,
                 withIntermediateDirectories: true
             )
         }
@@ -51,51 +51,25 @@ public final class ModelStore: ObservableObject {
         }
         
         models.enumerated().forEach { models[$0].lastUsed = $1.isOnDisk ? $1.lastUsed : nil }
-        refreshFromDisk()
+        print(models.first(where: { $0.isOnDisk })?.name)
         
-        downloadManager.downloads.forEach { (key: String, value: ModelStore.Download) in
-            guard let index = models.firstIndex (where: { $0.id == key }) else { return }
-            
-            if let url = models[index].url, models[index].state == .completed(url) {
-                print("completed \(key)")
-                return
-            }
-            
-            models[index].state = value.state
-            
-            cancellables[key] = value.statePublisher.receive(on: DispatchQueue.main)
-                .sink { [weak self] state in
-                    print(state)
-                    guard let self = self,
-                          let index = self.models.firstIndex(where: { $0.id == key }) else { return }
-                    
-                    self.models[index].state = state
-                    
-                    switch state {
-                        case .completed(let url):
-                            self.models[index].url = url
-                        default:
-                            return
-                    }
-                }
-        }
+        // problematic?
+        
     }
     
     @MainActor
     init(hfToken: String) {
         self.hub = .init(hfToken: hfToken)
         
-        if !FileManager.default.fileExists(atPath: downloadsURL.path) {
+        if !FileManager.default.fileExists(atPath: documentsDirectory.path) {
             _ = try? FileManager.default.createDirectory(
-                at: downloadsURL,
+                at: documentsDirectory,
                 withIntermediateDirectories: true
             )
         }
-        
-        refreshFromDisk()
     }
     
-    private var downloadsURL: URL {
+    private var documentsDirectory: URL {
         let documentsDirectory = FileManager.default.urls(
             for: .documentDirectory,
             in: .userDomainMask
@@ -117,32 +91,32 @@ public final class ModelStore: ObservableObject {
         using accountStore: Sideproject.ExternalAccountStore
     ) async throws -> URL {
         let account = try Sideproject.ExternalAccountStore.shared.accounts(for: .huggingFace).first.unwrap()
-        
         self.hub = try .init(from: account)
-        let model: Model
         
-        if let existingModel = models.first(where: { $0.name == name }) {
-            model = existingModel
+        var model: Model
+        let repo = HuggingFace.Hub.Repo(id: name)
+
+        let filenames = try await hub.unwrap().getFilenames(from: repo, matching: [])
+        
+        if let existingModelIndex = models.firstIndex(where: { $0.name == name }) {
+            models[existingModelIndex].expectedFilenames = filenames
+            model = models[existingModelIndex]
         } else {
             assert(!models.contains(where: { $0.id == name }))
-            
             model = Model(
                 name: name,
-                url: nil,
-                state: .downloading(progress: 0)
+                url: nil
             )
+            
+            model.expectedFilenames = filenames
             
             self.models.append(model)
         }
-
-        let repo = HuggingFace.Hub.Repo(id: name)
-        //let modelFiles: [String] = ["*.safetensors", "config.json", "tokenizer.json", "tokenizer_config.json"]
-        let filenames = try await hub.unwrap().getFilenames(from: repo, matching: [])
         
         let modelDownload = downloadManager.download(
             repo: repo,
             files: filenames,
-            destination: downloadsURL.appending(component: repo.id),
+            destination: documentsDirectory.appending(component: repo.id),
             hfToken: hub?.hfToken
         )
         
@@ -151,9 +125,7 @@ public final class ModelStore: ObservableObject {
             .sink { [weak self] state in
                 guard let self = self,
                       let index = self.models.firstIndex(where: { $0.id == name }) else { return }
-                
-                self.models[index].state = state
-                
+                                
                 switch state {
                     case .completed(let url):
                         self.models[index].url = url
@@ -163,7 +135,7 @@ public final class ModelStore: ObservableObject {
             }
         
         await modelDownload.startOrResume(with: hub?.hfToken)
-        return downloadsURL.appending(component: repo.id)
+        return documentsDirectory.appending(component: repo.id)
     }
     
     @MainActor
@@ -244,53 +216,6 @@ extension ModelStore {
             models[index].url = nil
         } catch {
             assertionFailure(String(describing: error))
-        }
-    }
-    
-    private func refreshFromDisk() {
-        let fileManager = FileManager.default
-        
-        do {
-            let modelDirectories = try fileManager.contentsOfDirectory(
-                at: downloadsURL,
-                includingPropertiesForKeys: nil,
-                options: .skipsHiddenFiles
-            ).flatMap {
-                try fileManager.contentsOfDirectory(
-                    at: $0,
-                    includingPropertiesForKeys: nil,
-                    options: .skipsHiddenFiles
-                )
-            }
-            
-            for directory in modelDirectories {
-                let modelName: String = directory.deletingLastPathComponent().lastPathComponent + "/" + directory.lastPathComponent
-                let modelURL = directory
-                let modelFiles = try fileManager.contentsOfDirectory(atPath: directory.path)
-                let isDownloaded: Bool = {
-                    print(modelFiles)
-                    let otherSet =  Set(["model.safetensors", "config.json", "tokenizer.json", "tokenizer_config.json"])
-                    print(otherSet)
-                    
-                    return Set(modelFiles) == (otherSet)
-                }()
-                
-                print(isDownloaded)
-                
-                let model = Model(
-                    name: modelName,
-                    url: modelURL,
-                    state: isDownloaded ? .completed(modelURL) : .notStarted
-                )
-                print(model.state)
-                if self.containsModel(named: model.name) {
-                    self[_modelWithName: model.name] = model
-                } else {
-                    self.models.append(model)
-                }
-            }
-        } catch {
-            print("Error loading models from disk: \(error)")
         }
     }
 }
@@ -374,6 +299,7 @@ extension ModelStore {
 
 extension ModelStore {
     public static let exampleModelNames: [String] = [
+        "BAAI/bge-small-en-v1.5",
         "openai/whisper-large-v3",
         "openai/whisper-tiny",
         "openai/whisper-base",

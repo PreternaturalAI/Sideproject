@@ -46,7 +46,9 @@ extension ModelSearchView {
                         .frame(maxWidth: .infinity)
                     
                     HStack {
-                        Image(systemName: .plus)
+                        Button(systemName: .plus) {
+                            
+                        }
                         
                         Image(systemName: .minus)
                         

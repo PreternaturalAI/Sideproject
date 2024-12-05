@@ -13,8 +13,8 @@ extension ModelStore {
         
         public var name: String
         public var url: URL?
-        public var state: ModelDownloadManager.DownloadState
         public var lastUsed: Date?
+        public var expectedFilenames: [String]?
         
         public var id: ID {
             name
@@ -40,32 +40,16 @@ extension ModelStore {
             return "\(string) on disk"
         }
         
-        public var isDownloading: Bool {
-            switch state {
-                case .downloading, .paused: return true
-                default: return false
-            }
-        }
-        
-        public var isPaused: Bool {
-            switch state {
-                case .paused: return true
-                default: return false
-            }
-        }
-        
         public var isOnDisk: Bool {
-            guard let resourceValues: URLResourceValues = (try? url?.resourceValues(forKeys: [.isDirectoryKey])) else { return false }
-            return resourceValues.isDirectory ?? false
-        }
-        
-        public var downloadProgess: Double {
-            switch state {
-                case .downloading(let progress), .paused(let progress):
-                    return progress
-                default:
-                    return 0.0
-            }
+            guard let expectedFilenames = expectedFilenames else { return false }
+            guard let url = url else { return false }
+            guard let resourceValues: URLResourceValues = (try? url.resourceValues(forKeys: [.isDirectoryKey])) else { return false }
+            guard (resourceValues.isDirectory ?? false) else { return false }
+            
+            guard let contents = try? FileManager.default.contentsOfDirectory(atPath: url.path()) else { return false }
+            print(contents)
+            print(expectedFilenames)
+            return Set(contents) == Set(expectedFilenames) || Set(contents).isSuperset(of: Set(expectedFilenames))
         }
     }
 }

@@ -90,6 +90,10 @@ extension ModelStore {
             }
             
             tasks.forEach { $0.resume() }
+            
+            print("\(tasks.count) tasks")
+            print("\(sourceURLs.count) urls")
+            
             stateSubject.value = .downloading(progress: 0)
         }
         
@@ -194,9 +198,12 @@ extension ModelStore.Download: URLSessionDownloadDelegate {
         downloadTask: URLSessionDownloadTask,
         didFinishDownloadingTo location: URL
     ) {
-        guard let filename = downloadTask.originalRequest?.url?.lastPathComponent else { return }
-        let fileDestination = destination.appending(path: filename)
+        guard var components = downloadTask.originalRequest?.url?.pathComponents else { return }
+        components.removeAll { $0 == "/" } 
         
+        let fileDestination = destination.appending(path: components.joined(separator: "/"), directoryHint: .inferFromPath)
+        
+        print("TASK COMPLETED FOR: \(components)")
         do {
             try FileManager.default.createDirectory(
                 at: fileDestination.deletingLastPathComponent(),
@@ -227,6 +234,7 @@ extension ModelStore.Download: URLSessionDownloadDelegate {
         } else {
             if let error = error {
                 stateSubject.value = .failed(error.localizedDescription)
+                print("ERROR: \(error)")
             }
         }
     }

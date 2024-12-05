@@ -9,11 +9,8 @@
 @_exported import OpenAI
 @_exported import Swallow
 @_exported import SwallowMacrosClient
+@_exported import SideprojectCore
 @_exported import SwiftUIX
-
-extension Bundle {
-    public static let _Sideproject = Bundle.module
-}
 
 #once {
     Task(priority: .userInitiated) { @MainActor in

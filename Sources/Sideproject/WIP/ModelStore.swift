@@ -141,6 +141,7 @@ public final class ModelStore: ObservableObject {
                 switch state {
                     case .completed(let url):
                         self.models[index].url = url
+                        downloadManager.removeDownload(for: self.models[index].id)
                     default:
                         return
                 }

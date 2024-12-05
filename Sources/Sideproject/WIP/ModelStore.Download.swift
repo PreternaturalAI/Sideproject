@@ -20,6 +20,7 @@ extension ModelStore {
         private let sourceURLs: [URL]
         private let stateSubject = CurrentValueSubject<HuggingFaceDownloadManager.DownloadState, Never>(.notStarted)
         
+        public let name: String
         public var progress: Double
         
         public var statePublisher: AnyPublisher<HuggingFaceDownloadManager.DownloadState, Never> {
@@ -39,7 +40,8 @@ extension ModelStore {
             }
         }
         
-        public init(sourceURLs: [URL], destination: URL) {
+        public init(name: String, sourceURLs: [URL], destination: URL) {
+            self.name = name
             self.sourceURLs = sourceURLs
             self.destination = destination
             
@@ -67,6 +69,8 @@ extension ModelStore {
                 return sourceURLs.contains(url) ? task as? URLSessionDownloadTask : nil
             }
             
+            print(sourceURLs)
+
             for url in sourceURLs {
                 if let task = allTasks.first(where: { $0.originalRequest?.url == url }) {
                     self.tasks.append(task)
@@ -131,15 +135,18 @@ extension ModelStore {
         }
                 
         enum CodingKeys: String, CodingKey {
-            case sourceURLs, destination, progress, completedTasks
+            case name, sourceURLs, destination, progress, completedTasks
         }
         
         public convenience required init(from decoder: Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
+            
             let sourceURLs = try container.decode([URL].self, forKey: .sourceURLs)
             let destination = try container.decode(URL.self, forKey: .destination)
             
-            self.init(sourceURLs: sourceURLs, destination: destination)
+            let name = try container.decode(String.self, forKey: .name)
+            
+            self.init(name: name, sourceURLs: sourceURLs, destination: destination)
             
             self.progress = try container.decode(Double.self, forKey: .progress)
             self.completedTasks = try container.decode(Int.self, forKey: .completedTasks)
@@ -150,6 +157,7 @@ extension ModelStore {
             
             try container.encode(sourceURLs, forKey: .sourceURLs)
             try container.encode(destination, forKey: .destination)
+            try container.encode(name, forKey: .name)
             try container.encode(progress, forKey: .progress)
             try container.encode(completedTasks, forKey: .completedTasks)
         }
@@ -177,6 +185,7 @@ extension ModelStore.Download: URLSessionDownloadDelegate {
         
         self.progress = progressByTaskID.values.reduce(0, +)/Double(sourceURLs.count)
         
+        print("\(name): \(progress)")
         stateSubject.value = .downloading(progress: progress)
     }
     
@@ -200,6 +209,7 @@ extension ModelStore.Download: URLSessionDownloadDelegate {
             
             completedTasks += 1
             if completedTasks == tasks.count {
+                print("completed for \(name)")
                 stateSubject.value = .completed(destination)
             }
         } catch {

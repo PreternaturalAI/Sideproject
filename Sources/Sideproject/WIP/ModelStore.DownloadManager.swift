@@ -40,6 +40,7 @@ public extension ModelStore {
             }
             
             let download = Download(
+                name: repo.id,
                 sourceURLs: files.map { constructURL(for: $0, repo: repo) },
                 destination: destination
             )

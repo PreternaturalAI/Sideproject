@@ -47,8 +47,7 @@ extension ModelStore {
             guard (resourceValues.isDirectory ?? false) else { return false }
             
             guard let contents = try? FileManager.default.contentsOfDirectory(atPath: url.path()) else { return false }
-            print(contents)
-            print(expectedFilenames)
+            
             return Set(contents) == Set(expectedFilenames) || Set(contents).isSuperset(of: Set(expectedFilenames))
         }
     }

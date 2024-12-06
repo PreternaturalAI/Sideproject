@@ -16,6 +16,7 @@ let package = Package(
             name: "Sideproject",
             targets: [
                 "Cataphyl",
+                "SideprojectCore",
                 "Sideproject",
                 // "_USearchObjective",
                 // "_USearch",
@@ -27,7 +28,6 @@ let package = Package(
         .package(url: "https://github.com/PreternaturalAI/ChatKit.git", branch: "main"),
         .package(url: "https://github.com/SwiftUIX/SwiftUIX.git", branch: "master"),
         .package(url: "https://github.com/SwiftUIX/SwiftUIZ.git", branch: "main"),
-        .package(url: "https://github.com/vmanot/BrowserKit.git", branch: "main"),
         .package(url: "https://github.com/vmanot/CorePersistence.git", branch: "main"),
         .package(url: "https://github.com/vmanot/Merge.git", branch: "master"),
         .package(url: "https://github.com/vmanot/NetworkKit.git", branch: "master"),
@@ -77,12 +77,9 @@ let package = Package(
             ]
         ),
         .target(
-            name: "Sideproject",
+            name: "SideprojectCore",
             dependencies: [
                 "AI",
-                "BrowserKit",
-                "Cataphyl",
-                "ChatKit",
                 "CorePersistence",
                 "Merge",
                 "NetworkKit",
@@ -90,8 +87,41 @@ let package = Package(
                 "SwiftUIX",
                 "SwiftUIZ",
             ],
-            path: "Sources/Sideproject",
+            path: "Sources/SideprojectCore",
             resources: [.process("Resources")],
+            swiftSettings: [
+                .enableExperimentalFeature("AccessLevelOnImport")
+            ]
+        ),
+        .target(
+            name: "SideprojectDocuments",
+            dependencies: [
+                "Cataphyl",
+                "SideprojectCore",
+            ],
+            path: "Sources/SideprojectDocuments",
+            resources: [],
+            swiftSettings: [
+                .enableExperimentalFeature("AccessLevelOnImport")
+            ]
+        ),
+        .target(
+            name: "Sideproject",
+            dependencies: [
+                "AI",
+                "Cataphyl",
+                "ChatKit",
+                "CorePersistence",
+                "Merge",
+                "NetworkKit",
+                "SideprojectCore",
+                "SideprojectDocuments",
+                "Swallow",
+                "SwiftUIX",
+                "SwiftUIZ",
+            ],
+            path: "Sources/Sideproject",
+            resources: [],
             swiftSettings: [
                 .enableExperimentalFeature("AccessLevelOnImport")
             ]

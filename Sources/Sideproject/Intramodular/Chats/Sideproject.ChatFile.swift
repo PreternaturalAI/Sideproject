@@ -55,12 +55,3 @@ extension Sideproject.ChatFile {
     }
 }
 
-extension Sideproject.FileStore {
-    public struct Selection: Codable, Hashable, Initiable, Sendable {
-        public var documents: Set<Sideproject.File.ID> = []
-        
-        public init() {
-            
-        }
-    }
-}

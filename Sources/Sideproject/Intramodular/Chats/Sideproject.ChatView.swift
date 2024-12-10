@@ -26,7 +26,7 @@ extension Sideproject {
                 messagesList
                 
                 if session.document.messages.isEmpty {
-                    ContentUnavailableView("No Messages", image: "message.fill")
+                    ContentUnavailableView("No Messages", systemImage: "message.fill")
                 }
             } input: {
                 ChatInputBar(
@@ -112,6 +112,18 @@ extension Sideproject {
 // MARK: - Initializers
 
 extension Sideproject.ChatView {
+    public init(
+        _ data: PublishedAsyncBinding<Sideproject.ChatFile>,
+        llm: LLMRequestHandling = Sideproject.shared
+    ) {
+        self.init(
+            session: Sideproject.ChatSession(
+                document: data,
+                llm: llm
+            )
+        )
+    }
+
     public init(
         _ data: @autoclosure @escaping () throws -> Sideproject.ChatFile,
         llm: LLMRequestHandling = Sideproject.shared

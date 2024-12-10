@@ -3,6 +3,7 @@
 //
 
 import SwiftUIZ
+import Merge
 
 public struct _AccountEntryForm: View {
     @EnvironmentObject var store: Sideproject.ExternalAccountStore

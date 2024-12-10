@@ -143,13 +143,14 @@ extension ModelSearchView {
                                 Button("Copy Name") {
                                     NSPasteboard.general.setString(model.name, forType: .string)
                                 }
+#if os(macOS)
                                 Button("Show in Finder") {
                                     if let url = model.url {
                                         NSWorkspace.shared.selectFile(url.path(percentEncoded: false), inFileViewerRootedAtPath: "")
                                     }
                                 }
                                 .disabled(model.url == nil)
-                                
+#endif
                                 Button("Remove..") {
                                     modelStore.delete(model.id)
                                 }

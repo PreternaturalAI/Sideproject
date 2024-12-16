@@ -27,11 +27,8 @@ extension Sideproject {
         public var _testAccounts: IdentifierIndexingArrayOf<Sideproject.ExternalAccount>?
         
         private(set) lazy var allKnownAccountTypeDescriptions = {
-            @_StaticMirrorQuery(type: (any Sideproject.ExternalAccountTypeDescriptor).self)
-            var serviceTypes: [any Sideproject.ExternalAccountTypeDescriptor.Type]
-            
             return IdentifierIndexingArray<any Sideproject.ExternalAccountTypeDescriptor, Sideproject.ExternalAccountTypeIdentifier>(
-                try! serviceTypes
+                try! Sideproject.externalAccountTypeDescriptorTypes
                     .filter({ $0 is any _StaticInstance.Type })
                     .map({ $0 as Any.Type })
                     ._initializeAll()

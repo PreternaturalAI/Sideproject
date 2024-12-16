@@ -25,6 +25,18 @@ extension Sideproject {
 ///
 /// `Sideproject` may also decide which provider is the best one to handle your task. For example, if you've added both OpenAI and Anthropic services, and you try and send it a prompt exceeding 128K tokens (something that OpenAI can't handle at the moment), it'll use Anthropic's Claude to handle that. Or for e.g. if you've added multiple OpenAI accounts, and one of them has access to GPT-4 and the other doesn't, if your LLM task request specifies that the model used must be GPT-4 then it'll pick the account that has access.
 public final class Sideproject: _CancellablesProviding, Logging, ObservableObject {
+    @_StaticMirrorQuery(
+        #metatype((any CoreMI._ServiceClientProtocol).self),
+        .nonAppleFramework
+    )
+    internal static var serviceTypes: [any CoreMI._ServiceClientProtocol.Type]
+   
+    @_StaticMirrorQuery(
+        #metatype((any Sideproject.ExternalAccountTypeDescriptor).self),
+        .nonAppleFramework
+    )
+    internal static var externalAccountTypeDescriptorTypes: [any Sideproject.ExternalAccountTypeDescriptor.Type]
+    
     private let queue = TaskQueue()
     
     private var shouldAutoinitializeServices: Bool
@@ -54,12 +66,16 @@ public final class Sideproject: _CancellablesProviding, Logging, ObservableObjec
         }
     }
     
-    public init(services: [any CoreMI._ServiceClientProtocol]?) {
+    public init(
+        services: [any CoreMI._ServiceClientProtocol]?
+    ) {
         if services != nil {
             shouldAutoinitializeServices = false
         } else {
             shouldAutoinitializeServices = true
         }
+        
+        _ = Self.serviceTypes
         
         MainActor.unsafeAssumeIsolated {
             if let services {
@@ -83,7 +99,7 @@ public final class Sideproject: _CancellablesProviding, Logging, ObservableObjec
     
     @MainActor
     private func setUp() {
-        queue.addTask(priority: .userInitiated) {
+        queue.addTask(priority: .high) {
             await self._populateAutoinitializedServicesIfNecessary()
         }
         
@@ -92,7 +108,7 @@ public final class Sideproject: _CancellablesProviding, Logging, ObservableObjec
                 return
             }
             
-            queue.addTask(priority: .userInitiated) {
+            queue.addTask(priority: .high) {
                 self.shouldAutoinitializeServices = true
                 
                 await self._populateAutoinitializedServicesIfNecessary()
@@ -179,14 +195,14 @@ extension Sideproject {
     }
     
     /// Initializes all CoreMI services that can be initialized using the loaded Sideproject accounts.
+    @_NotMainActor
     private func _makeServices(
         forAccounts serviceAccounts: [CoreMI._AnyServiceAccount]
     ) async throws -> [any CoreMI._ServiceClientProtocol] {
-        @_StaticMirrorQuery(type: (any CoreMI._ServiceClientProtocol).self)
-        var serviceTypes: [any CoreMI._ServiceClientProtocol.Type]
+        let serviceTypes = Sideproject.serviceTypes
         
         var result: [any CoreMI._ServiceClientProtocol] = await serviceAccounts
-            .asyncMap { account in
+            .asyncMap { (account: CoreMI._AnyServiceAccount) in
                 await serviceTypes.first(byUnwrapping: { type -> (any CoreMI._ServiceClientProtocol)? in
                     do {
                         return try await type.init(account: account)

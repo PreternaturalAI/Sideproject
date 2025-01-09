@@ -54,9 +54,9 @@ public struct SideprojectAccountsView: View {
             cellGrid
                 .frame(minWidth: 126)
             
-            #if os(macOS)
+#if os(macOS)
             PathControl(url: try! store.$accounts.url)
-            #endif
+#endif
         }
         .padding()
         .environmentObject(store)
@@ -136,9 +136,11 @@ public struct SideprojectAccountsView: View {
                             
                             store.accounts.append(account)
                         }
+#if os(macOS)
                         ._overrideOnExitCommand {
                             presentationManager.dismiss()
                         }
+#endif
                 }
             } label: {
                 Image(systemName: .plus)

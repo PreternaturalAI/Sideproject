@@ -85,9 +85,11 @@ public struct SideprojectAccountsView: View {
                                     
                                     presentationManager.dismiss()
                                 }
+                                #if os(macOS)
                                 ._overrideOnExitCommand {
                                     presentationManager.dismiss()
                                 }
+                                #endif
                         }
                     } label: {
                         Cell(account: $account._assigningLogicalParent(store, to: \.$store))

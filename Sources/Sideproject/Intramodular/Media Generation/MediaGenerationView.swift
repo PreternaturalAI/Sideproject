@@ -30,7 +30,12 @@ public enum InputModality: String {
 
 // MARK: - Main View
 struct GenerateMediaView: View {
-    public struct Configuration: Hashable {
+    public struct Configuration: Equatable {
+        public static func == (lhs: GenerateMediaView.Configuration, rhs: GenerateMediaView.Configuration) -> Bool {
+            return lhs.textToSpeechModel == rhs.textToSpeechModel &&
+            lhs.speechToSpeechModel == rhs.speechToSpeechModel
+        }
+        
         public var textToSpeechModel: String
         public var speechToSpeechModel: String
         public var voiceSettings: AbstractVoiceSettings
@@ -99,26 +104,26 @@ struct GenerateMediaView: View {
 
 // MARK: - View Model
 final class GenerationViewModel: ObservableObject {
-    @Published var availableVoices: [AbstractVoice] = []
+    @Published var availableVoices: [ElevenLabs.Voice] = []
     @Published var availableModels: [VideoModel] = []
     @Published var isLoadingResources = false
     @Published var loadingError: Error?
     @Published var inputText = ""
     @Published var isLoading = false
     @Published var showingPreview = false
-    @Published var selectedVoice: AbstractVoice.ID?
+    @Published var selectedVoice: ElevenLabs.Voice.ID?
     @Published var selectedAudioFile: AudioFile?
     @Published var generatedAudioFile: AudioFile?
     @Published var selectedVideoModel: VideoModel.ID?
-    @Published var selectedImage: URL?
-    @Published var selectedVideo: URL?
+    @Published var selectedImage: ImageFile?
+    @Published var selectedVideo: VideoFile?
     @Published var generatedVideoFile: VideoFile?
     @Published var generatedFiles: [AnyMediaFile] = []
     
-    private let mediaType: MediaType
-    private let inputModality: InputModality
-    private var configuration: Configuration
-    private let onComplete: ((AnyMediaFile) -> Void)?
+    internal let mediaType: MediaType
+    internal let inputModality: InputModality
+    internal var configuration: GenerateMediaView.Configuration
+    internal let onComplete: ((AnyMediaFile) -> Void)?
     
     init(
         mediaType: MediaType,
@@ -155,7 +160,7 @@ final class GenerationViewModel: ObservableObject {
     }
     
     @MainActor
-    private func generate() async {
+    internal func generate() async {
         isLoading = true
         defer { isLoading = false }
         
@@ -234,14 +239,14 @@ final class GenerationViewModel: ObservableObject {
                     settings: configuration.videoSettings
                 )
             case .image:
-                guard let imageURL = selectedImage else { return }
+                guard let imageURL = selectedImage?.url else { return }
                 videoData = try await videoClient.imageToVideo(
                     imageURL: imageURL,
                     model: model,
                     settings: configuration.videoSettings
                 )
             case .video:
-                guard let videoURL = selectedVideo else { return }
+                guard let videoURL = selectedVideo?.url else { return }
                 videoData = try await videoClient.videoToVideo(
                     videoURL: videoURL,
                     prompt: inputText,
@@ -286,8 +291,8 @@ final class GenerationViewModel: ObservableObject {
         return try await configuration.speechClient?.speechToSpeech(
             inputAudioURL: audioFile.url,
             voiceID: voice.voiceID,
-            voiceSettings: configuration.voiceSettings,
-            model: configuration.speechToSpeechModel
+            voiceSettings: ElevenLabs.VoiceSettings(settings: configuration.voiceSettings),
+            model: .init(rawValue: configuration.speechToSpeechModel)! // FIXME: - Will Crash
         )
     }
     
@@ -301,8 +306,8 @@ final class GenerationViewModel: ObservableObject {
         return try await configuration.speechClient?.speech(
             for: inputText,
             voiceID: voiceID.id.rawValue,
-            voiceSettings: configuration.voiceSettings,
-            model: configuration.textToSpeechModel
+            voiceSettings: ElevenLabs.VoiceSettings(settings: configuration.voiceSettings), //FIXME: - This should just accept AbstractVoiceSettings
+            model: .init(rawValue: configuration.textToSpeechModel)! // FIXME: - Will Crash
         )
     }
 }
@@ -404,7 +409,7 @@ struct MediaInputView: View {
             }
         } content: { files in
             if !files.isEmpty {
-                MediaFileListView(files: files)
+                MediaFileListView(files)
             }
         }
     }
@@ -449,4 +454,138 @@ enum GenerationError: Error {
     case invalidVideoData
     case clientNotAvailable
     case resourceLoadingFailed
+}
+
+
+// MARK: - Model Selection View
+struct ModelSelectionView: View {
+    @ObservedObject var viewModel: GenerationViewModel
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            switch viewModel.mediaType {
+            case .speech:
+                if !viewModel.availableVoices.isEmpty {
+                    Text("Select Voice")
+                        .font(.headline)
+                    
+                    Picker("Voice", selection: $viewModel.selectedVoice) {
+                        Text("Select a voice").tag(Optional<ElevenLabs.Voice.ID>.none)
+                        ForEach(viewModel.availableVoices) { voice in
+                            Text(voice.name)
+                                .tag(Optional(voice.id))
+                        }
+                    }
+                }
+                
+            case .video:
+                if !viewModel.availableModels.isEmpty {
+                    Text("Select Model")
+                        .font(.headline)
+                    
+                    Picker("Model", selection: $viewModel.selectedVideoModel) {
+                        Text("Select a model").tag(Optional<VideoModel.ID>.none)
+                        ForEach(viewModel.availableModels) { model in
+                            Text(model.name)
+                                .tag(Optional(model.id))
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Prompt Input View
+struct PromptInputView: View {
+    @Binding var inputText: String
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Enter Prompt")
+                .font(.headline)
+            
+            TextEditor(text: $inputText)
+                .frame(height: 100)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(Color.gray.opacity(0.2))
+                )
+                .overlay(
+                    Group {
+                        if inputText.isEmpty {
+                            Text("Describe how you want to transform the video...")
+                                .foregroundColor(.gray)
+                                .padding(.leading, 4)
+                        }
+                    },
+                    alignment: .topLeading
+                )
+        }
+    }
+}
+
+// MARK: - Controls View
+struct ControlsView: View {
+    @ObservedObject var viewModel: GenerationViewModel
+    
+    var body: some View {
+        VStack(spacing: 12) {
+            Button {
+                Task {
+                    await viewModel.generate()
+                }
+            } label: {
+                if viewModel.isLoading {
+                    ProgressView()
+                        .progressViewStyle(.circular)
+                } else {
+                    Text("Generate")
+                }
+            }
+            .buttonStyle(.borderedProminent)
+            .disabled(viewModel.isLoading || !isGenerateEnabled)
+        }
+    }
+    
+    private var isGenerateEnabled: Bool {
+        switch viewModel.mediaType {
+        case .speech:
+            switch viewModel.inputModality {
+            case .text:
+                return !viewModel.inputText.isEmpty && viewModel.selectedVoice != nil
+            case .audio:
+                return viewModel.selectedAudioFile != nil && viewModel.selectedVoice != nil
+            default:
+                return false
+            }
+        case .video:
+            switch viewModel.inputModality {
+            case .text:
+                return !viewModel.inputText.isEmpty && viewModel.selectedVideoModel != nil
+            case .image:
+                return viewModel.selectedImage != nil && viewModel.selectedVideoModel != nil
+            case .video:
+                return viewModel.selectedVideo != nil && viewModel.selectedVideoModel != nil
+            default:
+                return false
+            }
+        }
+    }
+}
+
+// MARK: - Generated Files View
+struct GeneratedFilesView: View {
+    let files: [AnyMediaFile]
+    
+    var body: some View {
+        if !files.isEmpty {
+            VStack(alignment: .leading, spacing: 12) {
+                Text("Generated Files")
+                    .font(.headline)
+                
+                MediaFileListView(files)
+            }
+        }
+    }
 }

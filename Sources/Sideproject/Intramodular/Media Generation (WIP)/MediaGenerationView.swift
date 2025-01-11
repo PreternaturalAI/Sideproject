@@ -104,8 +104,8 @@ public struct MediaGenerationView: View {
             Task {
                 await loadClients()
                 await viewModel.loadResources(
-                    viewModel.speechClient?.base(),
-                    viewModel.videoClient?.base()
+                    viewModel.speechClient?.base,
+                    viewModel.videoClient?.base
                 )
             }
         }
@@ -118,18 +118,15 @@ public struct MediaGenerationView: View {
             print(services)
             
             self.viewModel.availableSpeechClients = services.compactMap { service in
-                let originalService = service
-                if let client = service as? (any SpeechSynthesisRequestHandling) {
-                    return AnySpeechSynthesisRequestHandling(client, service: originalService)
+                if let service = service as? (any CoreMI._ServiceClientProtocol & SpeechSynthesisRequestHandling) {
+                    return AnySpeechSynthesisRequestHandling(service)
                 }
                 return nil
             }
             
             self.viewModel.availableVideoClients = services.compactMap { service in
-                let originalService = service
-                
-                if let client = service as? (any VideoGenerationRequestHandling) {
-                    return AnyVideoGenerationRequestHandling(client, service: originalService)
+                if let service = service as? (any CoreMI._ServiceClientProtocol & VideoGenerationRequestHandling) {
+                    return AnyVideoGenerationRequestHandling(service)
                 }
                 return nil
             }

@@ -17,7 +17,7 @@ extension MediaGenerationView {
             if mediaType == .speech {
                 Picker("Select Speech Client", selection: $viewModel.speechClient) {
                     ForEach(viewModel.availableSpeechClients, id: \.self) { client in
-                        Text("Speech Client \(client.hashValue)") // Customize this display
+                        Text(client.displayName)
                             .tag(client as AnySpeechSynthesisRequestHandling?)
                     }
                 }
@@ -25,7 +25,7 @@ extension MediaGenerationView {
             } else if mediaType == .video {
                 Picker("Select Video Client", selection: $viewModel.videoClient) {
                     ForEach(viewModel.availableVideoClients, id: \.self) { client in
-                        Text("Video Client \(client.hashValue)") // Customize this display
+                        Text("Video Client") // Customize this display
                             .tag(client as AnyVideoGenerationRequestHandling?)
                     }
                 }
@@ -134,8 +134,8 @@ extension MediaGenerationView {
             Button {
                 Task {
                     await viewModel.generate(
-                        viewModel.speechClient?.base(),
-                        viewModel.videoClient?.base()
+                        viewModel.speechClient?.base,
+                        viewModel.videoClient?.base
                     )
                 }
             } label: {

@@ -15,28 +15,25 @@ final class GenerationViewModel: ObservableObject {
     @Published var availableModels: [VideoModel] = []
     @Published var isLoadingResources = false
     @Published var loadingError: Error?
-    @Published var inputText = ""
+    @Published var currentInput: Any?
     @Published var isLoading = false
     @Published var showingPreview = false
     @Published var selectedVoice: ElevenLabs.Voice.ID?
-    @Published var selectedAudioFile: AudioFile?
     @Published var generatedFile: AnyMediaFile?
     @Published var selectedVideoModel: VideoModel.ID?
-    @Published var selectedImage: ImageFile?
-    @Published var selectedVideo: VideoFile?
     @Published var speechClient: AnySpeechSynthesisRequestHandling?
     @Published var videoClient: AnyVideoGenerationRequestHandling?
     @Published var availableSpeechClients: [AnySpeechSynthesisRequestHandling] = []
     @Published var availableVideoClients: [AnyVideoGenerationRequestHandling] = []
     
     internal let mediaType: MediaType
-    internal let inputModality: InputModality
+    internal let inputModality: AnyInputModality
     internal var configuration: MediaGenerationView.Configuration
     internal let onComplete: ((AnyMediaFile) -> Void)?
     
     init(
         mediaType: MediaType,
-        inputModality: InputModality,
+        inputModality: AnyInputModality,
         configuration: MediaGenerationView.Configuration,
         onComplete: ((AnyMediaFile) -> Void)?
     ) {
@@ -101,11 +98,25 @@ final class GenerationViewModel: ObservableObject {
         
         let audioData: Data?
         
-        switch inputModality {
-            case .audio:
-                audioData = try await convertSpeechToSpeech(speechClient)
-            case .text:
-                audioData = try await convertTextToSpeech(speechClient)
+        switch inputModality.inputType {
+            case is URL.Type:
+                guard let audioURL = currentInput as? URL else { return }
+                audioData = try await speechClient.speechToSpeech(
+                    inputAudioURL: audioURL,
+                    voiceID: selectedVoice?.id.rawValue ?? "",
+                    voiceSettings: ElevenLabs.VoiceSettings(settings: configuration.voiceSettings),
+                    model: .init(rawValue: configuration.speechToSpeechModel)!
+                )
+                
+            case is String.Type:
+                guard let text = currentInput as? String else { return }
+                audioData = try await speechClient.speech(
+                    for: text,
+                    voiceID: selectedVoice?.id.rawValue ?? "",
+                    voiceSettings: ElevenLabs.VoiceSettings(settings: configuration.voiceSettings),
+                    model: .init(rawValue: configuration.textToSpeechModel)!
+                )
+                
             default:
                 return
         }
@@ -117,11 +128,11 @@ final class GenerationViewModel: ObservableObject {
             name: UUID().uuidString,
             id: .random()
         )
+        
         generatedFile = .init(audioFile)
-       
-        let mediaFile = AnyMediaFile(audioFile)
+        
         if let onComplete = onComplete {
-            onComplete(mediaFile)
+            onComplete(AnyMediaFile(audioFile))
         }
     }
     
@@ -134,32 +145,39 @@ final class GenerationViewModel: ObservableObject {
         }
         
         guard let modelID = selectedVideoModel,
-              let model = availableModels.first(where: { $0.id == modelID }) else { return }
+              let model = availableModels.first(where: { $0.id == modelID }) else {
+            throw GenerationError.modelNotSelected
+        }
         
         let videoData: Data?
         
-        switch inputModality {
-            case .text:
+        switch inputModality.inputType {
+            case is String.Type:
+                guard let text = currentInput as? String else { return }
                 videoData = try await videoClient.textToVideo(
-                    text: inputText,
+                    text: text,
                     model: model,
                     settings: configuration.videoSettings
                 )
-            case .image:
-                guard let imageURL = selectedImage?.url else { return }
+                
+            case is UIImage.Type:
+                guard let image = currentInput as? UIImage else { return }
+                let imageURL = try await saveImageTemporarily(image)
                 videoData = try await videoClient.imageToVideo(
                     imageURL: imageURL,
                     model: model,
                     settings: configuration.videoSettings
                 )
-            case .video:
-                guard let videoURL = selectedVideo?.url else { return }
+                
+            case is URL.Type:
+                guard let videoURL = currentInput as? URL else { return }
                 videoData = try await videoClient.videoToVideo(
                     videoURL: videoURL,
-                    prompt: inputText,
+                    prompt: "", // Note: Would need to add prompt handling
                     model: model,
                     settings: configuration.videoSettings
                 )
+                
             default:
                 return
         }
@@ -177,57 +195,31 @@ final class GenerationViewModel: ObservableObject {
         let videoFile = try await VideoFile(url: temporaryURL)
         generatedFile = .init(videoFile)
         
-        let mediaFile = AnyMediaFile(videoFile)
         if let onComplete = onComplete {
-            onComplete(mediaFile)
+            onComplete(AnyMediaFile(videoFile))
         }
         
         showingPreview = true
     }
+
     
-    @MainActor
-    private func convertSpeechToSpeech(
-        _ speechClient: (any SpeechSynthesisRequestHandling)?
-    ) async throws -> Data? {
-        guard let voiceID = selectedVoice,
-              let voice = availableVoices.first(where: { $0.id == voiceID }),
-              let audioFile = selectedAudioFile else {
-            return nil
+    private func saveImageTemporarily(_ image: UIImage) async throws -> URL {
+        let temporaryURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString)
+            .appendingPathExtension("png")
+        
+        guard let imageData = image.pngData() else {
+            throw GenerationError.invalidVideoData
         }
         
-        return try await speechClient?.speechToSpeech(
-            inputAudioURL: audioFile.url,
-            voiceID: voice.voiceID,
-            voiceSettings: ElevenLabs.VoiceSettings(settings: configuration.voiceSettings),
-            model: .init(rawValue: configuration.speechToSpeechModel)! // FIXME: - Will Crash
-        )
-    }
-    
-    @MainActor
-    private func convertTextToSpeech(
-        _ speechClient: (any SpeechSynthesisRequestHandling)?
-    ) async throws -> Data? {
-        guard let voiceID = selectedVoice,
-              !inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-            return nil
-        }
-        
-        print(speechClient)
-        print(voiceID)
-        
-        let audio = try await speechClient?.speech(
-            for: inputText,
-            voiceID: voiceID.id.rawValue,
-            voiceSettings: ElevenLabs.VoiceSettings(settings: configuration.voiceSettings), //FIXME: - This should just accept AbstractVoiceSettings
-            model: .init(rawValue: configuration.textToSpeechModel)! // FIXME: - Will Crash
-        )
-        return audio
+        try imageData.write(to: temporaryURL)
+        return temporaryURL
     }
 }
-
 
 fileprivate enum GenerationError: Error {
     case invalidVideoData
     case clientNotAvailable
+    case modelNotSelected
     case resourceLoadingFailed
 }

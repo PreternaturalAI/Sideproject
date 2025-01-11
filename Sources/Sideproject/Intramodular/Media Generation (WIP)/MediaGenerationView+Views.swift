@@ -11,6 +11,26 @@ import AI
 import Media
 
 extension MediaGenerationView {
+    var inputView: some View {
+        inputModality.makeInputView(
+            binding: $viewModel.currentInput,
+            placeholderText: getPlaceholderText()
+        )
+    }
+    
+    private func getPlaceholderText() -> String {
+        if case .video = mediaType, inputModality.inputType == URL.self {
+            return "Describe how you want to transform the video..."
+        }
+        switch inputModality.inputType {
+            case is String.Type:
+                return "Enter your text here..."
+            case is URL.Type:
+                return "Drop files here"
+            default:
+                return ""
+        }
+    }
     
     var clientSelectionView: some View {
         VStack(alignment: .leading, spacing: 20) {
@@ -25,7 +45,7 @@ extension MediaGenerationView {
             } else if mediaType == .video {
                 Picker("Select Video Client", selection: $viewModel.videoClient) {
                     ForEach(viewModel.availableVideoClients, id: \.self) { client in
-                        Text("Video Client") // Customize this display
+                        Text("Video Client")
                             .tag(client as AnyVideoGenerationRequestHandling?)
                     }
                 }
@@ -34,52 +54,9 @@ extension MediaGenerationView {
         }
     }
     
-    var inputView: some View {
-        Group {
-            switch viewModel.inputModality {
-                case .text:
-                    TextEditor(text: $viewModel.inputText)
-                        .frame(height: 100)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 8)
-                                .stroke(Color.gray.opacity(0.2))
-                        )
-                        .overlay(
-                            Group {
-                                if viewModel.inputText.isEmpty {
-                                    Text("Enter your text here...")
-                                        .foregroundColor(.gray)
-                                        .padding(.leading, 4)
-                                }
-                            },
-                            alignment: .topLeading
-                        )
-                case .audio, .image, .video:
-                    FileDropView { files in
-                        switch viewModel.inputModality {
-                            case .audio:
-                                viewModel.selectedAudioFile = files.first?.audioFile
-                            case .image:
-                                viewModel.selectedImage = files.first?.imageFile
-                            case .video:
-                                viewModel.selectedVideo = files.first?.videoFile
-                            default:
-                                break
-                        }
-                    } content: { files in
-                        if !files.isEmpty {
-                            MediaFileListView(files)
-                        }
-                    }
-            }
-        }
-    }
-    
-    // MARK: - Model Selection View
     var modelSelectionView: some View {
-        
         VStack(alignment: .leading, spacing: 8) {
-            switch viewModel.mediaType {
+            switch mediaType {
                 case .speech:
                     if !viewModel.availableVoices.isEmpty {
                         Picker("Voice", selection: $viewModel.selectedVoice) {
@@ -106,26 +83,15 @@ extension MediaGenerationView {
     }
     
     var promptInputView: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Enter Prompt")
-                .font(.headline)
-            
-            TextEditor(text: $viewModel.inputText)
-                .frame(height: 100)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(Color.gray.opacity(0.2))
+        Group {
+            if case .video = mediaType, inputModality.inputType == URL.self {
+                inputModality.makeInputView(
+                    binding: $viewModel.currentInput,
+                    placeholderText: "Describe how you want to transform the video..."
                 )
-                .overlay(
-                    Group {
-                        if viewModel.inputText.isEmpty {
-                            Text("Describe how you want to transform the video...")
-                                .foregroundColor(.gray)
-                                .padding(.leading, 4)
-                        }
-                    },
-                    alignment: .topLeading
-                )
+            } else {
+                EmptyView()
+            }
         }
     }
     

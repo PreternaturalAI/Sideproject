@@ -19,24 +19,8 @@ public enum MediaType {
     case video
 }
 
-public enum InputModality: String {
-    case text
-    case audio
-    case image
-    case video
-    
-    var description: String {
-        rawValue.capitalized
-    }
-}
-
 public struct MediaGenerationView: View {
     public struct Configuration: Equatable {
-        public static func == (lhs: MediaGenerationView.Configuration, rhs: MediaGenerationView.Configuration) -> Bool {
-            return lhs.textToSpeechModel == rhs.textToSpeechModel &&
-            lhs.speechToSpeechModel == rhs.speechToSpeechModel
-        }
-        
         public var textToSpeechModel: String
         public var speechToSpeechModel: String
         public var voiceSettings: AbstractVoiceSettings
@@ -56,7 +40,7 @@ public struct MediaGenerationView: View {
     }
     
     internal let mediaType: MediaType
-    internal let inputModality: InputModality
+    internal let inputModality: AnyInputModality
     internal var configuration: Configuration
     internal let onComplete: ((AnyMediaFile) -> Void)?
     
@@ -64,7 +48,21 @@ public struct MediaGenerationView: View {
     
     public init(
         mediaType: MediaType,
-        inputModality: InputModality,
+        configuration: Configuration = .init(),
+        onComplete: ((AnyMediaFile) -> Void)? = nil
+    ) {
+        // Default to text modality
+        self.init(
+            mediaType: mediaType,
+            inputModality: .text,
+            configuration: configuration,
+            onComplete: onComplete
+        )
+    }
+    
+    internal init(
+        mediaType: MediaType,
+        inputModality: AnyInputModality,
         configuration: Configuration = .init(),
         onComplete: ((AnyMediaFile) -> Void)? = nil
     ) {
@@ -84,16 +82,15 @@ public struct MediaGenerationView: View {
     
     public var body: some View {
         VStack(alignment: .leading, spacing: 20) {
-            
             if let mediaFile = viewModel.generatedFile {
                 MediaFileView(file: mediaFile.file)
             }
             
-            inputView
+            inputModality.makeInputView(binding: $viewModel.currentInput)
             clientSelectionView
             modelSelectionView
             
-            if case .video = viewModel.mediaType, case .video = viewModel.inputModality {
+            if case .video = mediaType, inputModality.inputType == URL.self {
                 promptInputView
             }
             
@@ -101,21 +98,17 @@ public struct MediaGenerationView: View {
         }
         .padding()
         .task {
-            Task {
-                await loadClients()
-                await viewModel.loadResources(
-                    viewModel.speechClient?.base,
-                    viewModel.videoClient?.base
-                )
-            }
+            await loadClients()
+            await viewModel.loadResources(
+                viewModel.speechClient?.base,
+                viewModel.videoClient?.base
+            )
         }
     }
     
     private func loadClients() async {
         do {
             let services = try await Sideproject.shared.services
-            
-            print(services)
             
             self.viewModel.availableSpeechClients = services.compactMap { service in
                 if let service = service as? (any CoreMI._ServiceClientProtocol & SpeechSynthesisRequestHandling) {
@@ -139,27 +132,13 @@ public struct MediaGenerationView: View {
     }
     
     internal var isGenerateEnabled: Bool {
-        switch viewModel.mediaType {
-            case .speech:
-                switch viewModel.inputModality {
-                    case .text:
-                        return !viewModel.inputText.isEmpty && viewModel.selectedVoice != nil
-                    case .audio:
-                        return viewModel.selectedAudioFile != nil && viewModel.selectedVoice != nil
-                    default:
-                        return false
-                }
-            case .video:
-                switch viewModel.inputModality {
-                    case .text:
-                        return !viewModel.inputText.isEmpty && viewModel.selectedVideoModel != nil
-                    case .image:
-                        return viewModel.selectedImage != nil && viewModel.selectedVideoModel != nil
-                    case .video:
-                        return viewModel.selectedVideo != nil && viewModel.selectedVideoModel != nil
-                    default:
-                        return false
-                }
+        let isInputValid = inputModality.validate(viewModel.currentInput)
+        
+        let isModelSelected = switch mediaType {
+            case .speech: viewModel.selectedVoice != nil
+            case .video: viewModel.selectedVideoModel != nil
         }
+        
+        return isInputValid && isModelSelected
     }
 }

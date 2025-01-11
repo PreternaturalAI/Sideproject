@@ -13,11 +13,8 @@ import ElevenLabs
 final class GenerationViewModel: ObservableObject {
     @Published var availableVoices: [ElevenLabs.Voice] = []
     @Published var availableModels: [VideoModel] = []
-    @Published var isLoadingResources = false
-    @Published var loadingError: Error?
     @Published var currentInput: Any?
     @Published var isLoading = false
-    @Published var showingPreview = false
     @Published var selectedVoice: ElevenLabs.Voice.ID?
     @Published var generatedFile: AnyMediaFile?
     @Published var selectedVideoModel: VideoModel.ID?
@@ -47,25 +44,16 @@ final class GenerationViewModel: ObservableObject {
     internal func loadResources(
         _ speechClient: (any SpeechSynthesisRequestHandling)?,
         _ videoClient: (any VideoGenerationRequestHandling)?
-    ) async {
-        isLoadingResources = true
-        loadingError = nil
-        
-        do {
-            switch mediaType {
-                case .speech:
-                    availableVoices = try await speechClient?.availableVoices() ?? []
-                    configuration.voiceSettings = .init()
-                    
-                case .video:
-                    availableModels = try await videoClient?.availableModels() ?? []
-                    configuration.videoSettings = .init()
-            }
-        } catch {
-            loadingError = error
+    ) async throws {
+        switch mediaType {
+            case .speech:
+                availableVoices = try await speechClient?.availableVoices() ?? []
+                configuration.voiceSettings = .init()
+                
+            case .video:
+                availableModels = try await videoClient?.availableModels() ?? []
+                configuration.videoSettings = .init()
         }
-        
-        isLoadingResources = false
     }
     
     @MainActor
@@ -198,8 +186,6 @@ final class GenerationViewModel: ObservableObject {
         if let onComplete = onComplete {
             onComplete(AnyMediaFile(videoFile))
         }
-        
-        showingPreview = true
     }
 
     

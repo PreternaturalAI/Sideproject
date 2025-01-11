@@ -99,7 +99,7 @@ public struct MediaGenerationView: View {
         .padding()
         .task {
             await loadClients()
-            await viewModel.loadResources(
+            try? await viewModel.loadResources(
                 viewModel.speechClient?.base,
                 viewModel.videoClient?.base
             )

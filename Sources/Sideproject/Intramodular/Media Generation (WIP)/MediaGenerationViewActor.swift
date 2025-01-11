@@ -20,12 +20,10 @@ final class GenerationViewModel: ObservableObject {
     @Published var showingPreview = false
     @Published var selectedVoice: ElevenLabs.Voice.ID?
     @Published var selectedAudioFile: AudioFile?
-    @Published var generatedAudioFile: AudioFile?
+    @Published var generatedFile: AnyMediaFile?
     @Published var selectedVideoModel: VideoModel.ID?
     @Published var selectedImage: ImageFile?
     @Published var selectedVideo: VideoFile?
-    @Published var generatedVideoFile: VideoFile?
-    @Published var generatedFiles: [AnyMediaFile] = []
     @Published var speechClient: AnySpeechSynthesisRequestHandling?
     @Published var videoClient: AnyVideoGenerationRequestHandling?
     @Published var availableSpeechClients: [AnySpeechSynthesisRequestHandling] = []
@@ -119,13 +117,11 @@ final class GenerationViewModel: ObservableObject {
             name: UUID().uuidString,
             id: .random()
         )
-        generatedAudioFile = audioFile
+        generatedFile = .init(audioFile)
        
         let mediaFile = AnyMediaFile(audioFile)
         if let onComplete = onComplete {
             onComplete(mediaFile)
-        } else {
-            generatedFiles.append(mediaFile)
         }
     }
     
@@ -179,13 +175,11 @@ final class GenerationViewModel: ObservableObject {
         try videoData.write(to: temporaryURL)
         
         let videoFile = try await VideoFile(url: temporaryURL)
-        generatedVideoFile = videoFile
+        generatedFile = .init(videoFile)
         
         let mediaFile = AnyMediaFile(videoFile)
         if let onComplete = onComplete {
             onComplete(mediaFile)
-        } else {
-            generatedFiles.append(mediaFile)
         }
         
         showingPreview = true
@@ -229,4 +223,11 @@ final class GenerationViewModel: ObservableObject {
         )
         return audio
     }
+}
+
+
+fileprivate enum GenerationError: Error {
+    case invalidVideoData
+    case clientNotAvailable
+    case resourceLoadingFailed
 }

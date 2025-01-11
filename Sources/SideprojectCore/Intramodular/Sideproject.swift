@@ -29,7 +29,7 @@ public final class Sideproject: _CancellablesProviding, Logging, ObservableObjec
         #metatype((any CoreMI._ServiceClientProtocol).self),
         .nonAppleFramework
     )
-    public static var serviceTypes: [any CoreMI._ServiceClientProtocol.Type]
+    private static var serviceTypes: [any CoreMI._ServiceClientProtocol.Type]
    
     @_StaticMirrorQuery(
         #metatype((any Sideproject.ExternalAccountTypeDescriptor).self),
@@ -46,13 +46,14 @@ public final class Sideproject: _CancellablesProviding, Logging, ObservableObjec
     @Published private var autoinitializedServices: [any CoreMI._ServiceClientProtocol]? = nil {
         didSet {
             if let newValue = autoinitializedServices {
+                logger.info(newValue.description)
                 logger.info("Auto-initialized \(newValue.count) service(s).")
             }
         }
     }
     
     @MainActor
-    @Published private var manuallyAddedServices: [any CoreMI._ServiceClientProtocol] = []
+    @Published public var manuallyAddedServices: [any CoreMI._ServiceClientProtocol] = []
     
     // @Published public var modelIdentifierScope: ModelIdentifierScope?
     
@@ -155,6 +156,8 @@ extension Sideproject {
         do {
             let oldAccounts: [CoreMI._AnyServiceAccount] = self.autodiscoveredServiceAccounts
             let newAccounts = try self._serviceAccounts()
+            
+            print(newAccounts)
             
             guard oldAccounts != newAccounts else {
                 return

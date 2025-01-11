@@ -29,7 +29,7 @@ public final class Sideproject: _CancellablesProviding, Logging, ObservableObjec
         #metatype((any CoreMI._ServiceClientProtocol).self),
         .nonAppleFramework
     )
-    internal static var serviceTypes: [any CoreMI._ServiceClientProtocol.Type]
+    public static var serviceTypes: [any CoreMI._ServiceClientProtocol.Type]
    
     @_StaticMirrorQuery(
         #metatype((any Sideproject.ExternalAccountTypeDescriptor).self),

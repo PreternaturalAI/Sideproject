@@ -5,10 +5,11 @@
 //  Created by Jared Davidson on 1/10/25.
 //
 
+import ElevenLabs
 import AI
 import Media
 import SwiftUI
-import ElevenLabs
+import SwiftUIX
 
 final class GenerationViewModel: ObservableObject {
     @Published var availableVoices: [ElevenLabs.Voice] = []
@@ -148,8 +149,8 @@ final class GenerationViewModel: ObservableObject {
                     settings: configuration.videoSettings
                 )
                 
-            case is UIImage.Type:
-                guard let image = currentInput as? UIImage else { return }
+            case is AppKitOrUIKitImage.Type:
+                guard let image = currentInput as? AppKitOrUIKitImage else { return }
                 let imageURL = try await saveImageTemporarily(image)
                 videoData = try await videoClient.imageToVideo(
                     imageURL: imageURL,
@@ -189,7 +190,7 @@ final class GenerationViewModel: ObservableObject {
     }
 
     
-    private func saveImageTemporarily(_ image: UIImage) async throws -> URL {
+    private func saveImageTemporarily(_ image: AppKitOrUIKitImage) async throws -> URL {
         let temporaryURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString)
             .appendingPathExtension("png")

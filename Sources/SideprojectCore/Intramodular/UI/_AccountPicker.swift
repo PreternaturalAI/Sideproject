@@ -4,6 +4,7 @@
 
 import CorePersistence
 import Foundation
+import Merge
 import Swallow
 import SwiftUIZ
 
@@ -36,6 +37,7 @@ public struct _AccountPicker: View {
                         
                         presentationMode.dismiss()
                     }
+                    .environmentObject(store)
             }
             #if os(macOS)
             ._overrideOnExitCommand {

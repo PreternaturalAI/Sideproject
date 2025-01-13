@@ -3,8 +3,10 @@
 //
 
 import SwiftUIZ
+import Merge
 
 public struct _AccountEntryForm: View {
+    @EnvironmentObject var store: Sideproject.ExternalAccountStore
     @Environment(\.dismiss) var dismiss
     @Environment(\._submit) var submit
     
@@ -62,11 +64,13 @@ public struct _AccountEntryForm: View {
     }
     
     private func commit() {
-        let account = Sideproject.ExternalAccount(
-            accountType: accountTypeDescriptor.accountType,
-            credential: credential,
-            description: "Untitled"
-        )
+        let account = _withLogicalParent(store) {
+            Sideproject.ExternalAccount(
+                accountType: accountTypeDescriptor.accountType,
+                credential: credential,
+                description: "Untitled"
+            )
+        }
         
         self.submit(account)
     }

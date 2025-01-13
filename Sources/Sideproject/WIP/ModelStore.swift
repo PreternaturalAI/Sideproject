@@ -106,8 +106,7 @@ public final class ModelStore: ObservableObject {
         modelNamed name: String,
         using accountStore: Sideproject.ExternalAccountStore
     ) async throws -> URL {
-        let account = try Sideproject.ExternalAccountStore.shared.accounts(for: .huggingFace).first.unwrap()
-        self.hub = try .init(from: account)
+        self.hub = try await Sideproject.shared.client(ofType: HuggingFace.Hub.Client.self).unwrap()
         
         var model: Model
         let repo = HuggingFace.Hub.Repo(id: name)

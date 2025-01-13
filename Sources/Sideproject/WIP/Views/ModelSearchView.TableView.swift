@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUIX
+import SwiftUIZ
 
 extension ModelSearchView {
     public struct TableView: View {
@@ -15,7 +16,7 @@ extension ModelSearchView {
         
         @Binding private var selectedTab: ModelSearchView.Tab
         @Binding private var selection: ModelStore.Model.ID?
-
+        
         @State private var sortOrder: [KeyPathComparator<ModelStore.Model>] = [KeyPathComparator(\ModelStore.Model.size), KeyPathComparator(\ModelStore.Model.name), KeyPathComparator(\ModelStore.Model.lastUsed)]
         @State private var searchText: String = ""
         
@@ -38,7 +39,13 @@ extension ModelSearchView {
             }
             .tableStyle(.inset)
             .animation(.bouncy, value: modelStore.models)
-            .alternatingRowBackgrounds(.disabled)
+            .modify {
+#if os(macOS)
+                $0.alternatingRowBackgrounds(.disabled)
+#else
+                $0
+#endif
+            }
             .safeAreaInset(edge: .bottom, alignment: .leading) {
                 VStack(spacing: 0) {
                     Rectangle()
@@ -141,7 +148,7 @@ extension ModelSearchView {
                         TableRow(model)
                             .contextMenu {
                                 Button("Copy Name") {
-                                    NSPasteboard.general.setString(model.name, forType: .string)
+                                    Pasteboard.general.setString(model.name)
                                 }
 #if os(macOS)
                                 Button("Show in Finder") {
@@ -165,14 +172,17 @@ extension ModelSearchView {
                     TableRow(model)
                         .contextMenu {
                             Button("Copy Name") {
-                                NSPasteboard.general.setString(model.name, forType: .string)
+                                Pasteboard.general.setString(model.name)
                             }
+                            
+#if os(macOS)
                             Button("Show in Finder") {
                                 if let url = model.url {
                                     NSWorkspace.shared.selectFile(url.path(percentEncoded: false), inFileViewerRootedAtPath: "")
                                 }
                             }
                             .disabled(model.url == nil)
+#endif
                             
                             Button("Remove..") {
                                 modelStore.delete(model.id)

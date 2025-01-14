@@ -23,14 +23,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        xcode: ['latest']
+        xcode: ['16.1']
         macos: ['macos-14']
         scheme: ['Sideproject']
         command: ['build']
         platform: ['iOS', 'macOS']
     steps:
     - name: Switch xcode to ${{ matrix.xcode }}
-      uses: maxim-lobanov/setup-xcode@v1.5.1
+      uses: maxim-lobanov/setup-xcode@v1
       with:
         xcode-version: ${{ matrix.xcode }}
     - name: Double-check macOS version (${{ matrix.macos }})

@@ -110,6 +110,8 @@ public struct MediaGenerationView: View {
         do {
             let services = try await Sideproject.shared.services
             
+            print(services)
+            
             self.viewModel.availableSpeechClients = services.compactMap { service in
                 if let service = service as? (any CoreMI._ServiceClientProtocol & SpeechSynthesisRequestHandling) {
                     return AnySpeechSynthesisRequestHandling(service)

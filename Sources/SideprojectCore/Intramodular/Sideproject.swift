@@ -30,7 +30,7 @@ public final class Sideproject: _CancellablesProviding, Logging, ObservableObjec
         .nonAppleFramework
     )
     private static var serviceTypes: [any CoreMI._ServiceClientProtocol.Type]
-   
+    
     @_StaticMirrorQuery(
         #metatype((any Sideproject.ExternalAccountTypeDescriptor).self),
         .nonAppleFramework
@@ -165,6 +165,7 @@ extension Sideproject {
             
             let services: [any CoreMI._ServiceClientProtocol] = try await self._makeServices(forAccounts: newAccounts)
             
+            print(services)
             self.autodiscoveredServiceAccounts = newAccounts
             self.autoinitializedServices = services
             
@@ -205,20 +206,23 @@ extension Sideproject {
         let serviceTypes = Sideproject.serviceTypes
         
         var result: [any CoreMI._ServiceClientProtocol] = await serviceAccounts
-            .asyncMap { (account: CoreMI._AnyServiceAccount) in
-                await serviceTypes.first(byUnwrapping: { type -> (any CoreMI._ServiceClientProtocol)? in
-                    do {
-                        return try await type.init(account: account)
-                    } catch {
+            .asyncMap { account in
+                await serviceTypes
+                    .asyncCompactMap { type in
                         do {
-                            return try await type.init(account: nil)
-                        } catch(_) {
-                            return nil
+                            let service = try await type.init(account: account)
+                            return service
+                        } catch {
+                            do {
+                                let service = try await type.init(account: nil)
+                                return service
+                            } catch {
+                                return nil
+                            }
                         }
                     }
-                })
             }
-            .compactMap({ $0 })
+            .flatMap { $0 }
         
         result += await serviceTypes
             .concurrentMap({ try? await $0.init(account: nil) })

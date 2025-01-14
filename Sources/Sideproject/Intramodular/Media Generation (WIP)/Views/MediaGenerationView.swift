@@ -45,7 +45,7 @@ public struct MediaGenerationView: View {
     internal var configuration: Configuration
     internal let onComplete: ((AnyMediaFile) -> Void)?
     
-    @StateObject internal var viewModel: GenerationViewModel
+    @StateObject internal var viewActor: MediaGenerationViewActor
     
     public init(
         mediaType: MediaType,
@@ -72,22 +72,22 @@ public struct MediaGenerationView: View {
         self.configuration = configuration
         self.onComplete = onComplete
         
-        let viewModel = GenerationViewModel(
+        let viewActor = MediaGenerationViewActor(
             mediaType: mediaType,
             inputModality: inputModality,
             configuration: configuration,
             onComplete: onComplete
         )
-        _viewModel = StateObject(wrappedValue: viewModel)
+        _viewActor = StateObject(wrappedValue: viewActor)
     }
     
     public var body: some View {
         VStack(alignment: .leading, spacing: 20) {
-            if let mediaFile = viewModel.generatedFile {
+            if let mediaFile = viewActor.generatedFile {
                 MediaFileView(file: mediaFile.file)
             }
             
-            inputModality.makeInputView(binding: $viewModel.currentInput)
+            inputModality.makeInputView(binding: $viewActor.currentInput)
             clientSelectionView
             modelSelectionView
             
@@ -100,9 +100,9 @@ public struct MediaGenerationView: View {
         .padding()
         .task {
             await loadClients()
-            try? await viewModel.loadResources(
-                viewModel.speechClient?.base,
-                viewModel.videoClient?.base
+            try? await viewActor.loadResources(
+                viewActor.speechClient?.base,
+                viewActor.videoClient?.base
             )
         }
     }
@@ -111,33 +111,33 @@ public struct MediaGenerationView: View {
         do {
             let services = try await Sideproject.shared.services
             
-            self.viewModel.availableSpeechClients = services.compactMap { service in
+            self.viewActor.availableSpeechClients = services.compactMap { service in
                 if let service = service as? (any CoreMI._ServiceClientProtocol & SpeechSynthesisRequestHandling) {
                     return AnySpeechSynthesisRequestHandling(service)
                 }
                 return nil
             }
             
-            self.viewModel.availableVideoClients = services.compactMap { service in
+            self.viewActor.availableVideoClients = services.compactMap { service in
                 if let service = service as? (any CoreMI._ServiceClientProtocol & VideoGenerationRequestHandling) {
                     return AnyVideoGenerationRequestHandling(service)
                 }
                 return nil
             }
             
-            self.viewModel.speechClient = self.viewModel.availableSpeechClients.first
-            self.viewModel.videoClient = self.viewModel.availableVideoClients.first
+            self.viewActor.speechClient = self.viewActor.availableSpeechClients.first
+            self.viewActor.videoClient = self.viewActor.availableVideoClients.first
         } catch {
             print("Error loading clients: \(error)")
         }
     }
     
     internal var isGenerateEnabled: Bool {
-        let isInputValid = inputModality.validate(viewModel.currentInput)
+        let isInputValid = inputModality.validate(viewActor.currentInput)
         
         let isModelSelected = switch mediaType {
-            case .speech: viewModel.selectedVoice != nil
-            case .video: viewModel.selectedVideoModel != nil
+            case .speech: viewActor.selectedVoice != nil
+            case .video: viewActor.selectedVideoModel != nil
         }
         
         return isInputValid && isModelSelected

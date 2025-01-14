@@ -11,7 +11,7 @@ import Media
 import SwiftUI
 import SwiftUIX
 
-final class GenerationViewModel: ObservableObject {
+final class MediaGenerationViewActor: ObservableObject {
     @Published var availableVoices: [ElevenLabs.Voice] = []
     @Published var availableModels: [VideoModel] = []
     @Published var currentInput: Any?
@@ -198,7 +198,7 @@ final class GenerationViewModel: ObservableObject {
         }
     }
 
-    
+    @MainActor
     private func saveImageTemporarily(_ image: AppKitOrUIKitImage) async throws -> URL {
         let temporaryURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString)

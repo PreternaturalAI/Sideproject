@@ -44,50 +44,38 @@ private struct CombinedAudioInputView: View {
     
     var body: some View {
         VStack(spacing: 16) {
-            if audioFile == nil {
-                // File drop area
-                FileDropView { files in
-                    audioFile = files.first?.cast(to: AudioFile.self)
-                } content: { files in
-                    EmptyView()
-                }
-                .frame(height: 120)
-                
-                Text("or")
-                    .foregroundStyle(.secondary)
-                
-                // Record button
-                Button {
-                    showingRecorder = true
-                } label: {
-                    Label("Record Audio", systemImage: "mic.circle.fill")
-                        .font(.headline)
-                }
-                .buttonStyle(.borderedProminent)
-            }
-            
-            // Preview of recorded/dropped audio
             if let audioFile = audioFile {
                 HStack {
                     Button {
                         self.audioFile = nil
                     } label: {
-                        Text("Retry")
+                        Image(systemName: .arrowCounterclockwiseCircle)
                     }
                 }
+                
                 MediaFileView(file: audioFile)
-            }
-        }
-        .sheet(isPresented: $showingRecorder) {
-            AudioRecorderView(configuration: AudioRecorderViewConfiguration(
-                enableSpeechRecognition: true
-            )) { recordedAudio in
-                audioFile = recordedAudio
-                showingRecorder = false
-            } content: { media in
-                if let media {
-                    AudioFileView(file: media)
+            } else {
+                FileDropView { files in
+                    audioFile = files.first?.cast(to: AudioFile.self)
+                } content: { files in
+                    EmptyView()
                 }
+                .frame(height: 100)
+                
+                Text("or")
+                    .foregroundStyle(.secondary)
+                
+                AudioRecorderView(configuration: AudioRecorderViewConfiguration(
+                    enableSpeechRecognition: true
+                )) { recordedAudio in
+                    audioFile = recordedAudio
+                    showingRecorder = false
+                } content: { media in
+                    if let media {
+                        AudioFileView(file: media)
+                    }
+                }
+                .frame(height: 100)
             }
         }
     }

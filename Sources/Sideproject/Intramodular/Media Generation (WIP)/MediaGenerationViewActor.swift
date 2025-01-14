@@ -88,6 +88,15 @@ final class GenerationViewModel: ObservableObject {
         let audioData: Data?
         
         switch inputModality.inputType {
+            case is AudioFile.Type:
+                guard let audioFile = currentInput as? AudioFile else { return }
+                audioData = try await speechClient.speechToSpeech(
+                    inputAudioURL: audioFile.url,
+                    voiceID: selectedVoice?.id.rawValue ?? "",
+                    voiceSettings: ElevenLabs.VoiceSettings(settings: configuration.voiceSettings),
+                    model: .init(rawValue: configuration.speechToSpeechModel)!
+                )
+                
             case is URL.Type:
                 guard let audioURL = currentInput as? URL else { return }
                 audioData = try await speechClient.speechToSpeech(
@@ -107,7 +116,7 @@ final class GenerationViewModel: ObservableObject {
                 )
                 
             default:
-                return
+                fatalError(.unimplemented)
         }
         
         guard let audioData = audioData else { return }

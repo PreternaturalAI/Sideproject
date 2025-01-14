@@ -11,7 +11,7 @@ import Media
 
 public enum InputModality {
     public static let text = AnyInputModality(TextInputModality())
-    public static let audio = AnyInputModality(FileInputModality<AudioFile>(description: "Audio"))
+    public static let audio = AnyInputModality(AudioInputModality(description: "Audio"))
     public static let image = AnyInputModality(FileInputModality<ImageFile>(description: "Image"))
     public static let video = AnyInputModality(FileInputModality<VideoFile>(description: "Video"))
 }

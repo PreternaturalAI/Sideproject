@@ -48,7 +48,7 @@ final class GenerationViewModel: ObservableObject {
     ) async throws {
         switch mediaType {
             case .speech:
-                availableVoices = try await speechClient?.availableVoices() ?? []
+                availableVoices = try await (speechClient?.availableVoices() ?? []).map({try ElevenLabs.Voice(voice: $0)})
                 configuration.voiceSettings = .init()
                 
             case .video:
@@ -93,8 +93,8 @@ final class GenerationViewModel: ObservableObject {
                 audioData = try await speechClient.speechToSpeech(
                     inputAudioURL: audioFile.url,
                     voiceID: selectedVoice?.id.rawValue ?? "",
-                    voiceSettings: ElevenLabs.VoiceSettings(settings: configuration.voiceSettings),
-                    model: .init(rawValue: configuration.speechToSpeechModel)!
+                    voiceSettings: configuration.voiceSettings,
+                    model: configuration.speechToSpeechModel
                 )
                 
             case is URL.Type:
@@ -102,8 +102,8 @@ final class GenerationViewModel: ObservableObject {
                 audioData = try await speechClient.speechToSpeech(
                     inputAudioURL: audioURL,
                     voiceID: selectedVoice?.id.rawValue ?? "",
-                    voiceSettings: ElevenLabs.VoiceSettings(settings: configuration.voiceSettings),
-                    model: .init(rawValue: configuration.speechToSpeechModel)!
+                    voiceSettings: configuration.voiceSettings,
+                    model: configuration.speechToSpeechModel
                 )
                 
             case is String.Type:
@@ -111,8 +111,8 @@ final class GenerationViewModel: ObservableObject {
                 audioData = try await speechClient.speech(
                     for: text,
                     voiceID: selectedVoice?.id.rawValue ?? "",
-                    voiceSettings: ElevenLabs.VoiceSettings(settings: configuration.voiceSettings),
-                    model: .init(rawValue: configuration.textToSpeechModel)!
+                    voiceSettings: configuration.voiceSettings,
+                    model: configuration.textToSpeechModel
                 )
                 
             default:

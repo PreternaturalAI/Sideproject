@@ -26,6 +26,7 @@ public struct MediaGenerationView: View {
         public var voiceSettings: AbstractVoiceSettings
         public var videoSettings: VideoGenerationSettings
         
+        // FIXME: - This should not be defaulting to ElevenLabs. Should be detached to an AbstractModel instead.
         public init(
             textToSpeechModel: String = ElevenLabs.Model.EnglishV1.rawValue,
             speechToSpeechModel: String = ElevenLabs.Model.EnglishSTSV2.rawValue,
@@ -109,8 +110,6 @@ public struct MediaGenerationView: View {
     private func loadClients() async {
         do {
             let services = try await Sideproject.shared.services
-            
-            print(services)
             
             self.viewModel.availableSpeechClients = services.compactMap { service in
                 if let service = service as? (any CoreMI._ServiceClientProtocol & SpeechSynthesisRequestHandling) {

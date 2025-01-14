@@ -16,7 +16,7 @@ public struct AudioInputModality: InputModalityConfiguration {
     
     public init(
         description: String,
-        enableTranscription: Bool = true
+        enableTranscription: Bool = false
     ) {
         self.description = description
         self.enableTranscription = enableTranscription
@@ -60,13 +60,12 @@ private struct CombinedAudioInputView: View {
                 } content: { files in
                     EmptyView()
                 }
-                .frame(height: 100)
                 
                 Text("or")
                     .foregroundStyle(.secondary)
                 
                 AudioRecorderView(configuration: AudioRecorderViewConfiguration(
-                    enableSpeechRecognition: true
+                    enableSpeechRecognition: enableTranscription
                 )) { recordedAudio in
                     audioFile = recordedAudio
                     showingRecorder = false
@@ -75,7 +74,6 @@ private struct CombinedAudioInputView: View {
                         AudioFileView(file: media)
                     }
                 }
-                .frame(height: 100)
             }
         }
     }

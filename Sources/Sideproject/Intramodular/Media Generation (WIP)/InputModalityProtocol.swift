@@ -11,13 +11,15 @@ import Media
 
 public enum InputModality {
     public static let text = AnyInputModality(TextInputModality())
-    public static let audio = AnyInputModality(AudioInputModality(description: "Audio"))
+    public static let audio = AnyInputModality(AudioInputModality(description: "Audio", enableTranscription: false))
+    public static let audioWithTranscription = AnyInputModality(AudioInputModality(description: "Audio", enableTranscription: true))
     public static let image = AnyInputModality(FileInputModality<ImageFile>(description: "Image"))
     public static let video = AnyInputModality(FileInputModality<VideoFile>(description: "Video"))
 }
 
 extension AnyInputModality {
     public static var text: Self { InputModality.text }
+    public static var audioWithTranscription: Self { InputModality.audioWithTranscription }
     public static var audio: Self { InputModality.audio }
     public static var image: Self { InputModality.image }
     public static var video: Self { InputModality.video }

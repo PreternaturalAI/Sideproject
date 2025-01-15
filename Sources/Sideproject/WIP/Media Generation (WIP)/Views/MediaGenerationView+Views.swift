@@ -60,10 +60,11 @@ extension MediaGenerationView {
                 case .speech:
                     if !viewActor.availableVoices.isEmpty {
                         Picker("Voice", selection: $viewActor.selectedVoice) {
-                            Text("Select a voice").tag(Optional<ElevenLabs.Voice.ID>.none)
-                            ForEach(viewActor.availableVoices) { voice in
+                            Text("Select a voice")
+                                .tag(AbstractVoice.ID?.none)
+                            ForEach(viewActor.availableVoices, id: \.id) { voice in
                                 Text(voice.name)
-                                    .tag(Optional(voice.id))
+                                    .tag(Optional(AbstractVoice.ID(rawValue: voice.voiceID)))
                             }
                         }
                     }
@@ -72,7 +73,7 @@ extension MediaGenerationView {
                     if !viewActor.availableModels.isEmpty {
                         Picker("Model", selection: $viewActor.selectedVideoModel) {
                             Text("Select a model").tag(Optional<VideoModel.ID>.none)
-                            ForEach(viewActor.availableModels) { model in
+                            ForEach(viewActor.availableModels, id: \.id) { model in
                                 Text(model.name)
                                     .tag(Optional(model.id))
                             }

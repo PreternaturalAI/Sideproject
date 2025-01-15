@@ -12,11 +12,11 @@ import SwiftUI
 import SwiftUIX
 
 final class MediaGenerationViewActor: ObservableObject {
-    @Published var availableVoices: [ElevenLabs.Voice] = []
+    @Published var availableVoices: [AbstractVoice] = []
     @Published var availableModels: [VideoModel] = []
     @Published var currentInput: Any?
     @Published var isLoading = false
-    @Published var selectedVoice: ElevenLabs.Voice.ID?
+    @Published var selectedVoice: AbstractVoice.ID?
     @Published var generatedFile: AnyMediaFile?
     @Published var selectedVideoModel: VideoModel.ID?
     @Published var speechClient: AnySpeechSynthesisRequestHandling?
@@ -48,7 +48,7 @@ final class MediaGenerationViewActor: ObservableObject {
     ) async throws {
         switch mediaType {
             case .speech:
-                availableVoices = try await (speechClient?.availableVoices() ?? []).map({try ElevenLabs.Voice(voice: $0)})
+                availableVoices = try await speechClient?.availableVoices() ?? []
                 configuration.voiceSettings = .init()
                 
             case .video:

@@ -105,6 +105,16 @@ public struct MediaGenerationView: View {
                 viewActor.videoClient?.base
             )
         }
+        .onChange(of: viewActor.speechClient) {
+            oldValue,
+            newValue in
+            Task {
+                try? await viewActor.loadResources(
+                    viewActor.speechClient?.base,
+                    viewActor.videoClient?.base
+                )
+            }
+        }
     }
     
     private func loadClients() async {

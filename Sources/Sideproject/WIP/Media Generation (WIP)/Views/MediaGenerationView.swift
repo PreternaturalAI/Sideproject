@@ -7,7 +7,6 @@
 
 import SwiftUI
 import ElevenLabs
-import SwallowUI
 import Media
 import AVFoundation
 import SideprojectCore

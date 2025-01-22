@@ -29,10 +29,10 @@ let package = Package(
         .package(url: "https://github.com/SwiftUIX/SwiftUIX.git", branch: "master"),
         .package(url: "https://github.com/SwiftUIX/SwiftUIZ.git", branch: "main"),
         .package(url: "https://github.com/vmanot/CorePersistence.git", branch: "main"),
+        .package(url: "https://github.com/vmanot/Media.git", branch: "main"),
         .package(url: "https://github.com/vmanot/Merge.git", branch: "master"),
         .package(url: "https://github.com/vmanot/NetworkKit.git", branch: "master"),
         .package(url: "https://github.com/vmanot/Swallow.git", branch: "master"),
-        .package(url: "https://github.com/vmanot/Media.git", branch: "main")
     ],
     targets: [
         .macro(
@@ -99,6 +99,7 @@ let package = Package(
                 "Cataphyl",
                 "ChatKit",
                 "CorePersistence",
+                "Media",
                 "Merge",
                 "NetworkKit",
                 "SideprojectCore",
@@ -106,7 +107,6 @@ let package = Package(
                 "Swallow",
                 "SwiftUIX",
                 "SwiftUIZ",
-                "Media"
             ],
             path: "Sources/Sideproject",
             resources: [],
@@ -121,6 +121,5 @@ let package = Package(
             ],
             path: "Tests/Sideproject"
         ),
-    ]/*,
-    cxxLanguageStandard: CXXLanguageStandard.cxx11*/
+    ]
 )

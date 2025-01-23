@@ -509,6 +509,29 @@ extension Sideproject.ExternalAccountTypeDescriptors {
             
         }
     }
+    
+    @HadeanIdentifier("ginur-tifid-tilis-hobak")
+    public struct GitHub: Sideproject.ExternalAccountTypeDescriptor, _StaticInstance {
+        public var accountType: Sideproject.ExternalAccountTypeIdentifier {
+            "com.vmanot.GitHub"
+        }
+        
+        public var credentialType: any Sideproject.ExternalAccountCredential.Type {
+            Sideproject.ExternalAccountCredentialTypes.APIKey.self
+        }
+        
+        public var icon: Image? {
+            Image("logo/GitHub", bundle: .module)
+        }
+        
+        public var title: String {
+            "GitHub"
+        }
+        
+        public init() {
+            
+        }
+    }
 }
 
 // MARK: - Supplementary
@@ -635,6 +658,12 @@ extension Sideproject.ExternalAccountTypeDescriptor where Self == Sideproject.Ex
 
 extension Sideproject.ExternalAccountTypeDescriptor where Self == Sideproject.ExternalAccountTypeDescriptors.xAI {
     public static var xAI: Self {
+        Self()
+    }
+}
+
+extension Sideproject.ExternalAccountTypeDescriptor where Self == Sideproject.ExternalAccountTypeDescriptors.GitHub {
+    public static var gitHub: Self {
         Self()
     }
 }

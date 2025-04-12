@@ -26,18 +26,6 @@ extension AnyInputModality {
     public static var video: Self { InputModality.video }
 }
 
-
-extension MediaGenerationView {
-    public func inputModality(_ modality: AnyInputModality) -> Self {
-        MediaGenerationView(
-            mediaType: self.mediaType,
-            inputModality: modality,
-            configuration: self.configuration,
-            onComplete: self.onComplete
-        )
-    }
-}
-
 public struct AnyInputModality {
     private let _description: String
     private let _makeInputView: (Binding<Any?>, String) -> AnyView
@@ -70,11 +58,4 @@ public struct AnyInputModality {
     public func validate(_ input: Any?) -> Bool {
         _validate(input)
     }
-}
-
-public protocol InputModalityConfiguration {
-    associatedtype InputType
-    var description: String { get }
-    func makeInputView(inputBinding: Binding<InputType?>, placeholderText: String) -> AnyView
-    func validate(_ input: InputType?) -> Bool
 }

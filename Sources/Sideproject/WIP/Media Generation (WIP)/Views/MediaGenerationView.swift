@@ -11,6 +11,7 @@ import Media
 import AVFoundation
 import SideprojectCore
 import AI
+import LargeLanguageModels
 import Runtime
 
 public enum MediaType {
@@ -18,6 +19,7 @@ public enum MediaType {
     case video
 }
 
+/// A simple input view to generate media of any format.
 public struct MediaGenerationView: View {
     public struct Configuration: Equatable {
         public var textToSpeechModel: String

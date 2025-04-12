@@ -54,9 +54,9 @@ public struct SideprojectAccountsView: View {
             cellGrid
                 .frame(minWidth: 126)
             
-            #if os(macOS)
+#if os(macOS)
             PathControl(url: try! store.$accounts.url)
-            #endif
+#endif
         }
         .padding()
         .environmentObject(store)
@@ -85,9 +85,11 @@ public struct SideprojectAccountsView: View {
                                     
                                     presentationManager.dismiss()
                                 }
+                                #if os(macOS)
                                 ._overrideOnExitCommand {
                                     presentationManager.dismiss()
                                 }
+                                #endif
                         }
                     } label: {
                         Cell(account: $account._assigningLogicalParent(store, to: \.$store))
@@ -138,9 +140,11 @@ public struct SideprojectAccountsView: View {
                             // ???: (@vmanot) this is a temporary hack to fix saving on first try
                             // store.accounts = store.accounts
                         }
+#if os(macOS)
                         ._overrideOnExitCommand {
                             presentationManager.dismiss()
                         }
+#endif
                 }
             } label: {
                 Image(systemName: .plus)

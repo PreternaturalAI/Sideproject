@@ -81,6 +81,13 @@ extension Sideproject.ExternalAccountStore {
             .compactMapValues({ $0.credential })
     }
     
+    public func firstCredentialIfAvailable<T: Sideproject.ExternalAccountCredential>(
+        ofType type: Sideproject.ExternalAccountCredentialTypeName<T>,
+        for accountType: any Sideproject.ExternalAccountTypeDescriptor
+    ) throws -> T? {
+        try credentials(for: accountType).firstAndOnly(byUnwrapping: { $0.value as? T })
+    }
+
     /// Returns all available credentials for a given account type, keyed by account IDs.
     ///
     /// For example `Sideproject.ExternalAccountStore.shared.credentials(ofType: .apiKey, for: .groq)`
@@ -88,7 +95,7 @@ extension Sideproject.ExternalAccountStore {
         ofType type: Sideproject.ExternalAccountCredentialTypeName<T>,
         for accountType: any Sideproject.ExternalAccountTypeDescriptor
     ) throws -> T {
-        try credentials(for: accountType).firstAndOnly(byUnwrapping: { $0.value as? T }).unwrap()
+        try firstCredentialIfAvailable(ofType: type, for: accountType).unwrap()
     }
     
     public func hasCredentials(

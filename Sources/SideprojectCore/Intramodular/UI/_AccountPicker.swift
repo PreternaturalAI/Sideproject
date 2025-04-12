@@ -39,9 +39,11 @@ public struct _AccountPicker: View {
                     }
                     .environmentObject(store)
             }
+            #if os(macOS)
             ._overrideOnExitCommand {
                 presentationMode.dismiss()
             }
+            #endif
         }
         .frame(idealWidth: 448, idealHeight: 560)
         .background(Color.accountModalBackgroundColor.ignoresSafeArea())

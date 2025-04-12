@@ -234,7 +234,7 @@ extension Sideproject.ExternalAccountTypeDescriptors {
         }
     }
     
-    @HadeanIdentifier("fisul-tapos-hotak-nonov")
+    @HadeanIdentifier("jatap-jogaz-ritiz-vibok")
     public struct ElevenLabs: Sideproject.ExternalAccountTypeDescriptor, _StaticInstance {
         public var accountType: Sideproject.ExternalAccountTypeIdentifier {
             "com.vmanot.elevenlabs"

@@ -17,7 +17,7 @@ extension Sideproject {
         ofType type: T.Type
     ) async -> T? {
         #try(.optimistic) {
-            try await services.firstAndOnly(byUnwrapping: { $0 as? T })
+            try await self.services.firstAndOnly(byUnwrapping: { $0 as? T })
         }
     }
     
@@ -26,7 +26,7 @@ extension Sideproject {
         ofType type: T.Type
     ) async -> [T] {
         #try(.optimistic) {
-            try await services.compactMap({ $0 as? T })
+            try await self.services.compactMap({ $0 as? T })
         } ?? []
     }
 }

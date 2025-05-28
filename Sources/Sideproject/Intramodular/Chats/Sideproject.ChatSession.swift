@@ -104,7 +104,7 @@ public final class SideprojectChatSession: Logging, ObservableObject {
         _ message: AbstractLLM.ChatMessage.ID
     ) {
         #try(.optimistic) {
-            try document.messages.removeAll(where: {
+            try self.document.messages.removeAll(where: {
                 try message?.as(Sideproject.ChatFile.Message.ID.self) == $0.id
             })
         }

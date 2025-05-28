@@ -115,7 +115,7 @@ extension Sideproject.FileStore {
     ) -> Sideproject.File? {
         get {
             #try(.optimistic) {
-                try documents[id: key].unwrap()
+                try self.documents[id: key].unwrap()
             }
         }
     }
